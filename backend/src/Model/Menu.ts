@@ -1,14 +1,24 @@
 import mongoose, { Document, Schema } from "mongoose";
 
+export interface Size {
+  name: string;
+  price: number;
+}
+
+export interface Addition {
+  name: string;
+  price: number;
+}
+
 export interface Imenu extends Document {
   name: string;
   description: string;
-  price: number;
+  price: number; 
   mealImg: string;
   restaurant: mongoose.Schema.Types.ObjectId;
   createdAt: Date;
-  sizes?: string[]; 
-  additions?: string[];
+  sizes?: Size[]; 
+  additions?: Addition[]; 
 }
 
 const menuItemSchema: Schema<Imenu> = new mongoose.Schema({
@@ -41,13 +51,24 @@ const menuItemSchema: Schema<Imenu> = new mongoose.Schema({
     default: Date.now,
   },
   sizes: {
-    type: [String],
-    enum: ["sm", "lg"],
+    type: [
+      {
+        name: { type: String, required: true },
+        price: { type: Number, required: true, min: 0 },
+      },
+    ],
     default: undefined,
+    required:false
   },
   additions: {
-    type: [String],
+    type: [
+      {
+        name: { type: String, required: true },
+        price: { type: Number, required: true, min: 0 },
+      },
+    ],
     default: undefined,
+    required:false
   },
 });
 

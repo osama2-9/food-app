@@ -1,13 +1,38 @@
-const mongoose = require("mongoose");
+import mongoose, { Document } from "mongoose";
 
-const orderSchema = new mongoose.Schema({
-  restaurant: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Restaurant",
-    required: true,
-  },
+interface OrderItem {
+  restaurantId: mongoose.Schema.Types.ObjectId;
+  menuItem: mongoose.Schema.Types.ObjectId;
+  quantity: number;
+  price: number;
+  size?: {
+    name: string,
+    price: number
+  };
+  additions?: { name: string; price: number }[]; 
+}
+
+interface Order extends Document {
+  items: OrderItem[];
+  totalAmount: number;
+  orderDate: Date;
+  user: {
+    userId: mongoose.Schema.Types.ObjectId;
+    name: string;
+    phone: string;
+    email: string;
+  };
+  status: "Pending" | "In Progress" | "Completed" | "Cancelled";
+}
+
+const orderSchema = new mongoose.Schema<Order>({
   items: [
     {
+      restaurantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Restaurant",
+        required: true,
+      },
       menuItem: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "MenuItem",
@@ -23,6 +48,11 @@ const orderSchema = new mongoose.Schema({
         required: true,
         min: 0,
       },
+      size: {
+        name: String,
+        price: Number
+      },
+      additions: [{ name: String, price: Number }],
     },
   ],
   totalAmount: {
@@ -34,7 +64,11 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  customer: {
+  user: {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
     name: {
       type: String,
       required: true,
@@ -55,5 +89,5 @@ const orderSchema = new mongoose.Schema({
   },
 });
 
-const Order = mongoose.model("Order", orderSchema);
-module.exports = Order;
+const Order = mongoose.model<Order>("Order", orderSchema);
+export default Order;

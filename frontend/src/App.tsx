@@ -16,6 +16,10 @@ import { Orders } from "./pages/admin/Orders";
 import { PageNotFound } from "./pages/PageNotFound";
 import { Users } from "./pages/admin/Users";
 import { VerifyEmail } from "./pages/VerifyEmail";
+import { CheckAuth } from "./hooks/CheckAuth";
+import { AddMenuItem } from "./pages/admin/AddMenuItem";
+import { MealPage } from "./pages/MealPage";
+import { Cart } from "./pages/Cart";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -23,11 +27,12 @@ function App() {
 
   return (
     <>
+      <CheckAuth />
       <Routes>
         <Route path="/*" element={<PageNotFound />} />
-
         <Route path="/users" element={isAdmin ? <Users /> : <PageNotFound />} />
         <Route path="/email-verify/:token" element={<VerifyEmail />} />
+        <Route path="/cart" element={<Cart />} />
         <Route
           path="/dashboard"
           element={isAdmin ? <Dashboard /> : <Navigate to="/not-authorized" />}
@@ -37,6 +42,17 @@ function App() {
           element={
             isAdmin ? <AddNewRestaurant /> : <Navigate to="/not-authorized" />
           }
+        />
+        <Route
+          path="/add-menu-item"
+          element={
+            isAdmin ? <AddMenuItem /> : <Navigate to={"/not-authorizrd"} />
+          }
+        />
+
+        <Route
+          path="/restaurant/:restaurant/meal/:mealId"
+          element={<MealPage />}
         />
         <Route
           path="/show-restaurants"
@@ -55,9 +71,9 @@ function App() {
         <Route path="/restaurant/:name/:id" element={<RestaurantPage />} />
 
         <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/login" element={user ? <HomePage /> : <Login />} />
-        <Route path="/signup" element={user ? <HomePage /> : <Signup />} />
-        <Route path="/" element={!user ? <Login /> : <HomePage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/" element={<HomePage />} />
       </Routes>
       <Toaster position="top-center" reverseOrder={false} />
     </>

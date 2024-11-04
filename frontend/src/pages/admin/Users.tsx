@@ -1,20 +1,17 @@
-import { useEffect, useState } from "react";
-import { AdminLayout } from "../../layouts/AdminLayout";
-import toast from "react-hot-toast";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { FaPen, FaTrash } from "react-icons/fa";
-
-export const Users = () => {
-  interface User {
-    uid: string;
-    firstname: string;
-    lastname: string;
-    email: string;
-    phone: string;
-    isVerified: boolean;
-  }
-
+import { AdminLayout } from "../../layouts/AdminLayout";
+import { DeleteModal } from "../../components/DeleteModal";
+import { UpdateUserModal } from "../../components/UpdateUserModal";
+import { User } from "../../types/User";
+export const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
+
+  const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
 
   const getAllUsers = async () => {
     try {
@@ -24,29 +21,76 @@ export const Users = () => {
         },
         withCredentials: true,
       });
-
-      const data = res.data;
-      if (Array.isArray(data)) {
-        setUsers(data);
+      if (Array.isArray(res.data)) {
+        setUsers(res.data);
       } else {
         toast.error("Unexpected data format received.");
       }
     } catch (error: any) {
-      console.log(error);
-
-      if (error.response && error.response.data) {
-        toast.error(error.response.data.error);
-      }
+      console.error(error);
+      toast.error(error.response?.data?.error || "An error occurred");
     }
   };
-  
-  
+
+  const onClickDelete = (user: User) => {
+    setOpenDeleteModal(true);
+    setSelectedUser(user);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const res = await fetch("/api/user/delete-user", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "DELETE",
+        credentials: "include",
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await res.json();
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("User deleted successfully.");
+        setUsers(users.filter((user) => user.uid !== userId));
+      }
+    } catch (error: any) {
+      console.error(error);
+    } finally {
+      setOpenDeleteModal(false);
+      setSelectedUser(null);
+    }
+  };
+
+  const onClickUpdate = (user: User) => {
+    setOpenUpdateModal(true);
+    setSelectedUser(user);
+  };
+
   useEffect(() => {
     getAllUsers();
   }, []);
 
   return (
     <AdminLayout>
+      <DeleteModal
+        isOpen={openDeleteModal}
+        onClose={() => setOpenDeleteModal(false)}
+        onConfirm={() => selectedUser && handleDeleteUser(selectedUser.uid)}
+        userName={
+          selectedUser
+            ? `${selectedUser.firstname} ${selectedUser.lastname}`
+            : ""
+        }
+      />
+
+      <UpdateUserModal
+        user={selectedUser}
+        isOpen={openUpdateModal}
+        onClose={() => setOpenUpdateModal(false)}
+      />
+
       <div className="overflow-x-auto">
         <h1 className="text-2xl font-bold mb-4">User List</h1>
         <table className="min-w-full bg-white border border-gray-200">
@@ -78,18 +122,26 @@ export const Users = () => {
                     <span
                       className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
                         user.isVerified
-                          ? "bg-green-200 text-green-800"
-                          : "bg-red-200 text-red-800"
+                          ? "bg-green-200 text-green-600"
+                          : "bg-red-200 text-red-600"
                       }`}
                     >
                       {user.isVerified ? "Verified" : "Not Verified"}
                     </span>
                   </td>
-                  <td className="py-3 px-4 border-b">
-                    <div className="flex space-x-2">
-                      <FaPen className="cursor-pointer text-blue-600" />
-                      <FaTrash className="cursor-pointer text-red-600" />
-                    </div>
+                  <td className="py-3 px-4 border-b flex justify-center">
+                    <button
+                      onClick={() => onClickUpdate(user)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      <FaPen />
+                    </button>
+                    <button
+                      onClick={() => onClickDelete(user)}
+                      className="text-red-600 hover:text-red-800 ml-4"
+                    >
+                      <FaTrash />
+                    </button>
                   </td>
                 </tr>
               ))

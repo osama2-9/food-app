@@ -4,51 +4,55 @@ import MenuItem from "../Model/Menu";
 
 export const addNewItem = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { name, description, price, restaurantID, additions, sizes } =
-      req.body;
-    let { mealImg } = req.body;
-    if (!name || !description || !price || !restaurantID || !mealImg) {
-      return res.status(400).json({
-        error: "Please fill all fealids",
-      });
-    }
-    
 
-    const findSameName = await MenuItem.findOne({ name });
-    if (findSameName) {
+    const { name, description, price, restaurantID, additions, sizes } = req.body;
+    let { mealImg } = req.body
+
+    if (!name || !description || !price || !restaurantID) {
       return res.status(400).json({
-        error: "This meanu already addedd",
+        error: "Please fill all required fields",
       });
     }
 
-    if (mealImg) {
-      const Img = await cloudinary.uploader.upload(mealImg);
-      if (Img) {
-        mealImg = Img.secure_url;
+
+    const existingItem = await MenuItem.findOne({ name });
+    if (existingItem) {
+      return res.status(400).json({
+        error: "This menu item is already added",
+      });
+    }
+
+    try {
+      if (mealImg) {
+        const imgUploadResponse = await cloudinary.uploader.upload(mealImg);
+        mealImg = imgUploadResponse.secure_url;
       }
+    } catch (imgError) {
+      return res.status(500).json({
+        error: "Error uploading image",
+      });
     }
 
     const newMenu = new MenuItem({
-      name: name,
-      price: price,
-      description: description,
+      name,
+      description,
+      price,
       restaurant: restaurantID,
       mealImg: mealImg,
+      additions: additions || [],
+      sizes: sizes || [],
       createdAt: Date.now(),
     });
 
+
     const created = await newMenu.save();
-    if (created) {
-      return res.status(201).json({
-        message: "New menu created",
-      });
-    } else {
-      return res.status(404).json({
-        error: "Error while create new menu",
-      });
-    }
+    return res.status(201).json({
+      message: "New menu item created",
+      menuItem: created,
+    });
+
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       error: "Internal server error",
     });
@@ -63,12 +67,12 @@ export const getMenuItems = async (
     const { restaurantID } = req.params;
     if (!restaurantID) {
       return res.status(400).json({
-        error: "missing required parametrs",
+        error: "Missing required parameters",
       });
     }
     const items = await MenuItem.find({ restaurant: restaurantID });
     if (!items) {
-      return res.status(400).json({
+      return res.status(404).json({
         error: "Restaurant not found",
       });
     }
@@ -88,25 +92,25 @@ export const deleteItem = async (req: Request, res: Response): Promise<any> => {
     const { itemID } = req.body;
     if (!itemID) {
       return res.status(400).json({
-        error: "missing required parametrs",
+        error: "Missing required parameters",
       });
     }
 
     const item = await MenuItem.findById(itemID);
     if (!item) {
-      return res.status(400).json({
-        error: "item not found",
+      return res.status(404).json({
+        error: "Item not found",
       });
     }
 
     const isDeleted = await item.deleteOne();
     if (!isDeleted) {
       return res.status(400).json({
-        error: "error while try delete this item",
+        error: "Error while trying to delete this item",
       });
     } else {
       return res.status(200).json({
-        message: "item deleted successfully",
+        message: "Item deleted successfully",
       });
     }
   } catch (error) {
@@ -116,3 +120,31 @@ export const deleteItem = async (req: Request, res: Response): Promise<any> => {
     });
   }
 };
+
+export const mealDetailes = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { mealId } = req.params
+    if (!mealId) {
+      return res.status(400).json({
+        error: "Missing required params"
+      })
+    }
+    const meal = await MenuItem.findById(mealId)
+    if (!meal) {
+      return res.status(400).json({
+        error: "Meal not found"
+      })
+    }
+    return res.status(200).json({
+      meal
+    })
+
+  } catch (error) {
+    return res.status(500).json({
+      error: "Internal server error"
+    })
+    console.log(error);
+
+
+  }
+}

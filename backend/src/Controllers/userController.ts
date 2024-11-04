@@ -47,7 +47,9 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
           lastname,
           email,
           phone,
-          uid: createdUser._id
+          uid: createdUser._id,
+          isAdmin: createdUser.isAdmin,
+          isVerified: createdUser.isVerified
         }
       });
     }
@@ -58,6 +60,31 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
     return res.status(500).json({ error: "Internal server error." });
   }
 };
+
+export const checkAuth = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const cookie = await req.cookies.auth
+    if (!cookie) {
+      return res.status(401).json({
+        error: "Unauthorized"
+      })
+    } else {
+      return res.status(200).json({
+        success: true
+      })
+    }
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error"
+    })
+
+  }
+}
+
+
+
 export const login = async (req: Request, res: Response): Promise<any> => {
   try {
     const { email, password } = req.body;
@@ -164,6 +191,43 @@ export const updateProfile = async (
     });
   }
 };
+
+
+export const deleteUser = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { userId } = req.body
+    if (!userId) {
+      return res.status(400).json({
+        error: "User not found"
+      })
+    }
+
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(400).json({
+        error: "User not found"
+      })
+    }
+    const deleteAttemp = await user.deleteOne()
+    if (deleteAttemp) {
+      return res.status(200).json({
+        message: "User deleted successfully"
+      })
+
+    } else {
+      return res.status(400).json({
+        error: "Error while try delete user"
+      })
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error"
+    })
+
+
+  }
+}
 
 export const getAllUsers = async (req: Request, res: Response): Promise<any> => {
   try {
