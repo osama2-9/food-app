@@ -20,7 +20,7 @@ export const Usidebar = () => {
                 </Link>
 
                 <div className="hidden md:flex space-x-4">
-                    <Link to="/account" className="flex items-center text-purple-700 hover:text-purple-500">
+                    <Link to="/user-profile" className="flex items-center text-purple-700 hover:text-purple-500">
                         <FaUser className="mr-1" />
                         Profile
                     </Link>

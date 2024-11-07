@@ -1,88 +1,70 @@
-import { useState } from 'react';
-import { AdminLayout } from '../../layouts/AdminLayout'; // Adjust the import as necessary
-import { FaEye } from 'react-icons/fa6';
+import { useEffect, useState } from "react";
+import { AdminLayout } from "../../layouts/AdminLayout";
+import { FaEye, FaSearch } from "react-icons/fa";
+import toast from "react-hot-toast";
+import axios from "axios";
 
-// Define interfaces for TypeScript
 interface OrderItem {
-  name: string;
+  restaurantId: string;
+  restaurantName: string;
+  restaurantEmail: string;
+  restaurantPhone: string;
+  mealId: string;
+  mealName: string;
+  quantity: number;
   price: number;
+  size: { name: string; price: number };
+  additions: { name: string; price: number; _id: string }[];
 }
 
 interface User {
-  fullName: string;
+  userId: string;
+  name: string;
   email: string;
   phone: string;
-  address: string;
 }
 
 interface Order {
-  id: number;
-  restaurant: string;
-  items: OrderItem[];
-  total: number;
-  status: string;
-  createdAt: string;
+  orderId: string;
+  totalAmount: number;
+  orderDate: string;
   user: User;
+  orderItems: OrderItem[];
+  orderStatus: string;
 }
-
-// Static order data
-const staticOrders: Order[] = [
-  {
-    id: 1,
-    restaurant: 'Pizza Place',
-    items: [
-      { name: 'Margherita Pizza', price: 12.99 },
-      { name: 'Caesar Salad', price: 8.99 },
-    ],
-    total: 21.98,
-    status: 'Delivered',
-    createdAt: '2024-10-20',
-    user: {
-      fullName: 'John Doe',
-      email: 'johndoe@example.com',
-      phone: '123-456-7890',
-      address: '123 Main St, Springfield, IL',
-    },
-  },
-  {
-    id: 2,
-    restaurant: 'Sushi Spot',
-    items: [
-      { name: 'California Roll', price: 10.99 },
-      { name: 'Miso Soup', price: 3.99 },
-    ],
-    total: 14.98,
-    status: 'Pending',
-    createdAt: '2024-10-21',
-    user: {
-      fullName: 'Jane Smith',
-      email: 'janesmith@example.com',
-      phone: '987-654-3210',
-      address: '456 Elm St, Springfield, IL',
-    },
-  },
-  {
-    id: 3,
-    restaurant: 'Burger Joint',
-    items: [
-      { name: 'Cheeseburger', price: 9.99 },
-      { name: 'Fries', price: 2.99 },
-    ],
-    total: 12.98,
-    status: 'In Progress',
-    createdAt: '2024-10-22',
-    user: {
-      fullName: 'Alice Johnson',
-      email: 'alicejohnson@example.com',
-      phone: '555-123-4567',
-      address: '789 Oak St, Springfield, IL',
-    },
-  },
-];
-
 
 export const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const handleGetOrders = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get("/api/order/get-orders-data", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      const data = res.data;
+      if (data) {
+        setOrders(data);
+      }
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.error);
+      }
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    handleGetOrders();
+  }, []);
 
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
@@ -92,39 +74,93 @@ export const Orders = () => {
     setSelectedOrder(null);
   };
 
+  const filteredOrders = orders.filter(
+    (order) =>
+      order.orderItems.some((item) =>
+        item.restaurantName.toLowerCase().includes(searchTerm.toLowerCase())
+      ) || order.user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <AdminLayout>
       <div>
         <h1 className="text-2xl font-bold mb-4">Orders</h1>
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="py-2 px-4 border">ID</th>
-              <th className="py-2 px-4 border">Restaurant</th>
-              <th className="py-2 px-4 border">Total</th>
-              <th className="py-2 px-4 border">Status</th>
-              <th className="py-2 px-4 border">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {staticOrders.map((order) => (
-              <tr key={order.id}>
-                <td className="py-2 px-4 border">{order.id}</td>
-                <td className="py-2 px-4 border">{order.restaurant}</td>
-                <td className="py-2 px-4 border">${order.total.toFixed(2)}</td>
-                <td className="py-2 px-4 border">{order.status}</td>
-                <td className="py-2 px-4 border">
-                  <button 
-                    onClick={() => handleOrderClick(order)} 
-                    className="text-blue-500 hover:underline"
-                  >
-                    <FaEye color='black' size={22} />
-                  </button>
-                </td>
+
+        <div className="mb-4 flex items-center">
+          <input
+            type="text"
+            placeholder="Search by restaurant or user"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border border-gray-300 rounded py-2 px-4 mr-2 w-full"
+          />
+          <FaSearch className="text-gray-600" />
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+          </div>
+        ) : filteredOrders.length === 0 ? (
+          <p>No orders found.</p>
+        ) : (
+          <table className="min-w-full bg-white border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="py-2 px-4 border">Restaurant Name</th>
+                <th className="py-2 px-4 border">Order Date</th>
+                <th className="py-2 px-4 border">User</th>
+                <th className="py-2 px-4 border">Total</th>
+                <th className="py-2 px-4 border">Status</th>
+                <th className="py-2 px-4 border">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredOrders.map((order) => {
+                const isMatching =
+                  order.orderItems.some((item) =>
+                    item.restaurantName
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  ) ||
+                  order.user.name
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase());
+
+                return (
+                  <tr
+                    key={order.orderId}
+                    className={`hover:bg-gray-100 ${
+                      isMatching ? "border-l-4 border-blue-500" : ""
+                    }`}
+                  >
+                    <td className="py-2 px-4 border">
+                      {order.orderItems
+                        .map((item) => item.restaurantName)
+                        .join(", ")}
+                    </td>
+                    <td className="py-2 px-4 border">
+                      {new Date(order.orderDate).toLocaleDateString()}
+                    </td>
+                    <td className="py-2 px-4 border">{order.user.name}</td>
+                    <td className="py-2 px-4 border">
+                      ${order.totalAmount.toFixed(2)}
+                    </td>
+                    <td className="py-2 px-4 border">{order.orderStatus}</td>
+                    <td className="py-2 px-4 border">
+                      <button
+                        onClick={() => handleOrderClick(order)}
+                        className="text-blue-500 hover:underline"
+                      >
+                        <FaEye color="black" size={22} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
 
         {selectedOrder && (
           <Modal order={selectedOrder} onClose={handleCloseModal} />
@@ -142,27 +178,85 @@ interface ModalProps {
 const Modal = ({ order, onClose }: ModalProps) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-lg font-bold mb-2">Order Details</h2>
-        <p className="mb-2"><strong>Restaurant:</strong> {order.restaurant}</p>
-        <p className="mb-2"><strong>Created At:</strong> {new Date(order.createdAt).toLocaleDateString()}</p>
-        <h3 className="text-md font-semibold mb-2">User Information:</h3>
-        <p><strong>Name:</strong> {order.user.fullName}</p>
-        <p><strong>Email:</strong> {order.user.email}</p>
-        <p><strong>Phone:</strong> {order.user.phone}</p>
-        <p><strong>Address:</strong> {order.user.address}</p>
-        <h3 className="text-md font-semibold mb-2 mt-4">Items:</h3>
-        <ul className="mb-4">
-          {order.items.map((item, index) => (
-            <li key={index} className="flex justify-between mb-1">
-              <span>{item.name}</span>
-              <span>${item.price.toFixed(2)}</span>
-            </li>
+      <div className="bg-white p-8 rounded-lg shadow-lg max-w-4xl w-full">
+        <h2 className="text-xl font-bold mb-4">Order Details</h2>
+        <p className="mb-4">
+          <strong>Order ID:</strong> {order.orderId}
+        </p>
+        <p className="mb-4">
+          <strong>Created At:</strong>{" "}
+          {new Date(order.orderDate).toLocaleDateString()}
+        </p>
+
+        <h3 className="text-lg font-semibold mb-2">User Information:</h3>
+        <div className="mb-4 space-y-2">
+          <p>
+            <strong>Name:</strong> {order.user.name}
+          </p>
+          <p>
+            <strong>Email:</strong> {order.user.email}
+          </p>
+          <p>
+            <strong>Phone:</strong> {order.user.phone}
+          </p>
+        </div>
+
+        <h3 className="text-lg font-semibold mb-4">Order Items:</h3>
+        <div className="space-y-4">
+          {order.orderItems.map((item, index) => (
+            <div
+              key={index}
+              className="p-4 border rounded-lg shadow-md bg-gray-50"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-lg font-semibold">{item.mealName}</h4>
+                <p className="text-lg font-semibold">
+                  ${item.price.toFixed(2)} (x{item.quantity})
+                </p>
+              </div>
+
+              <div className="mb-3">
+                <strong>Size:</strong> {item.size.name} ($
+                {item.size.price.toFixed(2)})
+              </div>
+
+              {item.additions.length > 0 && (
+                <div>
+                  <strong>Additions:</strong>
+                  <ul className="list-inside list-disc ml-4">
+                    {item.additions.map((add, idx) => (
+                      <li key={idx} className="text-sm">
+                        {add.name} (+${add.price.toFixed(2)})
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           ))}
-        </ul>
-        <p className="font-bold mb-2"><strong>Total:</strong> ${order.total.toFixed(2)}</p>
-        <p className="mb-4"><strong>Status:</strong> {order.status}</p>
-        <button onClick={onClose} className="mt-4 bg-blue-500 text-white py-2 px-4 rounded">
+        </div>
+
+        <div className="flex justify-between items-center mt-6 border-t pt-4">
+          <p className="text-xl font-semibold">
+            <strong>Total:</strong> ${order.totalAmount.toFixed(2)}
+          </p>
+          <p
+            className={`px-4 py-2 rounded-full text-white ${
+              order.orderStatus === "Completed"
+                ? "bg-green-500"
+                : order.orderStatus === "Pending"
+                ? "bg-yellow-500"
+                : "bg-red-500"
+            }`}
+          >
+            {order.orderStatus}
+          </p>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="mt-6 w-full bg-blue-500 text-white py-2 px-4 rounded"
+        >
           Close
         </button>
       </div>

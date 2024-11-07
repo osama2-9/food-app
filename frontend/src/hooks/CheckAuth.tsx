@@ -14,12 +14,12 @@ export const CheckAuth = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        withCredentials: true,
+        withCredentials: true, // Ensure cookies are sent with the request
       });
 
       if (res.status === 401) {
         localStorage.removeItem("user");
-        setUser(null);
+        setUser(null); // Reset user state
         handleLogout();
       }
     } catch (error: any) {
@@ -33,11 +33,12 @@ export const CheckAuth = () => {
     }
   };
 
+  // Re-run the authentication check if `user` is null (or on mount)
   useEffect(() => {
-    if (!user == null) {
+    if (user == null) {
       handleCheckAuth();
     }
-  }, []);
+  }, [user]); // Dependency on `user` ensures the check is run when the user state changes
 
   return null;
 };

@@ -4,6 +4,7 @@ import Cart from '../Model/Cart';
 import Order from '../Model/Order';
 import Restaurant from '../Model/Restaurant';
 import MenuItem from '../Model/Menu';
+import mongoose from 'mongoose';
 export const createNewOrder = async (req: Request, res: Response): Promise<any> => {
     try {
         const { userId } = req.body;
@@ -117,22 +118,89 @@ export const getOrders = async (req: Request, res: Response): Promise<any> => {
                 quantity: item.quantity,
                 price: item.price,
                 size: item.size,
-                additions: item.additions 
+                additions: item.additions
             }));
 
             return {
                 orderId: order._id,
                 totalAmount: order.totalAmount,
                 orderDate: order.orderDate,
-                user: order.user, 
+                user: order.user,
                 orderItems: orderItems,
-                orderStatus:order.status
+                orderStatus: order.status,
+                orderAt: order.orderDate
             };
         }));
 
         return res.status(200).json(orderDataFormat);
     } catch (error) {
         console.error(error);
+        return res.status(500).json({
+            error: "Internal server error"
+        });
+    }
+};
+
+export const getUserOrder = async (req: Request, res: Response): Promise<any> => {
+    try {
+        let { userId } = req.params;
+
+        userId = userId.trim();
+
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                error: "Invalid userId format"
+            });
+        }
+
+        const userOrders = await Order.find({ 'user.userId': userId });
+
+        if (!userOrders) {
+            return res.status(404).json({
+                error: "No orders found for this user"
+            });
+        }
+
+        const ordersDetails = await Promise.all(userOrders.map(async (order) => {
+            const orderItems = await Promise.all(order.items.map(async (item) => {
+                const mealData = await MenuItem.findById(item.menuItem);
+                const restaurantData = await Restaurant.findById(item.restaurantId);
+
+                let totalPrice = mealData.price || 0;
+                if (item.size && item.size.price) totalPrice += item.size.price;
+                if (item.additions && item.additions.length > 0) {
+                    totalPrice += item.additions.reduce((sum, addition) => sum + (addition.price || 0), 0);
+                }
+
+                return {
+                    restaurant: restaurantData ? restaurantData.name : 'Unknown Restaurant',
+                    meal: mealData ? mealData.name : 'Unknown Meal',
+                    mealImg: mealData ? mealData.mealImg : '',
+                    size: item.size ? { name: item.size.name, price: item.size.price } : null,
+                    additions: item.additions ? item.additions.map(add => ({
+                        name: add.name,
+                        price: add.price
+                    })) : [],
+                    price: totalPrice.toFixed(2)
+                };
+            }));
+
+            return {
+                userId: order.user.userId,
+                orderId: order._id,
+                status: order.status,
+                orderdAt: order.orderDate,
+                totalAmount: order.totalAmount,
+                items: orderItems
+            };
+        }));
+
+        return res.status(200).json({
+            orders: ordersDetails
+        });
+
+    } catch (error) {
+        console.log(error);
         return res.status(500).json({
             error: "Internal server error"
         });

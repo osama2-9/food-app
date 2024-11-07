@@ -20,6 +20,7 @@ import { CheckAuth } from "./hooks/CheckAuth";
 import { AddMenuItem } from "./pages/admin/AddMenuItem";
 import { MealPage } from "./pages/MealPage";
 import { Cart } from "./pages/Cart";
+import { UserProfile } from "./pages/UserProfile";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -68,6 +69,7 @@ function App() {
           path="/account"
           element={user ? <Account /> : <Navigate to="/login" />}
         />
+        <Route path="/user-profile" element={<UserProfile/>} />
         <Route path="/restaurant/:name/:id" element={<RestaurantPage />} />
 
         <Route path="/admin-login" element={<AdminLogin />} />

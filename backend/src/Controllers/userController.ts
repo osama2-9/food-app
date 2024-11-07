@@ -4,6 +4,7 @@ import User from "../Model/User";
 import { generateToken } from "../utils/generateToken";
 import { sendVC } from "../emails/SendVerificationCode";
 import generateVerificationCode from "../utils/generateVerificationCode";
+import jwt from 'jsonwebtoken'
 
 export const signup = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -60,29 +61,37 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
     return res.status(500).json({ error: "Internal server error." });
   }
 };
-
 export const checkAuth = async (req: Request, res: Response): Promise<any> => {
   try {
-    const cookie = await req.cookies.auth
-    if (!cookie) {
+    const token = req.cookies.auth; 
+
+    if (!token) {
       return res.status(401).json({
-        error: "Unauthorized"
-      })
-    } else {
-      return res.status(200).json({
-        success: true
-      })
+        error: "Unauthorized - No token provided",
+      });
     }
+
+    
+    jwt.verify(token, process.env.JWT_SECRET as string, (err : any, decoded : string) => {
+      if (err) {
+        return res.status(401).json({
+          error: "Unauthorized - Invalid or expired token",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        decoded, 
+      });
+    });
 
   } catch (error) {
     console.log(error);
     return res.status(500).json({
-      error: "Internal server error"
-    })
-
+      error: "Internal server error",
+    });
   }
-}
-
+};
 
 
 export const login = async (req: Request, res: Response): Promise<any> => {
@@ -179,10 +188,13 @@ export const updateProfile = async (
       });
     }
     return res.status(200).json({
+      uid:user._id,
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
       phone: user.phone,
+      isVerified:user.isVerified,
+      isAdmin:user.isAdmin
     });
   } catch (error) {
     console.log(error);
