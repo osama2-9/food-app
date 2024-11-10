@@ -11,14 +11,22 @@ export interface IUser extends Document {
   resetPasswordToken?: string;
   resetPasswordTokenExpiresAt?: Date;
   verificationCodeToken?: string;
-  verificationCode?: Number
-  verificationCodeTokenExpiresAt?: Date,
-
+  verificationCode?: number;
+  verificationCodeTokenExpiresAt?: Date;
+  address: {
+    name: String,
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+    building: string;
+    floor: string;
+    apartment: string;
+  };
 }
 
 const UserSchema: Schema<IUser> = new Schema(
   {
-    
     firstname: {
       type: String,
       required: true,
@@ -42,9 +50,37 @@ const UserSchema: Schema<IUser> = new Schema(
       required: true,
       unique: true,
     },
+    address: {
+      name: {
+        type: String,
+        required: true
+      },
+      coordinates: {
+        lat: {
+          type: Number,
+          required: true,
+        },
+        lng: {
+          type: Number,
+          required: true,
+        },
+      },
+      building: {
+        type: String,
+        required: true,
+      },
+      floor: {
+        type: String,
+        required: true,
+      },
+      apartment: {
+        type: String,
+        required: true,
+      },
+    },
     isAdmin: {
       type: Boolean,
-      default: false, 
+      default: false,
       required: true,
     },
     isVerified: {

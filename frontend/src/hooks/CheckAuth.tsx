@@ -33,12 +33,11 @@ export const CheckAuth = () => {
     }
   };
 
-  // Re-run the authentication check if `user` is null (or on mount)
   useEffect(() => {
     if (user == null) {
       handleCheckAuth();
     }
-  }, [user]); // Dependency on `user` ensures the check is run when the user state changes
+  }, [user]); 
 
   return null;
 };

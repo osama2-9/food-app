@@ -63,7 +63,7 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
 };
 export const checkAuth = async (req: Request, res: Response): Promise<any> => {
   try {
-    const token = req.cookies.auth; 
+    const token = req.cookies.auth;
 
     if (!token) {
       return res.status(401).json({
@@ -71,8 +71,8 @@ export const checkAuth = async (req: Request, res: Response): Promise<any> => {
       });
     }
 
-    
-    jwt.verify(token, process.env.JWT_SECRET as string, (err : any, decoded : string) => {
+
+    jwt.verify(token, process.env.JWT_SECRET as string, (err: any, decoded: string) => {
       if (err) {
         return res.status(401).json({
           error: "Unauthorized - Invalid or expired token",
@@ -81,7 +81,7 @@ export const checkAuth = async (req: Request, res: Response): Promise<any> => {
 
       return res.status(200).json({
         success: true,
-        decoded, 
+        decoded,
       });
     });
 
@@ -163,7 +163,7 @@ export const updateProfile = async (
   res: Response
 ): Promise<any> => {
   try {
-    const { uid, firstname, lastname, email, phone } = req.body;
+    const { uid, firstname, lastname, email, phone, lat, lng, apartment, building, name, floor } = req.body;
     if (!uid) {
       return res.status(400).json({
         error: "User not found",
@@ -180,6 +180,12 @@ export const updateProfile = async (
     user.lastname = lastname || user.lastname;
     user.email = email || user.email;
     user.phone = phone || user.phone;
+    user.address.coordinates.lat = lat || user.address.coordinates.lat
+    user.address.coordinates.lng = lng || user.address.coordinates.lng
+    user.address.building = building || user.address.building
+    user.address.floor = floor || user.address.floor
+    user.address.apartment = apartment || user.address.apartment
+    user.address.name = name || user.address.name
 
     const update = await user.save();
     if (!update) {
@@ -188,13 +194,13 @@ export const updateProfile = async (
       });
     }
     return res.status(200).json({
-      uid:user._id,
+      uid: user._id,
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
       phone: user.phone,
-      isVerified:user.isVerified,
-      isAdmin:user.isAdmin
+      isVerified: user.isVerified,
+      isAdmin: user.isAdmin
     });
   } catch (error) {
     console.log(error);
@@ -253,7 +259,15 @@ export const getAllUsers = async (req: Request, res: Response): Promise<any> => 
       email: user.email,
       phone: user.phone,
       isVerified: user.isVerified,
-      isAdmin: user.isAdmin
+      isAdmin: user.isAdmin,
+      addressName: user.address.name,
+      building: user.address.building,
+      apartment: user.address.apartment,
+      floor: user.address.floor,
+      lat: user.address.coordinates.lat,
+      lng: user.address.coordinates.lng
+
+
 
 
     }));
@@ -357,6 +371,7 @@ export const verifyEmail = async (req: Request, res: Response): Promise<any> => 
     });
   }
 };
+
 
 
 

@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { FaPen, FaTrash } from "react-icons/fa";
+import { FaPen, FaTimes, FaTrash } from "react-icons/fa";
 import { AdminLayout } from "../../layouts/AdminLayout";
 import { DeleteModal } from "../../components/DeleteModal";
 import { UpdateUserModal } from "../../components/UpdateUserModal";
 import { User } from "../../types/User";
+
 export const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
-
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
+  const [openUserDetailsModal, setOpenUserDetailsModal] =
+    useState<boolean>(false); // State for user details modal
 
   const getAllUsers = async () => {
     try {
@@ -68,6 +70,11 @@ export const Users: React.FC = () => {
     setSelectedUser(user);
   };
 
+  const onClickUserDetails = (user: User) => {
+    setSelectedUser(user);
+    setOpenUserDetailsModal(true);
+  };
+
   useEffect(() => {
     getAllUsers();
   }, []);
@@ -90,6 +97,98 @@ export const Users: React.FC = () => {
         isOpen={openUpdateModal}
         onClose={() => setOpenUpdateModal(false)}
       />
+
+      {/* User Details Modal */}
+      {openUserDetailsModal && selectedUser && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-semibold text-gray-800">
+                User Details
+              </h2>
+              <button
+                onClick={() => setOpenUserDetailsModal(false)}
+                className="text-gray-600 hover:text-gray-800 text-xl"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-lg text-gray-700">
+                  <strong className="font-medium">Full Name:</strong>{" "}
+                  {selectedUser.firstname} {selectedUser.lastname}
+                </p>
+              </div>
+              <div>
+                <p className="text-lg text-gray-700">
+                  <strong className="font-medium">Email:</strong>{" "}
+                  {selectedUser.email}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-lg text-gray-700">
+                  <strong className="font-medium">Phone:</strong>{" "}
+                  {selectedUser.phone}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-lg text-gray-700">
+                  <strong className="font-medium">Address:</strong>{" "}
+                  {selectedUser.addressName}, {selectedUser.apartment},{" "}
+                  {selectedUser.building}, {selectedUser.floor}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-lg text-gray-700">
+                  <strong className="font-medium">Verified:</strong>{" "}
+                  {selectedUser.isVerified ? "Yes" : "No"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-lg text-gray-700">
+                  <strong className="font-medium">Admin:</strong>{" "}
+                  {selectedUser.isAdmin ? "Yes" : "No"}
+                </p>
+              </div>
+
+              <div className="col-span-2">
+                <p className="text-lg text-gray-700">
+                  <strong className="font-medium">Location:</strong>{" "}
+                  <a
+                    href={`https://www.google.com/maps?q=${selectedUser.lat},${selectedUser.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    Open in Google Maps
+                  </a>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setOpenUserDetailsModal(false)}
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => alert("Add any additional action here")}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
+                Take Action
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <h1 className="text-2xl font-bold mb-4">User List</h1>
@@ -141,6 +240,12 @@ export const Users: React.FC = () => {
                       className="text-red-600 hover:text-red-800 ml-4"
                     >
                       <FaTrash />
+                    </button>
+                    <button
+                      onClick={() => onClickUserDetails(user)}
+                      className="text-green-600 hover:text-green-800 ml-4"
+                    >
+                      Details
                     </button>
                   </td>
                 </tr>

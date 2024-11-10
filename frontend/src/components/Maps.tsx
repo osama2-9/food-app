@@ -1,46 +1,162 @@
-import React, { useCallback, useState } from "react";
-import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
+import React, { useState, useEffect } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+  useMap,
+} from "react-leaflet";
+import L from "leaflet";
+import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
+import "leaflet/dist/leaflet.css";
+import "leaflet-geosearch/dist/geosearch.css";
 
-const containerStyle: React.CSSProperties = {
-  width: "400px",
-  height: "400px",
-};
+interface MapComponentProps {
+  lat: number;
+  lng: number;
+  onLocationChange: (lat: number, lng: number, address: string) => void;
+}
 
-const center = {
-  lat: -3.745,
-  lng: -38.523,
-};
+const Maps: React.FC<MapComponentProps> = ({ lat, lng, onLocationChange }) => {
+  const [location, setLocation] = useState({ lat, lng });
+  const [address, setAddress] = useState<string>("");
 
-const Maps: React.FC = () => {
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: "AIzaSyBQDz7Rp6K3dIQQjnNQt3uz67eL-i25jUY",
-  });
+  const getCurrentCityLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ lat: latitude, lng: longitude });
 
-  const [map, setMap] = useState<google.maps.Map | null>(null);
+          fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              const cityAddress = data.address.city || data.display_name;
+              setAddress(cityAddress);
+              onLocationChange(latitude, longitude, cityAddress);
+            })
+            .catch((err) => {
+              console.error("Error fetching city address:", err);
+              setAddress("Unable to fetch address");
+            });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setLocation({ lat: 51.505, lng: -0.09 });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+      setLocation({ lat: 51.505, lng: -0.09 });
+    }
+  };
 
-  const onLoad = useCallback((map: google.maps.Map) => {
-    const bounds = new window.google.maps.LatLngBounds(center);
-    map.fitBounds(bounds);
-    setMap(map);
+  const SearchControl = () => {
+    const map = useMapEvents({});
+
+    const provider = new OpenStreetMapProvider();
+
+    useEffect(() => {
+      const searchControl = new GeoSearchControl({
+        provider,
+        style: "bar",
+        autoClose: true,
+        keepResult: true,
+      });
+      map.addControl(searchControl);
+      return () => map.removeControl(searchControl);
+    }, [map]);
+
+    return null;
+  };
+
+  const LocationMarker = () => {
+    const map = useMap();
+
+    useMapEvents({
+      click(e) {
+        const { lat, lng } = e.latlng;
+        setLocation({ lat, lng });
+
+        fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            const selectedAddress = data.display_name || "No address available";
+            setAddress(selectedAddress);
+            onLocationChange(lat, lng, selectedAddress);
+          })
+          .catch((err) => {
+            console.error("Error fetching address:", err);
+            setAddress("Unable to fetch address");
+          });
+
+        map.flyTo([lat, lng], 13, {
+          animate: true,
+          duration: 1,
+        });
+      },
+    });
+
+    const icon = new L.Icon({
+      iconUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+      iconSize: [32, 48],
+      iconAnchor: [16, 48],
+      popupAnchor: [0, -48],
+    });
+
+    return (
+      <Marker position={[location.lat, location.lng]} icon={icon}>
+        <Popup>{address || "No address selected"}</Popup>
+      </Marker>
+    );
+  };
+
+  useEffect(() => {
+    getCurrentCityLocation();
   }, []);
 
-  const onUnmount = useCallback(() => {
-    setMap(null);
-  }, []);
+  return (
+    <div className="w-full h-[400px] sm:h-[500px] rounded-lg shadow-lg overflow-hidden">
+      <MapContainer
+        center={[location.lat, location.lng]}
+        zoom={13}
+        scrollWheelZoom={true}
+        style={{ width: "100%", height: "100%" }}
+        className="rounded-lg"
+      >
+        <TileLayer
+          attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <SearchControl />
+        <LocationMarker />
+      </MapContainer>
 
-  return isLoaded ? (
-    <GoogleMap
-      mapContainerStyle={containerStyle}
-      center={center}
-      zoom={10}
-      onLoad={onLoad}
-      onUnmount={onUnmount}
-    >
-    </GoogleMap>
-  ) : (
-    <div>Loading...</div>
+      <div className="mt-4 text-center text-sm text-gray-600">
+        <p>{address ? address : "Click on the map to select your address"}</p>
+      </div>
+
+      <div className="text-center mt-4">
+        <button
+          onClick={getCurrentCityLocation}
+          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Use Current Location
+        </button>
+      </div>
+    </div>
   );
 };
 
-export default React.memo(Maps);
+export default Maps;
