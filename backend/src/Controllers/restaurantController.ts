@@ -157,14 +157,14 @@ export const getAllRestaurant = async (
     const restaurantData = restaurants.map((r) => ({
       name: r.name,
       cuisineType: r.cuisineType,
-      email:r.contact.email,
-      phone:r.contact.phone,
+      email: r.contact.email,
+      phone: r.contact.phone,
       brandImg: r.brandImg,
       rid: r._id,
     }));
 
     return res.status(200).json({
-       restaurantData
+      restaurantData
     });
   } catch (error) {
     console.error(error);
@@ -173,3 +173,35 @@ export const getAllRestaurant = async (
     });
   }
 };
+
+export const getRestaurantDetails = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { name } = req.params
+    if (!name) {
+      return res.status(400).json({
+        error: "No restaurent avilable"
+      })
+    }
+    const restaurant = await Restaurant.findOne({ name: name })
+    if (!restaurant) {
+      return res.status(400).json({
+        error: "No restaurnt found"
+
+      })
+    }
+
+    return res.status(200).json({
+      name: restaurant.name,
+      img: restaurant.brandImg,
+      type: restaurant.cuisineType
+    })
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error"
+    })
+
+
+  }
+}

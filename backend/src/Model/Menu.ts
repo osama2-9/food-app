@@ -13,12 +13,13 @@ export interface Addition {
 export interface Imenu extends Document {
   name: string;
   description: string;
-  price: number; 
+  price: number;
   mealImg: string;
   restaurant: mongoose.Schema.Types.ObjectId;
   createdAt: Date;
-  sizes?: Size[]; 
-  additions?: Addition[]; 
+  sizes?: Size[];
+  additions?: Addition[];
+  mealType: string
 }
 
 const menuItemSchema: Schema<Imenu> = new mongoose.Schema({
@@ -26,6 +27,11 @@ const menuItemSchema: Schema<Imenu> = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
+  },
+  mealType: {
+    type: String,
+    required: true,
+    enum: ["Fast-Food", "Dessert", "Grilled", "Smoothies", "Appitizers", "Pizza"]
   },
   description: {
     type: String,
@@ -58,7 +64,7 @@ const menuItemSchema: Schema<Imenu> = new mongoose.Schema({
       },
     ],
     default: undefined,
-    required:false
+    required: false
   },
   additions: {
     type: [
@@ -68,11 +74,12 @@ const menuItemSchema: Schema<Imenu> = new mongoose.Schema({
       },
     ],
     default: undefined,
-    required:false
+    required: false
   },
 });
 
 menuItemSchema.index({ restaurant: 1 });
+menuItemSchema.index({ name: "text" })
 
 const MenuItem = mongoose.model<Imenu>("MenuItem", menuItemSchema);
 

@@ -52,7 +52,7 @@ function App() {
         />
 
         <Route
-          path="/restaurant/:restaurant/meal/:mealId"
+          path="/restaurant/meal/:mealId"
           element={<MealPage />}
         />
         <Route

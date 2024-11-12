@@ -23,6 +23,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
     [{ name: "", price: 0 }]
   );
   const [img, setImg] = useState<string | ArrayBuffer | null>("");
+  const [mealType, setMealType] = useState<String>();
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleAddSize = () => setSizes([...sizes, { name: "", price: 0 }]);
@@ -65,17 +66,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
     e.preventDefault();
     setLoading(true);
 
-    if (
-      sizes.some((size) => !size.name ) ||
-      additions.some((addition) => !addition.name )
-    ) {
-      toast.error(
-        "Please ensure all sizes and additions are filled out correctly."
-      );
-      setLoading(false);
-      return;
-    }
-
     try {
       const res = await axios.post(
         "/api/menu/create",
@@ -87,6 +77,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
           additions,
           restaurantID: restaurantId,
           sizes,
+          mealType,
         },
         {
           headers: {
@@ -104,6 +95,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
         setSizes([{ name: "", price: 0 }]);
         setAdditions([{ name: "", price: 0 }]);
         setImg("");
+        setMealType("");
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
@@ -116,6 +108,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
       setLoading(false);
     }
   };
+  console.log(mealType);
 
   return (
     isOpen && (
@@ -123,7 +116,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
         <div className="bg-white p-6 rounded-lg mt-16 shadow-lg max-w-2xl w-full">
           <h2 className="text-xl font-bold mb-4">Add Menu Item</h2>
           <form onSubmit={handleSubmit}>
-            {/* Name Field */}
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="name">
                 Name
@@ -139,7 +131,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               />
             </div>
 
-            {/* Description Field */}
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="description">
                 Description
@@ -154,7 +145,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               />
             </div>
 
-            {/* Price Field */}
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="price">
                 Price
@@ -170,7 +160,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               />
             </div>
 
-            {/* Image Upload */}
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="image">
                 Image
@@ -191,8 +180,28 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
                 />
               )}
             </div>
+            <div className="flex flex-col mb-4">
+              <label className="font-semibold mb-1" htmlFor="mealType">
+                Meal-Type
+              </label>
+              <select
+              className="border border-gray-300 p-2 rounded"
+                name="mealType"
+                onChange={(e) => setMealType(e.target.value)}
+                id="mealType"
+              >
+                <option value="" selected disabled>
+                  Select Meal Type
+                </option>
+                <option value="Fast-Food">Fast-Food</option>
+                <option value="Dessert">Dessert</option>
+                <option value="Grilled">Grilled</option>
+                <option value="Pizza">Pizza</option>
+                <option value="Smoothies">Smoothies</option>
+                <option value="Appetizers">Appetizers</option>
+              </select>
+            </div>
 
-            {/* Sizes Section */}
             <h4 className="font-semibold mb-2">Sizes</h4>
             {sizes.map((size, index) => (
               <div className="flex flex-col mb-2" key={index}>
@@ -224,7 +233,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               Add Size
             </button>
 
-            {/* Additions Section */}
             <h4 className="font-semibold mb-2">Additions</h4>
             {additions.map((addition, index) => (
               <div className="flex flex-col mb-2" key={index}>

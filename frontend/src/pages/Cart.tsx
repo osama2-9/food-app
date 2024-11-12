@@ -120,7 +120,14 @@ export const Cart: React.FC = () => {
       <h1 className="text-4xl font-bold mb-6 text-gray-800">Your Cart</h1>
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
         {cartItems.length === 0 ? (
-          <p className="text-center text-gray-600">Your cart is empty!</p>
+          <div className="text-center">
+            <img
+              src="/empty-cart.png"
+              alt="Empty Cart"
+              className="mx-auto mb-4 w-40 h-40"
+            />
+            <p className="text-center text-gray-600">Your cart is empty!</p>
+          </div>
         ) : (
           <ul className="space-y-4">
             {cartItems.map((item) => {
@@ -151,12 +158,12 @@ export const Cart: React.FC = () => {
                       </h2>
                       <p className="text-gray-600">
                         {item.size?.name
-                          ? `${item.size.name.name} (+$${sizePrice.toFixed(2)})`
+                          ? `${item.size.name} (+$${sizePrice.toFixed(2)})`
                           : "No size selected"}
                       </p>
                       <p className="text-gray-600">
                         {item.additions.length > 0
-                          ? item.additions.map((a) => a.name)
+                          ? item.additions.map((a) => a.name).join(", ")
                           : "No additions"}
                       </p>
                     </div>

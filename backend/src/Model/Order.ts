@@ -9,7 +9,7 @@ interface OrderItem {
     name: string,
     price: number
   };
-  additions?: { name: string; price: number }[]; 
+  additions?: { name: string; price: number }[];
 }
 
 interface Order extends Document {
@@ -21,6 +21,7 @@ interface Order extends Document {
     name: string;
     phone: string;
     email: string;
+    address: object
   };
   status: "Pending" | "In Progress" | "Completed" | "Cancelled";
 }
@@ -81,6 +82,10 @@ const orderSchema = new mongoose.Schema<Order>({
       type: String,
       required: true,
     },
+    address: {
+      type: Object,
+      required: true
+    }
   },
   status: {
     type: String,

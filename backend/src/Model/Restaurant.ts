@@ -9,7 +9,7 @@ export interface Irestaurant extends Document {
   cuisineType: string;
   menu: mongoose.Types.ObjectId[];
   createdAt: Date;
-  brandImg:string;
+  brandImg: string;
 }
 
 const restaurantSchema = new mongoose.Schema<Irestaurant>({
@@ -47,16 +47,16 @@ const restaurantSchema = new mongoose.Schema<Irestaurant>({
     },
   ],
 
-  brandImg:{
-    type:String,
-   
+  brandImg: {
+    type: String,
+
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  
-});
 
+});
+restaurantSchema.index({ name: "text" })
 const Restaurant = mongoose.model<Irestaurant>("Restaurant", restaurantSchema);
 export default Restaurant;

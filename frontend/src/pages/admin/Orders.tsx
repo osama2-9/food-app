@@ -3,6 +3,7 @@ import { AdminLayout } from "../../layouts/AdminLayout";
 import { FaEye, FaSearch } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { ClipLoader } from "react-spinners"; // Import the ClipLoader spinner
 
 interface OrderItem {
   restaurantId: string;
@@ -98,8 +99,9 @@ export const Orders = () => {
         </div>
 
         {loading ? (
+          // Use ClipLoader spinner while loading
           <div className="flex justify-center items-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+            <ClipLoader size={50} color="#3498db" loading={loading} />
           </div>
         ) : filteredOrders.length === 0 ? (
           <p>No orders found.</p>
@@ -174,22 +176,39 @@ interface ModalProps {
   order: Order;
   onClose: () => void;
 }
+import { FaTimes } from "react-icons/fa";
 
-const Modal = ({ order, onClose }: ModalProps) => {
+const Modal = ({ order, onClose }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-4xl w-full">
-        <h2 className="text-xl font-bold mb-4">Order Details</h2>
-        <p className="mb-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full lg:w-2/3 transform transition-all overflow-y-auto">
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none"
+        >
+          <FaTimes size={24} />
+        </button>
+
+        {/* Modal Header */}
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
+          Order Details
+        </h2>
+
+        {/* Order Info */}
+        <p className="text-lg mb-2">
           <strong>Order ID:</strong> {order.orderId}
         </p>
-        <p className="mb-4">
+        <p className="text-lg mb-4">
           <strong>Created At:</strong>{" "}
           {new Date(order.orderDate).toLocaleDateString()}
         </p>
 
-        <h3 className="text-lg font-semibold mb-2">User Information:</h3>
-        <div className="mb-4 space-y-2">
+        {/* User Info */}
+        <h3 className="text-xl font-semibold text-gray-700 mb-2">
+          User Information
+        </h3>
+        <div className="mb-4 space-y-2 text-gray-600">
           <p>
             <strong>Name:</strong> {order.user.name}
           </p>
@@ -199,33 +218,62 @@ const Modal = ({ order, onClose }: ModalProps) => {
           <p>
             <strong>Phone:</strong> {order.user.phone}
           </p>
+
+          {/* Address Display */}
+          {order.user.address && (
+            <div className="space-y-1">
+              <p>
+                <strong>Address:</strong> {order.user.address.name}
+              </p>
+              <p>
+                <strong>Apartment:</strong> {order.user.address.apartment}
+              </p>
+              <p>
+                <strong>Building:</strong> {order.user.address.building}
+              </p>
+              <p>
+                <strong>Floor:</strong> {order.user.address.floor}
+              </p>
+              <a
+                href={`https://www.google.com/maps?q=${order.user.address.coordinates.lat},${order.user.address.coordinates.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                View on Google Maps
+              </a>
+            </div>
+          )}
         </div>
 
-        <h3 className="text-lg font-semibold mb-4">Order Items:</h3>
-        <div className="space-y-4">
+        {/* Order Items */}
+        <h3 className="text-xl font-semibold text-gray-700 mb-4">
+          Order Items
+        </h3>
+        <div className="space-y-6">
           {order.orderItems.map((item, index) => (
             <div
               key={index}
-              className="p-4 border rounded-lg shadow-md bg-gray-50"
+              className="p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-md"
             >
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-lg font-semibold">{item.mealName}</h4>
-                <p className="text-lg font-semibold">
+                <h4 className="text-lg font-semibold text-gray-800">
+                  {item.mealName}
+                </h4>
+                <p className="text-lg font-semibold text-gray-900">
                   ${item.price.toFixed(2)} (x{item.quantity})
                 </p>
               </div>
-
               <div className="mb-3">
-                <strong>Size:</strong> {item.size.name} ($
-                {item.size.price.toFixed(2)})
+                <strong className="text-gray-700">Size:</strong>{" "}
+                {item.size.name} (${item.size.price.toFixed(2)})
               </div>
-
               {item.additions.length > 0 && (
                 <div>
-                  <strong>Additions:</strong>
-                  <ul className="list-inside list-disc ml-4">
+                  <strong className="text-gray-700">Additions:</strong>
+                  <ul className="list-inside list-disc ml-4 text-sm text-gray-600">
                     {item.additions.map((add, idx) => (
-                      <li key={idx} className="text-sm">
+                      <li key={idx}>
                         {add.name} (+${add.price.toFixed(2)})
                       </li>
                     ))}
@@ -236,12 +284,13 @@ const Modal = ({ order, onClose }: ModalProps) => {
           ))}
         </div>
 
-        <div className="flex justify-between items-center mt-6 border-t pt-4">
-          <p className="text-xl font-semibold">
+        {/* Total and Status */}
+        <div className="flex flex-col lg:flex-row justify-between items-center mt-6 border-t pt-4">
+          <p className="text-xl font-semibold text-gray-800">
             <strong>Total:</strong> ${order.totalAmount.toFixed(2)}
           </p>
           <p
-            className={`px-4 py-2 rounded-full text-white ${
+            className={`mt-2 lg:mt-0 px-4 py-2 rounded-full text-white font-semibold ${
               order.orderStatus === "Completed"
                 ? "bg-green-500"
                 : order.orderStatus === "Pending"
@@ -253,9 +302,10 @@ const Modal = ({ order, onClose }: ModalProps) => {
           </p>
         </div>
 
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="mt-6 w-full bg-blue-500 text-white py-2 px-4 rounded"
+          className="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         >
           Close
         </button>
@@ -263,3 +313,4 @@ const Modal = ({ order, onClose }: ModalProps) => {
     </div>
   );
 };
+

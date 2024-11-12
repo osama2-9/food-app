@@ -5,6 +5,8 @@ import { generateToken } from "../utils/generateToken";
 import { sendVC } from "../emails/SendVerificationCode";
 import generateVerificationCode from "../utils/generateVerificationCode";
 import jwt from 'jsonwebtoken'
+import Restaurant from "../Model/Restaurant";
+import MenuItem from "../Model/Menu";
 
 export const signup = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -61,6 +63,7 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
     return res.status(500).json({ error: "Internal server error." });
   }
 };
+
 export const checkAuth = async (req: Request, res: Response): Promise<any> => {
   try {
     const token = req.cookies.auth;
@@ -284,8 +287,6 @@ export const getAllUsers = async (req: Request, res: Response): Promise<any> => 
 };
 
 
-
-
 export const sendVerificationCode = async (req: Request, res: Response): Promise<any> => {
   try {
     const { uid } = req.body;
@@ -371,6 +372,38 @@ export const verifyEmail = async (req: Request, res: Response): Promise<any> => 
     });
   }
 };
+
+export const search = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { query } = req.query
+    if (!query) {
+      return
+    }
+    const restaurants = await Restaurant.find({
+      name: { $regex: query, $options: 'i' }
+    }).select("name _id")
+
+    const meals = await MenuItem.find({
+      name: { $regex: query, $options: 'i' }
+    }).select("name _id")
+
+    return res.status(200).json({
+      restaurants,
+      meals
+    })
+
+
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error"
+    })
+
+
+  }
+
+}
 
 
 

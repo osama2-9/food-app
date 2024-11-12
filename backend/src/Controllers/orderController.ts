@@ -63,6 +63,7 @@ export const createNewOrder = async (req: Request, res: Response): Promise<any> 
                 name: `${user.firstname} ${user.lastname}`,
                 email: user.email,
                 phone: user.phone,
+                address:user.address
             },
             items: orderItems,
             totalAmount,
@@ -100,6 +101,7 @@ export const getOrders = async (req: Request, res: Response): Promise<any> => {
                     name: r.name,
                     email: r.contact.email,
                     phone: r.contact.phone
+                    
                 };
             });
 
@@ -206,3 +208,4 @@ export const getUserOrder = async (req: Request, res: Response): Promise<any> =>
         });
     }
 };
+

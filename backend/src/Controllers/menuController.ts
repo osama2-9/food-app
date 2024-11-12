@@ -5,10 +5,10 @@ import MenuItem from "../Model/Menu";
 export const addNewItem = async (req: Request, res: Response): Promise<any> => {
   try {
 
-    const { name, description, price, restaurantID, additions, sizes } = req.body;
+    const { name, description, price, restaurantID, additions, sizes, mealType } = req.body;
     let { mealImg } = req.body
 
-    if (!name || !description || !price || !restaurantID) {
+    if (!name || !description || !price || !restaurantID || !mealType) {
       return res.status(400).json({
         error: "Please fill all required fields",
       });
@@ -42,6 +42,7 @@ export const addNewItem = async (req: Request, res: Response): Promise<any> => {
       additions: additions || [],
       sizes: sizes || [],
       createdAt: Date.now(),
+      mealType: mealType
     });
 
 
@@ -140,10 +141,10 @@ export const mealDetailes = async (req: Request, res: Response): Promise<any> =>
     })
 
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       error: "Internal server error"
     })
-    console.log(error);
 
 
   }

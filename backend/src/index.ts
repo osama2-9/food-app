@@ -9,6 +9,7 @@ import restaurantRoute from "./Router/restaurantRoute";
 import menuRoute from "./Router/menuRoutes";
 import cartRoute from "./Router/cartRoutes";
 import orderRoute from "./Router/orderRoutes";
+import dashboardRoute from "./Router/dashboardRoutes";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use('/api/restaurant', restaurantRoute)
 app.use('/api/menu', menuRoute);
 app.use('/api/cart', cartRoute)
 app.use('/api/order' ,orderRoute)
+app.use("/api/dashboard" ,dashboardRoute)
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
