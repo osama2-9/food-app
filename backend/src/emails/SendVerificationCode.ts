@@ -1,4 +1,3 @@
-import User from "../Model/User";
 import dotenv from 'dotenv';
 import { client, sender } from './mailtrap';
 dotenv.config();

@@ -214,6 +214,7 @@ export const updateProfile = async (
 };
 
 
+
 export const deleteUser = async (req: Request, res: Response): Promise<any> => {
   try {
     const { userId } = req.body
@@ -404,10 +405,65 @@ export const search = async (req: Request, res: Response): Promise<any> => {
   }
 
 }
+export const updateAdminStatus = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { uid, status } = req.body;
+    const user = await User.findById(uid);
 
+    if (!user) {
+      return res.status(400).json({
+        error: "No user found",
+      });
+    }
 
+    const updateResult = await User.updateOne(
+      { _id: user._id },
+      { $set: { isAdmin: status } }
+    );
 
+    if (updateResult.modifiedCount === 0) {
+      return res.status(400).json({
+        error: "Error while trying to update the status or status was not changed",
+      });
+    }
 
+    return res.status(200).json({
+      message: `${user.firstname} ${user.lastname} is now ${status ? "an Admin" : "not an Admin"}`,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
 
+export const getAddressDetails = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const { uid } = req.params;
 
+    if (!uid) {
+      return res.status(400).json({
+        error: "No user ID provided"
+      });
+    }
 
+    const user = await User.findById(uid).select("address");
+
+    if (!user || !user.address) {
+      return res.status(400).json({
+        error: "You don't have any address yet!"
+      });
+    }
+
+    return res.status(200).json({
+      address: user.address
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: "Internal server error"
+    });
+  }
+};

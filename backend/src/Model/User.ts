@@ -53,29 +53,23 @@ const UserSchema: Schema<IUser> = new Schema(
     address: {
       name: {
         type: String,
-        required: true
       },
       coordinates: {
         lat: {
           type: Number,
-          required: true,
         },
         lng: {
           type: Number,
-          required: true,
         },
       },
       building: {
         type: String,
-        required: true,
       },
       floor: {
         type: String,
-        required: true,
       },
       apartment: {
         type: String,
-        required: true,
       },
     },
     isAdmin: {

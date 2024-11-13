@@ -13,7 +13,7 @@ export const Users: React.FC = () => {
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openUserDetailsModal, setOpenUserDetailsModal] =
-    useState<boolean>(false); // State for user details modal
+    useState<boolean>(false); 
 
   const getAllUsers = async () => {
     try {
@@ -98,7 +98,6 @@ export const Users: React.FC = () => {
         onClose={() => setOpenUpdateModal(false)}
       />
 
-      {/* User Details Modal */}
       {openUserDetailsModal && selectedUser && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl space-y-6">

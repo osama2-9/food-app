@@ -5,6 +5,7 @@ import { Testimonials } from "../components/Testimonials";
 import { FeaturedDishes } from "../components/FeaturedDishes";
 import { SpecialOffers } from "../components/SpecialOffers";
 import { Navbar } from "../components/Navbar";
+import { Footer } from "../components/Footer";
 
 export const HomePage = () => {
   return (
@@ -16,6 +17,7 @@ export const HomePage = () => {
         <FeaturedDishes />
         <SpecialOffers />
         <Testimonials />
+        <Footer/>
       </div>
   );
 };

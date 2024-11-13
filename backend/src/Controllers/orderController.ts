@@ -18,6 +18,14 @@ export const createNewOrder = async (req: Request, res: Response): Promise<any> 
             return res.status(400).json({ error: "No user found" });
         }
 
+        const address = user.address;
+        if (!address || !address.name || !address.coordinates || !address.coordinates.lat || !address.coordinates.lng || !address.building || !address.floor || !address.apartment) {
+            return res.status(400).json({
+                error: `Please update your address in your profile to place your order.`
+            });
+        }
+
+
         const cart = await Cart.find({ userId: user._id });
         if (!cart || cart.length === 0) {
             return res.status(400).json({ error: "No items found in cart" });
@@ -54,16 +62,13 @@ export const createNewOrder = async (req: Request, res: Response): Promise<any> 
             return total + (item.price * item.quantity) + additionsTotal + (sizePrice * item.quantity);
         }, 0);
 
-
-
-
         const newOrder = new Order({
             user: {
                 userId: user._id,
                 name: `${user.firstname} ${user.lastname}`,
                 email: user.email,
                 phone: user.phone,
-                address:user.address
+                address: user.address, 
             },
             items: orderItems,
             totalAmount,
@@ -78,6 +83,7 @@ export const createNewOrder = async (req: Request, res: Response): Promise<any> 
         return res.status(500).json({ error: "Internal server error" });
     }
 };
+
 
 export const getOrders = async (req: Request, res: Response): Promise<any> => {
     try {

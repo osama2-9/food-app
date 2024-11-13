@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Usidebar } from "../components/Usidebar";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -14,28 +14,56 @@ const UserProfile = () => {
     lastName: user?.lastname || "",
     email: user?.email || "",
     phone: user?.phone || "",
-    isVerified: user?.isVerified || false,
-    address: user?.address || "",
-    lat: user?.lat || 0,
-    lng: user?.lng || 0,
-    building: user?.building || "",
-    floor: user?.floor || "",
-    apartment: user?.apartment || "",
+    address: {
+      name: user?.address?.name || "",
+      coordinates: {
+        lat: user?.address?.coordinates?.lat || 0,
+        lng: user?.address?.coordinates?.lng || 0,
+      },
+      building: user?.address?.building || "",
+      floor: user?.address?.floor || "",
+      apartment: user?.address?.apartment || "",
+    },
   });
-
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUserData({ ...userData, [name]: value });
+  // Fetch user address and location on load
+  const handleGetAddress = async () => {
+    try {
+      const res = await axios.get(`/api/user/user-address/${user.uid}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      const data = res.data;
+      if (data) {
+        setUserData({
+          ...userData,
+          address: {
+            name: data.address.name,
+            coordinates: {
+              lat: data.address.coordinates.lat,
+              lng: data.address.coordinates.lng,
+            },
+            building: data.address.building,
+            floor: data.address.floor,
+            apartment: data.address.apartment,
+          },
+        });
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error.response?.data?.error || "Failed to fetch address");
+    }
   };
 
+  // Handle profile data update (save changes)
   const handleUpdateProfileData = async () => {
     if (!user) {
       toast.error("Can't update your profile");
-      return null;
+      return;
     }
     setIsLoading(true);
     try {
@@ -45,12 +73,7 @@ const UserProfile = () => {
         lastname: userData.lastName,
         email: userData.email,
         phone: userData.phone,
-        name: userData.address,
-        lat: userData.lat,
-        lng: userData.lng,
-        building: userData.building,
-        floor: userData.floor,
-        apartment: userData.apartment,
+        address: userData.address, // Pass the whole address object
       });
       const updatedUser = res.data;
       if (updatedUser) {
@@ -66,195 +89,202 @@ const UserProfile = () => {
     }
   };
 
+  // Sync profile data when the user object is updated
+  useEffect(() => {
+    if (user?.uid) {
+      handleGetAddress(); // Fetch address data on load
+    }
+  }, [user]);
+
+  // Handle changes in user input
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (name.startsWith("address.")) {
+      const [field, subfield] = name.split(".");
+      setUserData((prevData) => ({
+        ...prevData,
+        address: {
+          ...prevData.address,
+          [subfield]: value,
+        },
+      }));
+    } else {
+      setUserData({ ...userData, [name]: value });
+    }
+  };
+
+  // Handle location changes from the map component
   const handleLocationChange = (lat: number, lng: number, address: string) => {
-    setUserData({ ...userData, lat, lng, address });
+    setUserData((prevData) => ({
+      ...prevData,
+      address: {
+        ...prevData.address,
+        name: address, // Update the name with the address
+        coordinates: {
+          lat,
+          lng,
+        },
+      },
+    }));
   };
 
   return (
     <>
       <Usidebar />
-      <div className="max-w-5xl mx-auto p-8 font-sans">
+      <div className="max-w-4xl mx-auto p-8 font-sans">
         <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800">
           User Profile
         </h1>
-        <div className="bg-white p-8 rounded-2xl shadow-xl space-y-8">
-          <div className="space-y-6">
-            {/* First Name */}
-            <div className="flex items-center justify-between">
-              <label className="font-medium text-lg w-1/4 text-gray-700">
-                First Name:
-              </label>
-              {isEditing ? (
+        <div className="bg-white p-6 rounded-2xl shadow-xl space-y-6">
+          {/* User Information */}
+          <div className="space-y-4">
+            <div className="flex justify-between">
+              <div className="flex flex-col w-1/2">
+                <label className="text-gray-700 font-medium">First Name</label>
                 <input
                   type="text"
                   name="firstName"
                   value={userData.firstName}
                   onChange={handleInputChange}
-                  className="w-3/4 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 transition duration-300"
+                  className="text-gray-800 p-2 border rounded-md w-full"
+                  disabled={!isEditing}
                 />
-              ) : (
-                <span className="text-lg text-gray-800">
-                  {userData.firstName}
-                </span>
-              )}
-            </div>
-
-            {/* Last Name */}
-            <div className="flex items-center justify-between">
-              <label className="font-medium text-lg w-1/4 text-gray-700">
-                Last Name:
-              </label>
-              {isEditing ? (
+              </div>
+              <div className="flex flex-col w-1/2">
+                <label className="text-gray-700 font-medium">Last Name</label>
                 <input
                   type="text"
                   name="lastName"
                   value={userData.lastName}
                   onChange={handleInputChange}
-                  className="w-3/4 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 transition duration-300"
-                />
-              ) : (
-                <span className="text-lg text-gray-800">
-                  {userData.lastName}
-                </span>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="flex items-center justify-between">
-              <label className="font-medium text-lg w-1/4 text-gray-700">
-                Email:
-              </label>
-              {isEditing ? (
-                <input
-                  type="email"
-                  name="email"
-                  value={userData.email}
-                  onChange={handleInputChange}
-                  className="w-3/4 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 transition duration-300"
-                />
-              ) : (
-                <span className="text-lg text-gray-800">{userData.email}</span>
-              )}
-            </div>
-
-            {/* Address */}
-            <div className="flex items-center justify-between">
-              <label className="font-medium text-lg w-1/4 text-gray-700">
-                Address:
-              </label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="address"
-                  value={userData.address}
-                  onChange={handleInputChange}
-                  className="w-3/4 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 transition duration-300"
-                />
-              ) : (
-                <span className="text-lg text-gray-800">
-                  {userData.address}
-                </span>
-              )}
-            </div>
-
-            {/* Additional Address Fields */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="font-medium text-lg w-1/4 text-gray-700">
-                  Building:
-                </label>
-                <input
-                  type="text"
-                  name="building"
-                  value={userData.building}
-                  onChange={handleInputChange}
-                  className="w-3/4 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 transition duration-300"
+                  className="text-gray-800 p-2 border rounded-md w-full"
+                  disabled={!isEditing}
                 />
               </div>
-              <div className="flex items-center justify-between">
-                <label className="font-medium text-lg w-1/4 text-gray-700">
-                  Floor:
-                </label>
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-gray-700 font-medium">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={userData.email}
+                onChange={handleInputChange}
+                className="text-gray-800 p-2 border rounded-md"
+                disabled={!isEditing}
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-gray-700 font-medium">Phone</label>
+              <input
+                type="text"
+                name="phone"
+                value={userData.phone}
+                onChange={handleInputChange}
+                className="text-gray-800 p-2 border rounded-md"
+                disabled={!isEditing}
+              />
+            </div>
+          </div>
+
+          {/* Address & Location */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div className="flex flex-col w-1/2">
+                <label className="text-gray-700 font-medium">Address</label>
                 <input
                   type="text"
-                  name="floor"
-                  value={userData.floor}
+                  name="address.name"
+                  value={userData.address.name}
                   onChange={handleInputChange}
-                  className="w-3/4 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 transition duration-300"
+                  className="text-gray-800 p-2 border rounded-md"
+                  disabled={!isEditing}
                 />
               </div>
-              <div className="flex items-center justify-between">
-                <label className="font-medium text-lg w-1/4 text-gray-700">
-                  Apartment:
-                </label>
+              <div className="w-64 h-64 rounded-lg overflow-hidden">
+                <Maps
+                  lat={userData.address.coordinates.lat}
+                  lng={userData.address.coordinates.lng}
+                  onLocationChange={handleLocationChange}
+                  isEditable={isEditing}
+                />
+              </div>
+            </div>
+
+            <div className="flex space-x-4">
+              <div className="flex flex-col w-1/3">
+                <label className="text-gray-700 font-medium">Building</label>
                 <input
                   type="text"
-                  name="apartment"
-                  value={userData.apartment}
+                  name="address.building"
+                  value={userData.address.building}
                   onChange={handleInputChange}
-                  className="w-3/4 p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 transition duration-300"
+                  className="text-gray-800 p-2 border rounded-md"
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="flex flex-col w-1/3">
+                <label className="text-gray-700 font-medium">Floor</label>
+                <input
+                  type="text"
+                  name="address.floor"
+                  value={userData.address.floor}
+                  onChange={handleInputChange}
+                  className="text-gray-800 p-2 border rounded-md"
+                  disabled={!isEditing}
+                />
+              </div>
+              <div className="flex flex-col w-1/3">
+                <label className="text-gray-700 font-medium">Apartment</label>
+                <input
+                  type="text"
+                  name="address.apartment"
+                  value={userData.address.apartment}
+                  onChange={handleInputChange}
+                  className="text-gray-800 p-2 border rounded-md"
+                  disabled={!isEditing}
                 />
               </div>
             </div>
           </div>
 
-          {/* Add Address Button */}
-          <div className="text-center mt-6">
-            <button
-              onClick={() => setShowModal(true)}
-              className="px-8 py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-200"
-            >
-              Add Address
-            </button>
-          </div>
-
-          {/* Save Button */}
-          <div className="text-center mt-6">
-            <button
-              onClick={handleUpdateProfileData}
-              className="px-8 py-3 bg-purple-600 text-white rounded-xl shadow-md hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 transition duration-200"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center space-x-2">
-                  <FaSpinner className="w-6 h-6 text-white animate-spin" />
-                  <span>Saving...</span>
-                </div>
-              ) : (
-                "Save Changes"
-              )}
-            </button>
+          {/* Edit/Save Buttons */}
+          <div className="text-center">
+            {!isEditing ? (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="px-6 py-2 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-200"
+              >
+                Edit Profile
+              </button>
+            ) : (
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={handleUpdateProfileData}
+                  className="px-6 py-2 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition duration-200"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <FaSpinner className="w-6 h-6 text-white animate-spin" />
+                      <span>Saving...</span>
+                    </div>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="px-6 py-2 bg-gray-600 text-white rounded-xl shadow-md hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      {/* Modal for Map */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
-            <h2 className="text-xl font-semibold mb-4">Select Your Location</h2>
-            <Maps
-              lat={userData.lat}
-              lng={userData.lng}
-              onLocationChange={handleLocationChange}
-            />
-            <div className="mt-4 flex justify-between">
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-              >
-                Save Location
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

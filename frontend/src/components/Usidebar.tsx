@@ -6,13 +6,18 @@ import {
   FaShoppingCart,
   FaBoxOpen,
   FaCaretDown,
+  FaTachometerAlt,
 } from "react-icons/fa";
 import { useState } from "react";
+import { useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
+
 
 export const Usidebar = () => {
   const { handleLogout } = UseLogout();
   const [isOpen, setIsOpen] = useState(false);
 
+const user = useRecoilValue(userAtom)
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -47,6 +52,17 @@ export const Usidebar = () => {
             <FaShoppingCart className="mr-1" />
             Cart
           </Link>
+
+          {user && user.isAdmin && (
+            <Link
+              to="/dashboard"
+              className="flex items-center text-purple-700 hover:text-purple-500"
+            >
+              <FaTachometerAlt className="mr-1" />
+              Dashboard
+            </Link>
+          )}
+
           <button
             onClick={handleLogout}
             className="text-purple-700 hover:text-purple-500"
@@ -85,6 +101,17 @@ export const Usidebar = () => {
                 <FaShoppingCart className="inline-block mr-2" />
                 Cart
               </Link>
+
+              {user && user.isAdmin && (
+                <Link
+                  to="/dashboard"
+                  className="block px-4 py-2 text-purple-700 hover:bg-gray-100"
+                >
+                  <FaTachometerAlt className="inline-block mr-2" />
+                  Dashboard
+                </Link>
+              )}
+
               <button
                 onClick={handleLogout}
                 className="block w-full text-left px-4 py-2 text-purple-700 hover:bg-gray-100"

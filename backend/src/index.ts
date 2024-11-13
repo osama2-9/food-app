@@ -39,8 +39,8 @@ app.use("/api/user", userRoute);
 app.use('/api/restaurant', restaurantRoute)
 app.use('/api/menu', menuRoute);
 app.use('/api/cart', cartRoute)
-app.use('/api/order' ,orderRoute)
-app.use("/api/dashboard" ,dashboardRoute)
+app.use('/api/order', orderRoute)
+app.use("/api/dashboard", dashboardRoute)
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

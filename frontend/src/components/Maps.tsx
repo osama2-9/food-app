@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -16,12 +16,19 @@ interface MapComponentProps {
   lat: number;
   lng: number;
   onLocationChange: (lat: number, lng: number, address: string) => void;
+  isEditable: boolean;
 }
 
-const Maps: React.FC<MapComponentProps> = ({ lat, lng, onLocationChange }) => {
+const Maps: React.FC<MapComponentProps> = ({
+  lat,
+  lng,
+  onLocationChange,
+  isEditable,
+}) => {
   const [location, setLocation] = useState({ lat, lng });
   const [address, setAddress] = useState<string>("");
 
+  // Get current geolocation
   const getCurrentCityLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -59,6 +66,7 @@ const Maps: React.FC<MapComponentProps> = ({ lat, lng, onLocationChange }) => {
     }
   };
 
+  // Search Control for map location
   const SearchControl = () => {
     const map = useMapEvents({});
 
@@ -78,32 +86,36 @@ const Maps: React.FC<MapComponentProps> = ({ lat, lng, onLocationChange }) => {
     return null;
   };
 
+  // Marker for location on map
   const LocationMarker = () => {
     const map = useMap();
 
     useMapEvents({
       click(e) {
-        const { lat, lng } = e.latlng;
-        setLocation({ lat, lng });
+        if (isEditable) {
+          const { lat, lng } = e.latlng;
+          setLocation({ lat, lng });
 
-        fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            const selectedAddress = data.display_name || "No address available";
-            setAddress(selectedAddress);
-            onLocationChange(lat, lng, selectedAddress);
-          })
-          .catch((err) => {
-            console.error("Error fetching address:", err);
-            setAddress("Unable to fetch address");
+          fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              const selectedAddress =
+                data.display_name || "No address available";
+              setAddress(selectedAddress);
+              onLocationChange(lat, lng, selectedAddress);
+            })
+            .catch((err) => {
+              console.error("Error fetching address:", err);
+              setAddress("Unable to fetch address");
+            });
+
+          map.flyTo([lat, lng], 13, {
+            animate: true,
+            duration: 1,
           });
-
-        map.flyTo([lat, lng], 13, {
-          animate: true,
-          duration: 1,
-        });
+        }
       },
     });
 
@@ -120,6 +132,21 @@ const Maps: React.FC<MapComponentProps> = ({ lat, lng, onLocationChange }) => {
         <Popup>{address || "No address selected"}</Popup>
       </Marker>
     );
+  };
+
+  // Trigger map zoom to current location once the position is fetched
+  const MapZoomToLocation = () => {
+    const map = useMap();
+    useEffect(() => {
+      if (location.lat && location.lng) {
+        map.flyTo([location.lat, location.lng], 13, {
+          animate: true,
+          duration: 1,
+        });
+      }
+    }, [location, map]);
+
+    return null;
   };
 
   useEffect(() => {
@@ -141,20 +168,23 @@ const Maps: React.FC<MapComponentProps> = ({ lat, lng, onLocationChange }) => {
         />
         <SearchControl />
         <LocationMarker />
+        <MapZoomToLocation />
       </MapContainer>
 
       <div className="mt-4 text-center text-sm text-gray-600">
         <p>{address ? address : "Click on the map to select your address"}</p>
       </div>
 
-      <div className="text-center mt-4">
-        <button
-          onClick={getCurrentCityLocation}
-          className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Use Current Location
-        </button>
-      </div>
+      {isEditable && (
+        <div className="text-center mt-4">
+          <button
+            onClick={getCurrentCityLocation}
+            className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Use Current Location
+          </button>
+        </div>
+      )}
     </div>
   );
 };
