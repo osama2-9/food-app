@@ -27,6 +27,8 @@ import { AllRestaurants } from "./pages/AllRestaurants";
 function App() {
   const user = useRecoilValue(userAtom);
   const isAdmin = user?.isAdmin;
+  console.log(import.meta.env.VITE_BACKEND_API);
+  
 
   return (
     <>
