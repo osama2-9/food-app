@@ -137,8 +137,8 @@ export const Users: React.FC = () => {
               <div>
                 <p className="text-lg text-gray-700">
                   <strong className="font-medium">Address:</strong>{" "}
-                  {selectedUser.addressName}, {selectedUser.apartment},{" "}
-                  {selectedUser.building}, {selectedUser.floor}
+                  {selectedUser.address.name}, {selectedUser.address.apartment},{" "}
+                  {selectedUser.address.building}, {selectedUser.address.floor}
                 </p>
               </div>
 
@@ -160,7 +160,7 @@ export const Users: React.FC = () => {
                 <p className="text-lg text-gray-700">
                   <strong className="font-medium">Location:</strong>{" "}
                   <a
-                    href={`https://www.google.com/maps?q=${selectedUser.lat},${selectedUser.lng}`}
+                    href={`https://www.google.com/maps?q=${selectedUser.address.coordinates.lat},${selectedUser.address.coordinates.lng}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-500 hover:text-blue-700"

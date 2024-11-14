@@ -253,12 +253,7 @@ export const getAllUsers = async (req: Request, res: Response): Promise<any> => 
       phone: user.phone,
       isVerified: user.isVerified,
       isAdmin: user.isAdmin,
-      addressName: user.address.name,
-      building: user.address.building,
-      apartment: user.address.apartment,
-      floor: user.address.floor,
-      lat: user.address.coordinates.lat,
-      lng: user.address.coordinates.lng
+      address: user.address
 
 
 
