@@ -8,8 +8,8 @@ const mongoUrl: string = process.env.MONGO_URL || "";
 export const DBconnect = async () => {
   try {
     await mongoose.connect(mongoUrl, {
-      connectTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 15000,
+      socketTimeoutMS: 45000,
     });
     console.log('connected');
 
