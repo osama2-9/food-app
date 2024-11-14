@@ -20,6 +20,8 @@ export interface Imenu extends Document {
   sizes?: Size[];
   additions?: Addition[];
   mealType: string
+  rating: number,
+  numberOfRatings: number
 }
 
 const menuItemSchema: Schema<Imenu> = new mongoose.Schema({
@@ -75,6 +77,14 @@ const menuItemSchema: Schema<Imenu> = new mongoose.Schema({
     ],
     default: undefined,
     required: false
+  },
+  rating: {
+    type: Number,
+    default: 0
+  },
+  numberOfRatings: {
+    type: Number,
+    default: 0,
   },
 });
 

@@ -11,9 +11,12 @@ interface Restaurant {
 
 export const useGetRestaurants = () => {
     const [restaurant, setRestaurants] = useState<Restaurant[]>([]);
+    const [loading ,setLoading] = useState(false)
+    const [error ,setError]= useState()
 
     const getRestaurants = async () => {
         try {
+            setLoading(true)
             const res = await axios.get("/api/restaurant/get", {
                 headers: {
                     "Content-Type": "application/json"
@@ -25,9 +28,12 @@ export const useGetRestaurants = () => {
            setRestaurants(data.restaurantData)
            
         } catch (error: any) {
+            setError(error.response.data.error);
             if (error.response && error.response.data) {
                 toast.error(error.response.data.error);
             }
+        }finally{
+            setLoading(false)
         }
     };
     
@@ -35,5 +41,5 @@ export const useGetRestaurants = () => {
         getRestaurants();
     }, []);
 
-    return { restaurant };
+    return { restaurant ,loading, error };
 };

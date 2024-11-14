@@ -40,6 +40,10 @@ export const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ordersPerPage] = useState(12); // Show 12 orders per page
+
   const handleGetOrders = async () => {
     setLoading(true);
     try {
@@ -82,6 +86,23 @@ export const Orders = () => {
       ) || order.user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Pagination logic
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = filteredOrders.slice(
+    indexOfFirstOrder,
+    indexOfLastOrder
+  );
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  // Get page numbers
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(filteredOrders.length / ordersPerPage); i++) {
+    pageNumbers.push(i);
+  }
+
   return (
     <AdminLayout>
       <div>
@@ -118,7 +139,7 @@ export const Orders = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.map((order) => {
+              {currentOrders.map((order) => {
                 const isMatching =
                   order.orderItems.some((item) =>
                     item.restaurantName
@@ -167,6 +188,46 @@ export const Orders = () => {
         {selectedOrder && (
           <Modal order={selectedOrder} onClose={handleCloseModal} />
         )}
+
+        {/* Pagination Controls */}
+        <div className="flex justify-center mt-6">
+          <nav>
+            <ul className="flex items-center">
+              <li>
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-gray-300 text-gray-600 rounded-l-lg hover:bg-gray-400"
+                >
+                  Prev
+                </button>
+              </li>
+              {pageNumbers.map((number) => (
+                <li key={number}>
+                  <button
+                    onClick={() => paginate(number)}
+                    className={`px-4 py-2 ${
+                      number === currentPage
+                        ? "bg-purple-600 text-white"
+                        : "bg-white text-gray-600 hover:bg-gray-100"
+                    } border`}
+                  >
+                    {number}
+                  </button>
+                </li>
+              ))}
+              <li>
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === pageNumbers.length}
+                  className="px-4 py-2 bg-gray-300 text-gray-600 rounded-r-lg hover:bg-gray-400"
+                >
+                  Next
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
       </div>
     </AdminLayout>
   );
@@ -178,7 +239,7 @@ interface ModalProps {
 }
 import { FaTimes } from "react-icons/fa";
 
-const Modal = ({ order, onClose }) => {
+const Modal = ({ order, onClose }: ModalProps) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full lg:w-2/3 transform transition-all overflow-y-auto">
@@ -313,4 +374,3 @@ const Modal = ({ order, onClose }) => {
     </div>
   );
 };
-

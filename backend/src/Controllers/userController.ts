@@ -7,7 +7,10 @@ import generateVerificationCode from "../utils/generateVerificationCode";
 import jwt from 'jsonwebtoken'
 import Restaurant from "../Model/Restaurant";
 import MenuItem from "../Model/Menu";
+const hasAuth = (req: Request): any => {
+  return req.cookies.auth !== undefined
 
+}
 export const signup = async (req: Request, res: Response): Promise<any> => {
   try {
     const { firstname, lastname, email, password, phone } = req.body;
@@ -66,27 +69,13 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
 
 export const checkAuth = async (req: Request, res: Response): Promise<any> => {
   try {
-    const token = req.cookies.auth;
+    const hasAuthCookie = hasAuth(req)
 
-    if (!token) {
-      return res.status(401).json({
-        error: "Unauthorized - No token provided",
-      });
+    if (hasAuthCookie) {
+      return res.status(200).json({ success: true });
+    } else {
+      return res.status(401).json({ success: false });
     }
-
-
-    jwt.verify(token, process.env.JWT_SECRET as string, (err: any, decoded: string) => {
-      if (err) {
-        return res.status(401).json({
-          error: "Unauthorized - Invalid or expired token",
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        decoded,
-      });
-    });
 
   } catch (error) {
     console.log(error);
@@ -324,6 +313,7 @@ export const sendVerificationCode = async (req: Request, res: Response): Promise
 };
 
 
+
 export const verifyEmail = async (req: Request, res: Response): Promise<any> => {
   try {
     const { token, verificationCode } = req.body;
@@ -467,3 +457,5 @@ export const getAddressDetails = async (req: Request, res: Response): Promise<an
     });
   }
 };
+
+

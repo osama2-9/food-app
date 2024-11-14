@@ -171,7 +171,9 @@ export const MealPage: React.FC = () => {
               <h1 className="text-4xl font-bold text-gray-800">{meal.name}</h1>
               <p className="text-lg text-gray-600 mb-4">{meal.description}</p>
               <div className="text-lg text-yellow-500 flex items-center space-x-2 mb-4">
-                <span>★ 4.8 / 5</span>
+                <span>
+                  ★ {meal.rating > 0 ? meal.rating.toFixed(1) : "No rating"} / 5
+                </span>
               </div>
               <h2 className="text-3xl font-semibold text-gray-800">
                 Total Price:{" "}

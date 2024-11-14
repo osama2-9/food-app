@@ -39,11 +39,11 @@ const user = useRecoilValue(userAtom)
             Profile
           </Link>
           <Link
-            to="/orders"
+            to="/rating"
             className="flex items-center text-purple-700 hover:text-purple-500"
           >
             <FaBoxOpen className="mr-1" />
-            Orders
+            Rating
           </Link>
           <Link
             to="/cart"

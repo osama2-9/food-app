@@ -68,7 +68,7 @@ export const createNewOrder = async (req: Request, res: Response): Promise<any> 
                 name: `${user.firstname} ${user.lastname}`,
                 email: user.email,
                 phone: user.phone,
-                address: user.address, 
+                address: user.address,
             },
             items: orderItems,
             totalAmount,
@@ -76,6 +76,8 @@ export const createNewOrder = async (req: Request, res: Response): Promise<any> 
         });
 
         await newOrder.save();
+
+        await Cart.deleteMany({userId :user._id})
 
         return res.status(201).json({ message: "Order created successfully", order: newOrder });
     } catch (error) {
@@ -107,7 +109,7 @@ export const getOrders = async (req: Request, res: Response): Promise<any> => {
                     name: r.name,
                     email: r.contact.email,
                     phone: r.contact.phone
-                    
+
                 };
             });
 
@@ -183,6 +185,7 @@ export const getUserOrder = async (req: Request, res: Response): Promise<any> =>
                 return {
                     restaurant: restaurantData ? restaurantData.name : 'Unknown Restaurant',
                     meal: mealData ? mealData.name : 'Unknown Meal',
+                    mealId: mealData._id,
                     mealImg: mealData ? mealData.mealImg : '',
                     size: item.size ? { name: item.size.name, price: item.size.price } : null,
                     additions: item.additions ? item.additions.map(add => ({
@@ -215,3 +218,45 @@ export const getUserOrder = async (req: Request, res: Response): Promise<any> =>
     }
 };
 
+export const orderRating = async (req: Request, res: Response): Promise<any> => {
+    const { orderId } = req.params;
+    const { menuItemId, rating, comment } = req.body;
+
+    try {
+        if (!menuItemId || rating < 1 || rating > 5) {
+            return res.status(400).json({ message: "Invalid input" });
+        }
+
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        const orderItem = order.items.find(item => item.menuItem.toString() === menuItemId);
+        if (!orderItem) {
+            return res.status(404).json({ message: "Menu item not found in order" });
+        }
+
+
+        order.comment = comment;
+
+        const menuItem = await MenuItem.findById(menuItemId);
+        if (!menuItem) {
+            return res.status(404).json({ message: "Menu item not found" });
+        }
+
+        const totalRatings = menuItem.rating * (menuItem.numberOfRatings || 0) + rating;
+        const newNumberOfRatings = (menuItem.numberOfRatings || 0) + 1;
+        const newAverageRating = totalRatings / newNumberOfRatings;
+
+        menuItem.rating = newAverageRating;
+        menuItem.numberOfRatings = newNumberOfRatings;
+        await menuItem.save();
+
+        await order.save();
+
+        res.status(200).json({ message: "Rating submitted successfully" });
+    } catch (error) {
+        console.error("Error submitting rating:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};

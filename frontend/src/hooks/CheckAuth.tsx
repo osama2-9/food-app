@@ -11,17 +11,13 @@ export const CheckAuth = () => {
   const handleCheckAuth = async () => {
     try {
       const res = await axios.get("/api/user/protected", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
+       
+        withCredentials: true, 
       });
 
-      if (res.status === 401) {
-        localStorage.removeItem("user");
-        setUser(null);
-        handleLogout();
-      }
+      console.log(await res.data);
+      
+     
     } catch (error: any) {
       console.log("Error:", error);
       if (error.response) {
@@ -40,7 +36,8 @@ export const CheckAuth = () => {
   };
 
   useEffect(() => {
-    if (!user == null) {
+    if (user !== null) {
+      
       handleCheckAuth();
     }
   }, [user]);

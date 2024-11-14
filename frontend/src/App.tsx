@@ -21,6 +21,8 @@ import { AddMenuItem } from "./pages/admin/AddMenuItem";
 import { MealPage } from "./pages/MealPage";
 import { Cart } from "./pages/Cart";
 import UserProfile from "./pages/UserProfile";
+import Rating from "./pages/Rating";
+import { AllRestaurants } from "./pages/AllRestaurants";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -51,10 +53,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/restaurant/meal/:mealId"
-          element={<MealPage />}
-        />
+        <Route path="/restaurant/meal/:mealId" element={<MealPage />} />
         <Route
           path="/show-restaurants"
           element={
@@ -69,9 +68,10 @@ function App() {
           path="/account"
           element={user ? <Account /> : <Navigate to="/login" />}
         />
+        <Route path="/restaurants" element={<AllRestaurants/>} />
         <Route path="/user-profile" element={<UserProfile />} />
         <Route path="/restaurant/:name/:id" element={<RestaurantPage />} />
-
+        <Route path="/rating" element={<Rating />} />
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

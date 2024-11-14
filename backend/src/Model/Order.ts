@@ -24,6 +24,7 @@ interface Order extends Document {
     address: object
   };
   status: "Pending" | "In Progress" | "Completed" | "Cancelled";
+  comment:string
 }
 
 const orderSchema = new mongoose.Schema<Order>({
@@ -92,6 +93,10 @@ const orderSchema = new mongoose.Schema<Order>({
     enum: ["Pending", "In Progress", "Completed", "Cancelled"],
     default: "Pending",
   },
+  comment:{
+    type:String,
+    default :""
+  }
 });
 
 const Order = mongoose.model<Order>("Order", orderSchema);

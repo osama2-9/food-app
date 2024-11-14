@@ -2,28 +2,42 @@ import { Link } from "react-router-dom";
 import { useGetRestaurants } from "../hooks/useGetRestaurants";
 
 export const Restaurants = () => {
-    const { restaurant } = useGetRestaurants();
-    
+  const { restaurant } = useGetRestaurants();
 
-    return (
-        <div className="m-5 mb-20">
-            <h2 className="text-3xl font-bold mb-4">Popular Restaurants</h2>
-            <div className="overflow-x-auto whitespace-nowrap">
-                {restaurant?.map((restaurant) => (
-                    <Link
-                        key={restaurant.rid}
-                        to={`/restaurant/${restaurant.name}/${restaurant.rid}`}
-                        className="inline-block w-40 m-2 text-center bg-white rounded-lg shadow-md transition-transform transform hover:scale-105"
-                    >
-                        <img
-                            src={restaurant.brandImg}
-                            alt={restaurant.name}
-                            className="w-full h-24 object-cover rounded-t-lg"
-                        />
-                        <p className="p-2 text-lg font-semibold">{restaurant.name}</p>
-                    </Link>
-                ))}
+  const displayedRestaurants = restaurant?.slice(0, 6);
+
+  return (
+    <div className="m-5 mb-20 relative">
+      <h2 className="text-3xl font-bold mb-4">Restaurants</h2>
+
+      <Link
+        to="/restaurants"
+        className="absolute top-0 right-0 text-lg text-purple-500 font-semibold hover:underline"
+      >
+        View All
+      </Link>
+
+      <div className="flex overflow-x-auto space-x-6 py-4">
+        {displayedRestaurants?.map((restaurant) => (
+          <Link
+            key={restaurant.rid}
+            to={`/restaurant/${restaurant.name}/${restaurant.rid}`}
+            className="w-56 flex-shrink-0 bg-white rounded-lg shadow-md transition-transform transform hover:scale-105"
+          >
+            <img
+              src={restaurant.brandImg}
+              alt={restaurant.name}
+              className="w-full h-40 object-cover rounded-t-lg"
+            />
+
+            <div className="p-4 text-center">
+              <p className="text-lg font-semibold text-gray-800 group-hover:text-purple-600 transition-colors">
+                {restaurant.name}
+              </p>
             </div>
-        </div>
-    );
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 };

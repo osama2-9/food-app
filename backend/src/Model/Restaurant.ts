@@ -10,6 +10,7 @@ export interface Irestaurant extends Document {
   menu: mongoose.Types.ObjectId[];
   createdAt: Date;
   brandImg: string;
+  
 }
 
 const restaurantSchema = new mongoose.Schema<Irestaurant>({
@@ -55,6 +56,7 @@ const restaurantSchema = new mongoose.Schema<Irestaurant>({
     type: Date,
     default: Date.now,
   },
+ 
 
 });
 restaurantSchema.index({ name: "text" })

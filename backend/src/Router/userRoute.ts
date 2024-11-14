@@ -5,7 +5,7 @@ import { isAdmin } from "../utils/isAdmin";
 import { isSuperAdmin } from "../utils/isSuperAdmin";
 
 const userRoute: Router = Router();
-userRoute.get('/protected', protectRoute, checkAuth)
+userRoute.get('/protected', checkAuth)
 userRoute.post("/signup", signup);
 userRoute.post("/login", login);
 userRoute.post('/logout', logout)
