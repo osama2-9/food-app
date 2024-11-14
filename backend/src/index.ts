@@ -20,7 +20,13 @@ app.use(
     origin: "http://localhost:3000",
     methods: ["POST", "GET", "PUT", "DELETE"],
     credentials: true,
-
+    allowedHeaders: [
+      "content-type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+      "Origin",
+    ],
   }),
 
 );
@@ -29,8 +35,12 @@ app.use(cookieParser());
 app.use(express.json({ limit: "30mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-
 DBconnect();
+app.get('/' ,(req:any ,res:any)=>{
+res.json({
+  "server test"
+})
+})
 
 cloudinary.config({
   cloud_name: process.env.CLOUDE_NAME,
