@@ -3,11 +3,11 @@
     "module": "NodeNext",
     "moduleResolution": "nodenext",
     "baseUrl": "src",
-    "outDir": "dist",
+    "outDir": "./backend",
+    "rootDir": "./src",
     "sourceMap": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
-    // "typeRoots": ["./src/types", "./node_modules/@types"]
   },
   "include": ["./src/**/*"]
 }
