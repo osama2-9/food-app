@@ -26,7 +26,7 @@ import { AllRestaurants } from "./pages/AllRestaurants";
 
 function App() {
   const user = useRecoilValue(userAtom);
-  const isAdmin = user && user.isAdmin;
+  const isAdmin =  user?.isAdmin;
 
   return (
     <>

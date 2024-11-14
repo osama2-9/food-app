@@ -1,6 +1,6 @@
 import { atom } from "recoil";
-
-const userAtom = atom<string | null>({
+import { User } from "../types/User"
+const userAtom = atom<User | null>({
   key: "userAtom",
   default: JSON.parse(localStorage.getItem("user") || "null"),
 });
