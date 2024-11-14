@@ -10,6 +10,7 @@ import menuRoute from "./Router/menuRoutes";
 import cartRoute from "./Router/cartRoutes";
 import orderRoute from "./Router/orderRoutes";
 import dashboardRoute from "./Router/dashboardRoutes";
+import path from 'path'
 
 dotenv.config();
 
@@ -37,9 +38,9 @@ app.use(express.urlencoded({ extended: true }));
 
 DBconnect();
 
-app.get("/test" ,(req:any ,res:any)=>{
+app.get("/test", (req: any, res: any) => {
   res.status(200).json({
-    message:"Server work"
+    message: "Server work"
   })
 })
 
@@ -54,7 +55,14 @@ app.use('/api/menu', menuRoute);
 app.use('/api/cart', cartRoute)
 app.use('/api/order', orderRoute)
 app.use("/api/dashboard", dashboardRoute)
+if (process.env.NODE_ENV === "production") {
+  console.log("production test");
 
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+  });
+}
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
