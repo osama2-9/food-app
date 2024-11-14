@@ -7,7 +7,10 @@ const mongoUrl: string = process.env.MONGO_URL || "";
 
 export const DBconnect = async () => {
   try {
-    await mongoose.connect(mongoUrl, {});
+    await mongoose.connect(mongoUrl, {
+      connectTimeoutMS: 60000,  
+      socketTimeoutMS: 60000,
+    });
     console.log('connected');
     
   } catch (err: unknown) {
