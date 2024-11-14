@@ -1,6 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { Request, Response } from "express";
 
 export interface IUser extends Document {
+  _id: string;
   firstname: string;
   lastname: string;
   password: string;
@@ -14,7 +16,7 @@ export interface IUser extends Document {
   verificationCode?: number;
   verificationCodeTokenExpiresAt?: Date;
   address: {
-    name: String,
+    name: string;
     coordinates: {
       lat: number;
       lng: number;
@@ -81,11 +83,11 @@ const UserSchema: Schema<IUser> = new Schema(
       type: Boolean,
       default: false,
     },
-    resetPasswordToken: { type: String, default: undefined },
-    resetPasswordTokenExpiresAt: { type: Date, default: undefined },
-    verificationCodeToken: { type: String, default: undefined },
-    verificationCodeTokenExpiresAt: { type: Date, default: undefined },
-    verificationCode: { type: Number, default: undefined },
+    resetPasswordToken: { type: String },
+    resetPasswordTokenExpiresAt: { type: Date },
+    verificationCodeToken: { type: String },
+    verificationCodeTokenExpiresAt: { type: Date },
+    verificationCode: { type: Number },
   },
   {
     timestamps: true,

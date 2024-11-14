@@ -4,10 +4,15 @@ import express from "express";
 
 dotenv.config();
 
-const secret = process.env.SECRET;
 export const generateToken = (uid: string, res: express.Response) => {
   try {
-    const token = jwt.sign({ uid }, process.env.SECRET, {
+    // Ensure SECRET is defined
+    const secret = process.env.SECRET;
+    if (!secret) {
+      throw new Error("SECRET is not defined in environment variables.");
+    }
+
+    const token = jwt.sign({ uid }, secret, {
       expiresIn: "1d",
     });
 
