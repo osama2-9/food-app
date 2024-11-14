@@ -36,10 +36,11 @@ app.use(express.json({ limit: "30mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 DBconnect();
-app.get('/' ,(req:any ,res:any)=>{
-res.json({
-  "server test"
-})
+
+app.get("/" ,(req:any ,res:any)=>{
+  res.status(200).json({
+    message:"Server work"
+  })
 })
 
 cloudinary.config({
