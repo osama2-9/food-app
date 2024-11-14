@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run build --prefix frontend",
+    "build": "vite build",
     "start": "vite preview"
   },
+
   "dependencies": {
     "@react-google-maps/api": "^2.20.3",
     "axios": "^1.7.7",
