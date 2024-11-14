@@ -37,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 DBconnect();
 
-app.get("/" ,(req:any ,res:any)=>{
+app.get("/test" ,(req:any ,res:any)=>{
   res.status(200).json({
     message:"Server work"
   })
