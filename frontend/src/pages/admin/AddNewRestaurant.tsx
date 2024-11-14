@@ -22,7 +22,6 @@ export const AddNewRestaurant: React.FC = () => {
         brandImg:img
     });
 
-    const [loading, setLoading] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -37,7 +36,6 @@ export const AddNewRestaurant: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading(true);
 
        
         
@@ -67,7 +65,6 @@ export const AddNewRestaurant: React.FC = () => {
             }
             console.error(error);
         } finally {
-            setLoading(false);
         }
     };
 

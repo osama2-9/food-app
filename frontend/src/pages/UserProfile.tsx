@@ -6,9 +6,10 @@ import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import Maps from "../components/Maps";
 import { FaSpinner } from "react-icons/fa";
+import { User } from "../types/User";
 
 const UserProfile = () => {
-  const user = useRecoilValue(userAtom);
+  const user = useRecoilValue<User | null>(userAtom);
   const [userData, setUserData] = useState({
     firstName: user?.firstname || "",
     lastName: user?.lastname || "",
@@ -28,10 +29,9 @@ const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch user address and location on load
   const handleGetAddress = async () => {
     try {
-      const res = await axios.get(`/api/user/user-address/${user.uid}`, {
+      const res = await axios.get(`/api/user/user-address/${user?.uid}`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -59,7 +59,6 @@ const UserProfile = () => {
     }
   };
 
-  // Handle profile data update (save changes)
   const handleUpdateProfileData = async () => {
     if (!user) {
       toast.error("Can't update your profile");
@@ -73,7 +72,7 @@ const UserProfile = () => {
         lastname: userData.lastName,
         email: userData.email,
         phone: userData.phone,
-        address: userData.address, // Pass the whole address object
+        address: userData.address,
       });
       const updatedUser = res.data;
       if (updatedUser) {
@@ -89,18 +88,18 @@ const UserProfile = () => {
     }
   };
 
-  // Sync profile data when the user object is updated
   useEffect(() => {
     if (user?.uid) {
-      handleGetAddress(); // Fetch address data on load
+      handleGetAddress();
     }
   }, [user]);
 
-  // Handle changes in user input
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name.startsWith("address.")) {
       const [field, subfield] = name.split(".");
+      console.log(field);
+
       setUserData((prevData) => ({
         ...prevData,
         address: {
@@ -113,13 +112,12 @@ const UserProfile = () => {
     }
   };
 
-  // Handle location changes from the map component
   const handleLocationChange = (lat: number, lng: number, address: string) => {
     setUserData((prevData) => ({
       ...prevData,
       address: {
         ...prevData.address,
-        name: address, // Update the name with the address
+        name: address,
         coordinates: {
           lat,
           lng,
@@ -136,7 +134,6 @@ const UserProfile = () => {
           User Profile
         </h1>
         <div className="bg-white p-6 rounded-2xl shadow-xl space-y-6">
-          {/* User Information */}
           <div className="space-y-4">
             <div className="flex justify-between">
               <div className="flex flex-col w-1/2">
@@ -188,7 +185,6 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* Address & Location */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <div className="flex flex-col w-1/2">
@@ -249,7 +245,6 @@ const UserProfile = () => {
             </div>
           </div>
 
-          {/* Edit/Save Buttons */}
           <div className="text-center">
             {!isEditing ? (
               <button

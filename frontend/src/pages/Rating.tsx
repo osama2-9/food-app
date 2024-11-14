@@ -1,39 +1,42 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { AiFillStar, AiOutlineStar } from "react-icons/ai"; // Star icons for rating
+import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { Usidebar } from "../components/Usidebar";
 import toast from "react-hot-toast";
-
-const statusStyles = {
-  completed: "text-green-600",
-  pending: "text-yellow-600",
-  canceled: "text-red-600",
-};
+import { Order } from "../types/Order";
+import { RingLoader } from "react-spinners"; 
 
 const Rating = () => {
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false); 
+  const [submittingRating, setSubmittingRating] = useState(false); // Loading state for rating submission
   const user = useRecoilValue(userAtom);
 
   useEffect(() => {
     const getUserOrders = async () => {
+      setLoading(true); 
       try {
         const response = await axios.get(`/api/order/userOrders/${user?.uid}`);
         setOrders(response.data.orders);
       } catch (error) {
         console.error("Error fetching orders:", error);
+      } finally {
+        setLoading(false); 
       }
     };
 
-    getUserOrders();
+    if (user?.uid) {
+      getUserOrders();
+    }
   }, [user?.uid]);
 
-  const openModal = (order) => {
+  const openModal = (order: Order) => {
     setSelectedOrder(order);
     setModalIsOpen(true);
   };
@@ -43,11 +46,11 @@ const Rating = () => {
     setRating(0);
     setComment("");
   };
-  const handleRatingSubmit = async (e) => {
+
+  const handleRatingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedOrder) {
-      console.log(selectedOrder.items[0].mealId);
-
+      setSubmittingRating(true); 
       try {
         const res = await axios.post(
           `/api/order/rate/${selectedOrder.orderId}`,
@@ -64,7 +67,9 @@ const Rating = () => {
         }
       } catch (error: any) {
         console.error("Error submitting rating:", error);
-        toast.error(error.response?.data?.message);
+        toast.error(error.response?.data?.message || "Error submitting rating");
+      } finally {
+        setSubmittingRating(false); 
       }
     }
   };
@@ -74,58 +79,67 @@ const Rating = () => {
       <Usidebar />
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold my-6 text-center">Your Orders</h1>
-        <div className="space-y-6">
-          {orders.map((order) => (
-            <div
-              key={order.orderId}
-              className="p-5 border rounded-lg shadow-lg bg-white hover:shadow-xl transition duration-200"
-            >
-              <div className="flex justify-between items-center">
-                <h6 className="text-sm text-gray-500 font-semibold">
-                  <span className="text-gray-600">Order ID:</span>
-                  <span className="ml-2">{order.orderId}</span>
-                </h6>
-                <p className={`${statusStyles[order.status]} font-bold`}>
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                </p>
-              </div>
-              <p>
-                Total Amount:{" "}
-                <span className="font-semibold">${order.totalAmount}</span>
-              </p>
-              <p>
-                Ordered At:{" "}
-                <span className="font-semibold">
-                  {new Date(order.orderdAt).toLocaleString()}
-                </span>
-              </p>
-              <h3 className="font-medium mt-2">Items:</h3>
-              <ul className="list-disc pl-5 mb-4">
-                {order.items.map((item, index) => (
-                  <li key={index} className="flex items-center my-1">
-                    {item.mealImg && (
-                      <img
-                        src={item.mealImg}
-                        alt={item.meal}
-                        className="w-12 h-12 mr-2 rounded"
-                      />
-                    )}
-                    <span>
-                      {item.meal} from <strong>{item.restaurant}</strong> - $
-                      {item.price}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <button
-                className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200"
-                onClick={() => openModal(order)}
+
+        
+        {loading ? (
+          <div className="flex justify-center items-center">
+            <RingLoader size={60} color="#4f46e5" loading={loading} />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {orders.map((order) => (
+              <div
+                key={order.orderId}
+                className="p-5 border rounded-lg shadow-lg bg-white hover:shadow-xl transition duration-200"
               >
-                Rate
-              </button>
-            </div>
-          ))}
-        </div>
+                <div className="flex justify-between items-center">
+                  <h6 className="text-sm text-gray-500 font-semibold">
+                    <span className="text-gray-600">Order ID:</span>
+                    <span className="ml-2">{order.orderId}</span>
+                  </h6>
+                  <p className={`${order.status} font-bold`}>
+                    {order.status.charAt(0).toUpperCase() +
+                      order.status.slice(1)}
+                  </p>
+                </div>
+                <p>
+                  Total Amount:{" "}
+                  <span className="font-semibold">${order.totalAmount}</span>
+                </p>
+                <p>
+                  Ordered At:{" "}
+                  <span className="font-semibold">
+                    {new Date(order.orderdAt).toLocaleString()}
+                  </span>
+                </p>
+                <h3 className="font-medium mt-2">Items:</h3>
+                <ul className="list-disc pl-5 mb-4">
+                  {order.items.map((item, index) => (
+                    <li key={index} className="flex items-center my-1">
+                      {item.mealImg && (
+                        <img
+                          src={item.mealImg}
+                          alt={item.meal}
+                          className="w-12 h-12 mr-2 rounded"
+                        />
+                      )}
+                      <span>
+                        {item.meal} from <strong>{item.restaurant}</strong> - $
+                        {item.price}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200"
+                  onClick={() => openModal(order)}
+                >
+                  Rate
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         {modalIsOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -156,8 +170,17 @@ const Rating = () => {
                 <button
                   className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200"
                   onClick={handleRatingSubmit}
+                  disabled={submittingRating} 
                 >
-                  Submit Rating
+                  {submittingRating ? (
+                    <RingLoader
+                      size={20}
+                      color="#fff"
+                      loading={submittingRating}
+                    />
+                  ) : (
+                    "Submit Rating"
+                  )}
                 </button>
                 <button
                   className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-200 ml-2"

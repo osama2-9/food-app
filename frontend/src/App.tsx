@@ -26,7 +26,7 @@ import { AllRestaurants } from "./pages/AllRestaurants";
 
 function App() {
   const user = useRecoilValue(userAtom);
-  const isAdmin =  user?.isAdmin;
+  const isAdmin = user?.isAdmin;
 
   return (
     <>
@@ -68,7 +68,7 @@ function App() {
           path="/account"
           element={user ? <Account /> : <Navigate to="/login" />}
         />
-        <Route path="/restaurants" element={<AllRestaurants/>} />
+        <Route path="/restaurants" element={<AllRestaurants />} />
         <Route path="/user-profile" element={<UserProfile />} />
         <Route path="/restaurant/:name/:id" element={<RestaurantPage />} />
         <Route path="/rating" element={<Rating />} />

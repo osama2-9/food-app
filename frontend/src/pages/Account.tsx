@@ -12,13 +12,17 @@ import userAtom from "../atoms/userAtom";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { format } from "date-fns";
+import { User } from "../types/User";
+import { Order } from "../types/Order";
 
 export const Account = () => {
-  const userProfile = useRecoilValue(userAtom);
-  const [orders, setOrders] = useState([]);
+  const userProfile = useRecoilValue<User | null>(userAtom);
+  const [orders, setOrders] = useState<Order[] | null>([]);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-
+  if (!userProfile) {
+    return null;
+  }
   const handleGetUserOrder = async () => {
     try {
       if (!userProfile.uid) {
@@ -51,8 +55,9 @@ export const Account = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 5;
 
-  const totalPages = Math.ceil(orders.length / ordersPerPage);
-  const currentOrders = orders.slice(
+ const totalPages = orders ? Math.ceil(orders.length / ordersPerPage) : 0;
+
+  const currentOrders = orders?.slice(
     (currentPage - 1) * ordersPerPage,
     currentPage * ordersPerPage
   );
@@ -76,7 +81,7 @@ export const Account = () => {
   };
 
   const handleOrderClick = (orderId: string) => {
-    const orderDetails = orders.find((order) => order.orderId === orderId);
+    const orderDetails = orders?.find((order) => order.orderId === orderId);
     setSelectedOrder(orderDetails);
   };
 
@@ -127,7 +132,7 @@ export const Account = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentOrders.map((order, index) => (
+                  {currentOrders?.map((order, index) => (
                     <tr
                       key={order.orderId}
                       className={`${
@@ -155,11 +160,11 @@ export const Account = () => {
                       </td>
                       <td
                         className={`py-3 px-6 border ${
-                          order.status === "Shipped"
+                          order?.status === "shipped"
                             ? "text-green-500"
-                            : order.status === "Processing"
+                            : order?.status === "processing"
                             ? "text-orange-500"
-                            : order.status === "Cancelled"
+                            : order?.status === "cancelled"
                             ? "text-red-500"
                             : "text-gray-500"
                         }`}

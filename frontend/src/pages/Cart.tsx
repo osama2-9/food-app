@@ -3,6 +3,7 @@ import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { User } from "../types/User";
 
 interface Addition {
   _id: string;
@@ -27,13 +28,13 @@ interface CartItem {
 }
 
 export const Cart: React.FC = () => {
-  const user = useRecoilValue(userAtom);
+  const user = useRecoilValue<User | null>(userAtom);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get(`/api/cart/getItems/${user.uid}`);
+      const response = await axios.get(`/api/cart/getItems/${user?.uid}`);
       const items = response.data.carts.flatMap(
         (cart: { items: CartItem[] }) => cart.items
       );
@@ -73,7 +74,7 @@ export const Cart: React.FC = () => {
   const removeItemFromCart = async (mealId: string) => {
     try {
       await axios.delete(
-        `/api/cart/remove-items-in-cart/${user.uid}/${mealId}`,
+        `/api/cart/remove-items-in-cart/${user?.uid}/${mealId}`,
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,

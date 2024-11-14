@@ -4,16 +4,17 @@ import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import userAtom from "../atoms/userAtom";
 import { useRecoilValue } from "recoil";
+import { User } from "../types/User";
 
 export const VerifyEmail = () => {
-  const [code, setCode] = useState<string>(""); 
+  const [code, setCode] = useState<string>("");
   const { token } = useParams();
   console.log(token);
-  
+
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const user = useRecoilValue(userAtom);
-console.log(user);
+  const [loading, setLoading] = useState<boolean>(false);
+  const user = useRecoilValue<User | null>(userAtom);
+  console.log(user);
 
   if (!user) {
     return null;
@@ -24,8 +25,7 @@ console.log(user);
       const res = await axios.post(
         "/api/user/send-verification-code",
         {
-          uid: user.uid
-          ,
+          uid: user.uid,
         },
         {
           headers: {
@@ -51,13 +51,13 @@ console.log(user);
 
   const handleVerifyEmail = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); 
-    const CastedCode = Number(code); 
+    setLoading(true);
+    const CastedCode = Number(code);
 
     try {
       const res = await axios.post(
         "/api/user/verify-email",
-        { verificationCode: CastedCode, token:token },
+        { verificationCode: CastedCode, token: token },
         {
           withCredentials: true,
           headers: {

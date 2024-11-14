@@ -4,8 +4,6 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
-import { Meal } from "../types/Meal";
-
 interface Size {
   _id: string;
   name: string;
@@ -18,10 +16,22 @@ interface Addition {
   price: number;
 }
 
+interface Meal {
+  _id: string;
+  name: string;
+  description: string;
+  sizes: Size[]; 
+  additions: Addition[];
+  price: number;
+  mealImg: string;
+  rating: number;
+}
+
 interface MealData extends Meal {
-  sizes: Size[];
+  sizes: Size[]; 
   additions: Addition[];
 }
+
 
 const topRatedDishes = [
   {

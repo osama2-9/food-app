@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; 
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useGetRestaurants } from "../hooks/useGetRestaurants";
-import { CircleLoader } from "react-spinners"; 
+import { CircleLoader } from "react-spinners";
 
 export const AllRestaurants = () => {
   const { restaurant, loading, error } = useGetRestaurants();
   const [filter, setFilter] = useState("all");
-  const [searchQuery, setSearchQuery] = useState(""); 
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredRestaurants =
     filter === "all"
       ? restaurant
       : restaurant?.filter(
-          (res) => res.cuisineType.toLowerCase() === filter.toLowerCase()
+          (res) => res.cuisineType?.toLowerCase() === filter.toLowerCase()
         );
 
   const searchedRestaurants = filteredRestaurants?.filter((res) =>
@@ -84,7 +84,6 @@ export const AllRestaurants = () => {
         </div>
       )}
 
-      {error && <p className="text-center text-red-500">{error.message}</p>}
 
       {searchedRestaurants?.length === 0 && !loading && !error && (
         <p className="text-center text-gray-600">No restaurants found.</p>
@@ -94,7 +93,7 @@ export const AllRestaurants = () => {
         {searchedRestaurants?.map((restaurant) => (
           <Link
             key={restaurant.rid}
-            to={`/restaurant/${restaurant.name}/${restaurant.rid}`} 
+            to={`/restaurant/${restaurant.name}/${restaurant.rid}`}
             className="bg-white rounded-lg shadow-xl overflow-hidden transform hover:scale-105 transition-all"
           >
             <img

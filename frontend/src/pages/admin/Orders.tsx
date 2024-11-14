@@ -3,8 +3,7 @@ import { AdminLayout } from "../../layouts/AdminLayout";
 import { FaEye, FaSearch } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { ClipLoader } from "react-spinners"; // Import the ClipLoader spinner
-
+import { ClipLoader } from "react-spinners";
 interface OrderItem {
   restaurantId: string;
   restaurantName: string;
@@ -16,13 +15,6 @@ interface OrderItem {
   price: number;
   size: { name: string; price: number };
   additions: { name: string; price: number; _id: string }[];
-}
-
-interface User {
-  userId: string;
-  name: string;
-  email: string;
-  phone: string;
 }
 
 interface Order {
@@ -40,9 +32,8 @@ export const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [ordersPerPage] = useState(12); // Show 12 orders per page
+  const [ordersPerPage] = useState(12);
 
   const handleGetOrders = async () => {
     setLoading(true);
@@ -78,15 +69,21 @@ export const Orders = () => {
   const handleCloseModal = () => {
     setSelectedOrder(null);
   };
+  const filteredOrders = orders.filter((order) => {
+    return (
+      order.orderItems?.some(
+        (item) =>
+          item.restaurantName
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          order.user?.firstname
+            ?.toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      ) ||
+      order.user?.firstname?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
-  const filteredOrders = orders.filter(
-    (order) =>
-      order.orderItems.some((item) =>
-        item.restaurantName.toLowerCase().includes(searchTerm.toLowerCase())
-      ) || order.user.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Pagination logic
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
   const currentOrders = filteredOrders.slice(
@@ -94,10 +91,8 @@ export const Orders = () => {
     indexOfLastOrder
   );
 
-  // Change page
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  // Get page numbers
   const pageNumbers = [];
   for (let i = 1; i <= Math.ceil(filteredOrders.length / ordersPerPage); i++) {
     pageNumbers.push(i);
@@ -120,7 +115,6 @@ export const Orders = () => {
         </div>
 
         {loading ? (
-          // Use ClipLoader spinner while loading
           <div className="flex justify-center items-center">
             <ClipLoader size={50} color="#3498db" loading={loading} />
           </div>
@@ -146,7 +140,7 @@ export const Orders = () => {
                       .toLowerCase()
                       .includes(searchTerm.toLowerCase())
                   ) ||
-                  order.user.name
+                  order.user.firstname
                     .toLowerCase()
                     .includes(searchTerm.toLowerCase());
 
@@ -165,7 +159,7 @@ export const Orders = () => {
                     <td className="py-2 px-4 border">
                       {new Date(order.orderDate).toLocaleDateString()}
                     </td>
-                    <td className="py-2 px-4 border">{order.user.name}</td>
+                    <td className="py-2 px-4 border">{order.user.firstname}</td>
                     <td className="py-2 px-4 border">
                       ${order.totalAmount.toFixed(2)}
                     </td>
@@ -189,7 +183,6 @@ export const Orders = () => {
           <Modal order={selectedOrder} onClose={handleCloseModal} />
         )}
 
-        {/* Pagination Controls */}
         <div className="flex justify-center mt-6">
           <nav>
             <ul className="flex items-center">
@@ -238,12 +231,12 @@ interface ModalProps {
   onClose: () => void;
 }
 import { FaTimes } from "react-icons/fa";
+import { User } from "../../types/User";
 
 const Modal = ({ order, onClose }: ModalProps) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full lg:w-2/3 transform transition-all overflow-y-auto">
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none"
@@ -251,12 +244,10 @@ const Modal = ({ order, onClose }: ModalProps) => {
           <FaTimes size={24} />
         </button>
 
-        {/* Modal Header */}
         <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
           Order Details
         </h2>
 
-        {/* Order Info */}
         <p className="text-lg mb-2">
           <strong>Order ID:</strong> {order.orderId}
         </p>
@@ -265,13 +256,12 @@ const Modal = ({ order, onClose }: ModalProps) => {
           {new Date(order.orderDate).toLocaleDateString()}
         </p>
 
-        {/* User Info */}
         <h3 className="text-xl font-semibold text-gray-700 mb-2">
           User Information
         </h3>
         <div className="mb-4 space-y-2 text-gray-600">
           <p>
-            <strong>Name:</strong> {order.user.name}
+            <strong>Name:</strong> {order.user.firstname}
           </p>
           <p>
             <strong>Email:</strong> {order.user.email}
@@ -280,7 +270,6 @@ const Modal = ({ order, onClose }: ModalProps) => {
             <strong>Phone:</strong> {order.user.phone}
           </p>
 
-          {/* Address Display */}
           {order.user.address && (
             <div className="space-y-1">
               <p>
@@ -307,7 +296,6 @@ const Modal = ({ order, onClose }: ModalProps) => {
           )}
         </div>
 
-        {/* Order Items */}
         <h3 className="text-xl font-semibold text-gray-700 mb-4">
           Order Items
         </h3>
@@ -345,7 +333,6 @@ const Modal = ({ order, onClose }: ModalProps) => {
           ))}
         </div>
 
-        {/* Total and Status */}
         <div className="flex flex-col lg:flex-row justify-between items-center mt-6 border-t pt-4">
           <p className="text-xl font-semibold text-gray-800">
             <strong>Total:</strong> ${order.totalAmount.toFixed(2)}
@@ -363,7 +350,6 @@ const Modal = ({ order, onClose }: ModalProps) => {
           </p>
         </div>
 
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"

@@ -66,27 +66,28 @@ const Maps: React.FC<MapComponentProps> = ({
     }
   };
 
-  // Search Control for map location
-  const SearchControl = () => {
-    const map = useMapEvents({});
+ const SearchControl = () => {
+   const map = useMap();
+   const provider = new OpenStreetMapProvider();
 
-    const provider = new OpenStreetMapProvider();
+   useEffect(() => {
+     const searchControl = new (GeoSearchControl as any)({
+       provider,
+       style: "bar",
+       autoClose: true,
+       keepResult: true,
+     });
 
-    useEffect(() => {
-      const searchControl = new GeoSearchControl({
-        provider,
-        style: "bar",
-        autoClose: true,
-        keepResult: true,
-      });
-      map.addControl(searchControl);
-      return () => map.removeControl(searchControl);
-    }, [map]);
+     map.addControl(searchControl);
 
-    return null;
-  };
+     return () => {
+       map.removeControl(searchControl);
+     };
+   }, [map, provider]); 
 
-  // Marker for location on map
+   return null;
+ };
+
   const LocationMarker = () => {
     const map = useMap();
 

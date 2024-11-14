@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useGetRestaurants } from "../../hooks/useGetRestaurants";
 import AddMenuItemModal from "../../components/AddMenuItemModal";
 import { AdminLayout } from "../../layouts/AdminLayout";
@@ -37,7 +37,7 @@ export const AddMenuItem = () => {
             </tr>
           </thead>
           <tbody>
-            {restaurant.map((res) => (
+            {restaurant?.map((res) => (
               <tr key={res.rid} className="hover:bg-gray-100">
                 <td className="py-3 px-4 border-t border-gray-300">
                   <img

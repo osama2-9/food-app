@@ -81,18 +81,18 @@ const user = useRecoilValue(userAtom)
           {isOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-10">
               <Link
-                to="/account"
+                to="/user-profile"
                 className="block px-4 py-2 text-purple-700 hover:bg-gray-100"
               >
                 <FaUser className="inline-block mr-2" />
                 Profile
               </Link>
               <Link
-                to="/orders"
+                to="/rating"
                 className="block px-4 py-2 text-purple-700 hover:bg-gray-100"
               >
                 <FaBoxOpen className="inline-block mr-2" />
-                Orders
+                Rating
               </Link>
               <Link
                 to="/cart"
