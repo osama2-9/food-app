@@ -1,9 +1,9 @@
-import User from '../Model/User.js';
-import Cart from '../Model/Cart.js';
-import Order from '../Model/Order.js';
-import Restaurant from '../Model/Restaurant.js';
-import MenuItem from '../Model/Menu.js';
-import mongoose from 'mongoose';
+import User from "../Model/User.js";
+import Cart from "../Model/Cart.js";
+import Order from "../Model/Order.js";
+import Restaurant from "../Model/Restaurant.js";
+import MenuItem from "../Model/Menu.js";
+import mongoose from "mongoose";
 
 export const createNewOrder = async (req, res) => {
   try {

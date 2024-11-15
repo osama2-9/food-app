@@ -4,6 +4,9 @@ import { FaEye, FaSearch } from "react-icons/fa";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { ClipLoader } from "react-spinners";
+import { FaTimes } from "react-icons/fa";
+import { User } from "../../types/User";
+import { API } from "../../api";
 interface OrderItem {
   restaurantId: string;
   restaurantName: string;
@@ -159,7 +162,7 @@ export const Orders = () => {
                     <td className="py-2 px-4 border">
                       {new Date(order.orderDate).toLocaleDateString()}
                     </td>
-                    <td className="py-2 px-4 border">{order.user.firstname}</td>
+                    <td className="py-2 px-4 border">{order.user.email}</td>
                     <td className="py-2 px-4 border">
                       ${order.totalAmount.toFixed(2)}
                     </td>
@@ -230,9 +233,6 @@ interface ModalProps {
   order: Order;
   onClose: () => void;
 }
-import { FaTimes } from "react-icons/fa";
-import { User } from "../../types/User";
-import { API } from "../../api";
 
 const Modal = ({ order, onClose }: ModalProps) => {
   return (
