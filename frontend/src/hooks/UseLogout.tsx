@@ -2,13 +2,14 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { API } from "../api";
 
 export const UseLogout = () => {
   const navigator = useNavigate();
   const handleLogout = async () => {
     try {
       const res = await axios.post(
-        "/api/user/logout",
+        `${API}/api/user/logout`,
         {},
         {
           headers: {

@@ -29,7 +29,7 @@ export const useGetRestaurants = () => {
     } catch (error: any) {
       setError(error.response.data.error);
       if (error.response && error.response.data) {
-        toast.error(error.response.data.error);
+        toast.error(error.response?.data?.error);
       }
     } finally {
       setLoading(false);

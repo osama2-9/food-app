@@ -16,9 +16,9 @@ export const generateToken = (uid, res) => {
 
     res.cookie("auth", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
       maxAge: 1000 * 60 * 60 * 24,
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      secure: true,
+      sameSite: "None",
     });
 
     return token;

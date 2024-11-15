@@ -3,6 +3,7 @@ import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { UseLogout } from "./UseLogout";
 import axios from "axios";
+import { API } from "../api";
 
 export const CheckAuth = () => {
   const { handleLogout } = UseLogout();
@@ -10,14 +11,14 @@ export const CheckAuth = () => {
 
   const handleCheckAuth = async () => {
     try {
-      const res = await axios.get("/api/user/protected", {
-       
-        withCredentials: true, 
+      const res = await axios.get(`${API}/api/user/protected`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
       });
 
       console.log(await res.data);
-      
-     
     } catch (error: any) {
       console.log("Error:", error);
       if (error.response) {
@@ -37,7 +38,6 @@ export const CheckAuth = () => {
 
   useEffect(() => {
     if (user !== null) {
-      
       handleCheckAuth();
     }
   }, [user]);

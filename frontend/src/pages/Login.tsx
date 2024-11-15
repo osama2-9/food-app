@@ -4,20 +4,21 @@ import toast from "react-hot-toast";
 import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { Link, useNavigate } from "react-router-dom";
+import { API } from "../api";
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state for the spinner
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const setUser = useSetRecoilState(userAtom);
   const navigator = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true); // Show spinner on submit
+    setIsLoading(true);
     try {
       const res = await axios.post(
-        "/api/user/login",
+        `${API}/api/user/login`,
         { email: email, password: password },
         {
           headers: { "Content-Type": "application/json" },
@@ -42,13 +43,12 @@ export const Login: React.FC = () => {
         );
       }
     } finally {
-      setIsLoading(false); // Hide spinner after request completes
+      setIsLoading(false); 
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row md:bg-gray-50">
-      {/* Left Side - Login Form */}
       <div className="w-full lg:w-1/2  p-8 flex items-center justify-center bg-white shadow- lg:rounded-l-lg">
         <div className="w-full mt-52 md:mt-0 max-w-sm">
           <h2 className="text-3xl font-semibold text-center text-purple-600 mb-8">
