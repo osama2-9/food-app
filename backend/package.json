@@ -4,17 +4,10 @@
   "main": "index.ts",
   "scripts": {
     "start": "nodemon src/index.ts",
-    "build": "rimraf dist && tsc",
-    "ts.check": "tsc --project tsconfig.json",
+    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend",
     "add-build": "git add dist",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "vercel-build": "echo build"
   },
-  "pre-commit": [
-    "ts.check",
-    "build",
-    "add-build"
-  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
