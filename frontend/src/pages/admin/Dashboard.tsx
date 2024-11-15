@@ -3,6 +3,7 @@ import { AdminLayout } from "../../layouts/AdminLayout";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { BeatLoader } from "react-spinners";
+import { API } from "../../api";
 
 // Define interfaces for your data
 interface Overview {
@@ -39,7 +40,7 @@ export const Dashboard = () => {
   const sortedRestaurants = topRestaurants.reverse();
   const getDashboardOverview = async () => {
     try {
-      const res = await axios.get("/api/dashboard/overview", {
+      const res = await axios.get(`${API}/api/dashboard/overview`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -58,7 +59,7 @@ export const Dashboard = () => {
 
   const getTopRestaurants = async () => {
     try {
-      const res = await axios.get("/api/dashboard/getTopRestaurants", {
+      const res = await axios.get(`${API}/api/dashboard/getTopRestaurants`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -78,7 +79,7 @@ export const Dashboard = () => {
 
   const getRecentOrders = async () => {
     try {
-      const res = await axios.get("/api/dashboard/recentOrders", {
+      const res = await axios.get(`${API}/api/dashboard/recentOrders`, {
         headers: {
           "Content-Type": "application/json",
         },

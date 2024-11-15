@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { User } from "../types/User";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { API } from "../api";
 
 interface UpdateUserModalProps {
   user: User | null;
@@ -41,7 +42,7 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const handleSubmit = async () => {
     try {
       const res = await axios.put(
-        "/api/user/update-profile",
+        `${API}/api/user/update-profile`,
         {
           uid,
           firstname,
@@ -73,7 +74,7 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const handleUpdateAdminStatus = async () => {
     const newAdminStatus = !isAdmin; // Toggle admin status
     try {
-      const res = await axios.post("/api/user/updateAdminStatus", {
+      const res = await axios.post(`${API}/api/user/updateAdminStatus`, {
         uid,
         status: newAdminStatus,
       });

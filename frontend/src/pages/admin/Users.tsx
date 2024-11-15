@@ -6,6 +6,7 @@ import { AdminLayout } from "../../layouts/AdminLayout";
 import { DeleteModal } from "../../components/DeleteModal";
 import { UpdateUserModal } from "../../components/UpdateUserModal";
 import { User } from "../../types/User";
+import { API } from "../../api";
 
 export const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -13,11 +14,11 @@ export const Users: React.FC = () => {
   const [openDeleteModal, setOpenDeleteModal] = useState<boolean>(false);
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openUserDetailsModal, setOpenUserDetailsModal] =
-    useState<boolean>(false); 
+    useState<boolean>(false);
 
   const getAllUsers = async () => {
     try {
-      const res = await axios.get("/api/user/get", {
+      const res = await axios.get(`${API}/api/user/get`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -41,7 +42,7 @@ export const Users: React.FC = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      const res = await fetch("/api/user/delete-user", {
+      const res = await fetch(`${API}/api/user/delete-user`, {
         headers: {
           "Content-Type": "application/json",
         },

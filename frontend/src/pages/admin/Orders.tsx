@@ -38,7 +38,7 @@ export const Orders = () => {
   const handleGetOrders = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/api/order/get-orders-data", {
+      const res = await axios.get(`${API}/api/order/get-orders-data`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -232,6 +232,7 @@ interface ModalProps {
 }
 import { FaTimes } from "react-icons/fa";
 import { User } from "../../types/User";
+import { API } from "../../api";
 
 const Modal = ({ order, onClose }: ModalProps) => {
   return (

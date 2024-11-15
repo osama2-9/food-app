@@ -8,6 +8,7 @@ import { UseLogout } from "../hooks/UseLogout";
 import axios from "axios";
 import { BeatLoader } from "react-spinners";
 import { debounce } from "lodash";
+import { API } from "../api";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,7 +32,7 @@ export const Navbar = () => {
 
       setLoading(true);
       try {
-        const response = await axios.get(`/api/user/search`, {
+        const response = await axios.get(`${API}/api/user/search`, {
           params: { query },
         });
         setSearchResults(response.data); 

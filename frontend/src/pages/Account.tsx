@@ -14,6 +14,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import { User } from "../types/User";
 import { Order } from "../types/Order";
+import { API } from "../api";
 
 export const Account = () => {
   const userProfile = useRecoilValue<User | null>(userAtom);
@@ -30,7 +31,7 @@ export const Account = () => {
       }
 
       setLoading(true);
-      const res = await axios.get(`/api/order/userOrders/${userProfile.uid}`, {
+      const res = await axios.get(`${API}/api/order/userOrders/${userProfile.uid}`, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });

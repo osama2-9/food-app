@@ -2,6 +2,7 @@ import  { useEffect, useState } from 'react';
 import { AdminLayout } from '../../layouts/AdminLayout';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { API } from '../../api';
 
 export const ShowRestaurants = () => {
     interface Restaurant {
@@ -17,7 +18,7 @@ export const ShowRestaurants = () => {
 
     const getRestaurants = async () => {
         try {
-            const res = await axios.get("/api/restaurant/get", {
+            const res = await axios.get(`${API}/api/restaurant/get`, {
                 headers: {
                     "Content-Type": "application/json"
                 },

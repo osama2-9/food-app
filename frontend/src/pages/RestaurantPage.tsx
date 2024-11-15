@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { API } from "../api";
 
 interface Meal {
   _id: string;
@@ -44,7 +45,7 @@ export const RestaurantPage = () => {
   const getRestaurantData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/restaurant/details/${name}`, {
+      const res = await axios.get(`${API}/api/restaurant/details/${name}`, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
@@ -67,7 +68,7 @@ export const RestaurantPage = () => {
     try {
       if (id) {
         const res = await axios.get<{ items: Meal[] }>(
-          `/api/menu/meals/${id}`,
+          `${API}/api/menu/meals/${id}`,
           {
             headers: { "Content-Type": "application/json" },
             params: { type: selectedType },

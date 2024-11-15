@@ -4,6 +4,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
+import { API } from "../api";
 interface Size {
   _id: string;
   name: string;
@@ -67,7 +68,7 @@ export const MealPage: React.FC = () => {
   useEffect(() => {
     const getMealData = async () => {
       try {
-        const res = await axios.get(`/api/menu/meal/${mealId}`, {
+        const res = await axios.get(`${API}/api/menu/meal/${mealId}`, {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         });
@@ -116,7 +117,7 @@ export const MealPage: React.FC = () => {
     );
 
     try {
-      const res = await axios.post("/api/cart/add-new-item", {
+      const res = await axios.post(`${API}/api/cart/add-new-item`, {
         userId: user.uid,
         items: [
           {

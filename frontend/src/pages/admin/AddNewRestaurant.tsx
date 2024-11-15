@@ -3,6 +3,7 @@ import { AdminLayout } from '../../layouts/AdminLayout';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { useShowImg } from '../../hooks/useShowImg';
+import { API } from '../../api';
 
 interface RestaurantData {
     restaurantName: string;
@@ -42,7 +43,7 @@ export const AddNewRestaurant: React.FC = () => {
        
 
         try {
-            await axios.post('/api/restaurant/create', {
+            await axios.post(`${API}/api/restaurant/create`, {
                 name:restaurantData.restaurantName,
                 phone:restaurantData.phone,
                 email:restaurantData.email,

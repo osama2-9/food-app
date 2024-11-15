@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
+import { API } from "../api";
 
 export const Signup = () => {
   const setUser = useSetRecoilState(userAtom);
@@ -27,7 +28,7 @@ export const Signup = () => {
     setIsLoading(true); // Show spinner on submit
     try {
       const res = await axios.post(
-        "/api/user/signup",
+        `${API}/api/user/signup`,
         { ...inputs },
         {
           withCredentials: true,

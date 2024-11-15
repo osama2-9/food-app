@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import userAtom from "../atoms/userAtom";
 import { useRecoilValue } from "recoil";
 import { User } from "../types/User";
+import { API } from "../api";
 
 export const VerifyEmail = () => {
   const [code, setCode] = useState<string>("");
@@ -23,7 +24,7 @@ export const VerifyEmail = () => {
   const handleSendVerificationCode = async () => {
     try {
       const res = await axios.post(
-        "/api/user/send-verification-code",
+        `${API}/api/user/send-verification-code`,
         {
           uid: user.uid,
         },
@@ -56,7 +57,7 @@ export const VerifyEmail = () => {
 
     try {
       const res = await axios.post(
-        "/api/user/verify-email",
+        `${API}/api/user/verify-email`,
         { verificationCode: CastedCode, token: token },
         {
           withCredentials: true,

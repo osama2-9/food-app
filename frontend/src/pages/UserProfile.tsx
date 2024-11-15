@@ -7,6 +7,7 @@ import userAtom from "../atoms/userAtom";
 import Maps from "../components/Maps";
 import { FaSpinner } from "react-icons/fa";
 import { User } from "../types/User";
+import { API } from "../api";
 
 const UserProfile = () => {
   const user = useRecoilValue<User | null>(userAtom);
@@ -31,7 +32,7 @@ const UserProfile = () => {
 
   const handleGetAddress = async () => {
     try {
-      const res = await axios.get(`/api/user/user-address/${user?.uid}`, {
+      const res = await axios.get(`${API}/api/user/user-address/${user?.uid}`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -66,7 +67,7 @@ const UserProfile = () => {
     }
     setIsLoading(true);
     try {
-      const res = await axios.put("/api/user/update-profile", {
+      const res = await axios.put(`${API}/api/user/update-profile`, {
         uid: user.uid,
         firstname: userData.firstName,
         lastname: userData.lastName,

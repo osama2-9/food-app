@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
+import { API } from "../api";
 
 interface AddMenuItemModalProps {
   isOpen: boolean;
@@ -68,7 +69,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
 
     try {
       const res = await axios.post(
-        "/api/menu/create",
+        `${API}/api/menu/create`,
         {
           name,
           description,

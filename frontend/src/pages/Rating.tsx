@@ -7,6 +7,7 @@ import { Usidebar } from "../components/Usidebar";
 import toast from "react-hot-toast";
 import { Order } from "../types/Order";
 import { RingLoader } from "react-spinners"; 
+import { API } from "../api";
 
 const Rating = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -22,7 +23,7 @@ const Rating = () => {
     const getUserOrders = async () => {
       setLoading(true); 
       try {
-        const response = await axios.get(`/api/order/userOrders/${user?.uid}`);
+        const response = await axios.get(`${API}/api/order/userOrders/${user?.uid}`);
         setOrders(response.data.orders);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -53,7 +54,7 @@ const Rating = () => {
       setSubmittingRating(true); 
       try {
         const res = await axios.post(
-          `/api/order/rate/${selectedOrder.orderId}`,
+          `${API}/api/order/rate/${selectedOrder.orderId}`,
           {
             menuItemId: selectedOrder.items[0].mealId,
             rating,
