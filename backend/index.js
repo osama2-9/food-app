@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { DBconnect } from "./config/DBconnect.js";
-import userRoute from './Router/userRoute.js'
+import userRoute from "./Router/userRoute.js";
 import cors from "cors";
 import { v2 as cloudinary } from "cloudinary";
 import restaurantRoute from "./Router/restaurantRoute.js";
@@ -19,7 +19,10 @@ const PORT = Number(process.env.PORT) || 4000;
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://food-delivery-app-main-delta.vercel.app",
+    ],
     methods: ["POST", "GET", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: [
@@ -35,7 +38,6 @@ app.use(
 app.use(cookieParser());
 app.use(express.json({ limit: "30mb" }));
 app.use(express.urlencoded({ extended: true }));
-
 
 app.get("/test", (req, res) => {
   res.status(200).json({
@@ -67,4 +69,3 @@ if (process.env.NODE_ENV === "production") {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-

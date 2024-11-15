@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
+import { API } from "../api";
 interface Restaurant {
   name: string;
   cuisineType?: string;
@@ -17,7 +17,7 @@ export const useGetRestaurants = () => {
   const getRestaurants = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/restaurant/get", {
+      const res = await axios.get(`${API}/api/restaurant/get`, {
         headers: {
           "Content-Type": "application/json",
         },
