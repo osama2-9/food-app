@@ -68,7 +68,7 @@ export const RestaurantPage = () => {
     try {
       if (id) {
         const res = await axios.get<{ items: Meal[] }>(
-          `${API}/api/menu/meals/${id}`,
+          `${API}/menu/meals/${id}`,
           {
             headers: { "Content-Type": "application/json" },
             params: { type: selectedType },

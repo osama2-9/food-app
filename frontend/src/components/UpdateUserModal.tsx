@@ -42,7 +42,7 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const handleSubmit = async () => {
     try {
       const res = await axios.put(
-        `${API}/api/user/update-profile`,
+        `${API}/user/update-profile`,
         {
           uid,
           firstname,
@@ -74,7 +74,7 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const handleUpdateAdminStatus = async () => {
     const newAdminStatus = !isAdmin; // Toggle admin status
     try {
-      const res = await axios.post(`${API}/api/user/updateAdminStatus`, {
+      const res = await axios.post(`${API}/user/updateAdminStatus`, {
         uid,
         status: newAdminStatus,
       });

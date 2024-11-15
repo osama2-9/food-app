@@ -36,7 +36,7 @@ export const AddNewRestaurant: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when the form is being submitted
+    setLoading(true)
 
     try {
       await axios.post(
