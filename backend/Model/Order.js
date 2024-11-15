@@ -25,12 +25,15 @@ const orderSchema = new mongoose.Schema(
         },
         size: {
           name: String,
-          price: Number,
+          price: {
+            type: Number,
+            default: 0,
+          },
         },
         additions: [
           {
             name: String,
-            price: Number,
+            price: { type: Number, default: 0 },
           },
         ],
       },
@@ -81,4 +84,4 @@ const orderSchema = new mongoose.Schema(
 
 const Order = mongoose.model("Order", orderSchema);
 
-export default Order
+export default Order;

@@ -40,7 +40,7 @@ export const RestaurantPage = () => {
   const [restaurantDetails, setRestaurantDetails] = useState<Restaurant | null>(
     null
   );
-  const [loading, setLoading] = useState<boolean>(false); 
+  const [loading, setLoading] = useState<boolean>(false);
 
   const getRestaurantData = async () => {
     setLoading(true);
@@ -78,7 +78,7 @@ export const RestaurantPage = () => {
         const data = res.data;
         if (data && data.items) {
           setMeals(data.items);
-          setFilteredMeals(data.items);
+          setFilteredMeals(data.items); 
           const counts: { [key: string]: number } = {};
           data.items.forEach((meal) => {
             counts[meal.mealType] = counts[meal.mealType]
@@ -101,15 +101,24 @@ export const RestaurantPage = () => {
   }, [id, selectedType, name]);
 
   useEffect(() => {
-    if (searchTerm) {
-      const filtered = meals.filter((meal) =>
-        meal.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    const filterMeals = () => {
+      let filtered = meals;
+
+      if (selectedType) {
+        filtered = filtered.filter((meal) => meal.mealType === selectedType);
+      }
+
+      if (searchTerm) {
+        filtered = filtered.filter((meal) =>
+          meal.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+
       setFilteredMeals(filtered);
-    } else {
-      setFilteredMeals(meals);
-    }
-  }, [searchTerm, meals]);
+    };
+
+    filterMeals();
+  }, [searchTerm, selectedType, meals]);
 
   return (
     <div className="max-w-7xl mx-auto p-6 flex flex-col md:flex-row gap-8">
@@ -204,7 +213,8 @@ export const RestaurantPage = () => {
                 ))
               ) : (
                 <p className="text-gray-500">
-                  No meals found for "{searchTerm}".
+                  No meals found for "{searchTerm}" with category "
+                  {selectedType}".
                 </p>
               )}
             </div>

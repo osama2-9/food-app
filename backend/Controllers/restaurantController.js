@@ -1,5 +1,6 @@
 import Restaurant from "../Model/Restaurant.js";
 import { v2 as cloudinary } from "cloudinary";
+import Menu from "../Model/Menu.js";
 export const create = async (req, res) => {
   try {
     const { name, phone, email, cuisineType } = req.body;
@@ -59,39 +60,44 @@ export const create = async (req, res) => {
 };
 
 export const deleteRestaurant = async (req, res) => {
+  const session = await Restaurant.startSession();
+  session.startTransaction();
+
   try {
-    const { rID } = req.body;
-    if (!rID) {
-      return res.status(400).json({
-        error: "Restaurant ID not provided",
-      });
+    const { rId } = req.body;
+
+    if (!rId) {
+      return res.status(400).json({ error: "Restaurant ID not provided." });
     }
 
-    const restaurant = await Restaurant.findById(rID);
+    const restaurant = await Restaurant.findById(rId).session(session);
     if (!restaurant) {
-      return res.status(404).json({
-        error: "Restaurant not found",
-      });
+      return res.status(404).json({ error: "Restaurant not found." });
     }
 
     if (restaurant.brandImg) {
       const imgId = restaurant.brandImg.split("/").pop().split(".")[0];
-      cloudinary.uploader.destroy(imgId);
+      await cloudinary.uploader.destroy(imgId);
     }
 
-    await restaurant.deleteOne();
+    await Menu.deleteMany({ restaurant: restaurant._id }).session(session);
+
+    await restaurant.deleteOne({ session });
+
+    await session.commitTransaction();
+    session.endSession();
 
     return res.status(200).json({
-      message: "Restaurant deleted successfully",
+      message: "Restaurant and associated meals deleted successfully.",
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      error: "Internal server error",
-    });
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Error deleting restaurant:", error);
+    return res.status(500).json({ error: "Internal server error." });
   }
 };
-
 export const updateRestaurant = async (req, res) => {
   try {
     const { rID, name, phone, email, cuisineType } = req.body;

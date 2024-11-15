@@ -34,7 +34,7 @@ export const createNewOrder = async (req, res) => {
       });
     }
 
-    const cart = await Cart.find({ userId: user._id });
+    const cart = await Cart.find({ userId: user?._id });
     if (!cart || cart.length === 0) {
       return res.status(400).json({ error: "No items found in cart" });
     }
@@ -69,10 +69,10 @@ export const createNewOrder = async (req, res) => {
 
     const totalAmount = orderItems.reduce((total, item) => {
       const additionsTotal = item.additions.reduce(
-        (sum, add) => sum + add.price,
+        (sum, add) => sum + add?.price,
         0
       );
-      const sizePrice = item.size.price || 0;
+      let sizePrice = item?.size?.price || 0;
 
       return (
         total +
@@ -84,7 +84,7 @@ export const createNewOrder = async (req, res) => {
 
     const newOrder = new Order({
       user: {
-        userId: user._id,
+        userId: user?._id,
         name: `${user.firstname} ${user.lastname}`,
         email: user.email,
         phone: user.phone,
@@ -129,7 +129,7 @@ export const getOrders = async (req, res) => {
 
         const restaurantMap = {};
         restaurants.forEach((r) => {
-          restaurantMap[r._id.toString()] = {
+          restaurantMap[r?._id.toString()] = {
             name: r.name,
             email: r.contact.email,
             phone: r.contact.phone,
@@ -138,7 +138,7 @@ export const getOrders = async (req, res) => {
 
         const mealMap = {};
         meals.forEach((m) => {
-          mealMap[m._id.toString()] = m.name;
+          mealMap[m?._id.toString()] = m.name;
         });
 
         const orderItems = order.items.map((item) => ({
@@ -155,7 +155,7 @@ export const getOrders = async (req, res) => {
         }));
 
         return {
-          orderId: order._id,
+          orderId: order?._id,
           totalAmount: order.totalAmount,
           orderDate: order.orderDate,
           user: order.user,
@@ -202,7 +202,7 @@ export const getUserOrder = async (req, res) => {
             const mealData = await MenuItem.findById(item.menuItem);
             const restaurantData = await Restaurant.findById(item.restaurantId);
 
-            let totalPrice = mealData.price || 0;
+            let totalPrice = mealData?.price || 0;
             if (item.size && item.size.price) totalPrice += item.size.price;
             if (item.additions && item.additions.length > 0) {
               totalPrice += item.additions.reduce(
@@ -216,7 +216,7 @@ export const getUserOrder = async (req, res) => {
                 ? restaurantData.name
                 : "Unknown Restaurant",
               meal: mealData ? mealData.name : "Unknown Meal",
-              mealId: mealData._id,
+              mealId: mealData?._id,
               mealImg: mealData ? mealData.mealImg : "",
               size: item.size
                 ? { name: item.size.name, price: item.size.price }

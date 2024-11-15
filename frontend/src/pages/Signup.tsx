@@ -38,7 +38,7 @@ export const Signup = () => {
         }
       );
 
-      const data = res.data;
+      const data = await res.data;
       if (data) {
         setUser(data.userData);
         localStorage.setItem("user", JSON.stringify(data.userData));

@@ -98,7 +98,7 @@ const Rating = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {orders.map((order) => (
+            {orders?.map((order) => (
               <div
                 key={order.orderId}
                 className="p-5 border rounded-lg shadow-lg bg-white hover:shadow-xl transition duration-200"

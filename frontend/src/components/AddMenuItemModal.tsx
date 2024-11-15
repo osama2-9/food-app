@@ -265,7 +265,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               Add Addition
             </button>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className={`bg-blue-500 text-white py-2 rounded w-full hover:bg-blue-600 transition ${
@@ -276,7 +275,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               {loading ? "Submitting..." : "Submit"}
             </button>
 
-            {/* Cancel Button */}
             <button
               type="button"
               onClick={onRequestClose}
