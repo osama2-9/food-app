@@ -19,10 +19,7 @@ const PORT = Number(process.env.PORT) || 4000;
 const app = express();
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://food-delivery-app-main-delta.vercel.app",
-    ],
+    origin: ["http://localhost:3000", "https://food-app-main.vercel.app"],
     methods: ["POST", "GET", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: [
