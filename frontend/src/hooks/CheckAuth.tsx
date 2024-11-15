@@ -11,7 +11,7 @@ export const CheckAuth = () => {
 
   const handleCheckAuth = async () => {
     try {
-      const res = await axios.get(`${API}/api/user/protected`, {
+      const res = await axios.get(`${API}/user/protected`, {
         headers: {
           "Content-Type": "application/json",
         },
