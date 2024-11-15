@@ -35,8 +35,13 @@ export const Cart: React.FC = () => {
 
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get(`${API}/cart/getItems/${user?.uid}`);
-      const items = response.data.carts.flatMap(
+      const response = await axios.get(`${API}/cart/getItems/${user?.uid}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      const items = response?.data?.carts?.flatMap(
         (cart: { items: CartItem[] }) => cart.items
       );
       setCartItems(items);

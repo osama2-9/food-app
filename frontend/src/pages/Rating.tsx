@@ -24,7 +24,13 @@ const Rating = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${API}/order/userOrders/${user?.uid}`
+          `${API}/order/userOrders/${user?.uid}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
         );
         const data = await response.data;
         if (data) {
