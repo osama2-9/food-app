@@ -6,7 +6,7 @@ import userAtom from "../atoms/userAtom";
 import { Usidebar } from "../components/Usidebar";
 import toast from "react-hot-toast";
 import { Order } from "../types/Order";
-import { RingLoader } from "react-spinners"; 
+import { RingLoader } from "react-spinners";
 import { API } from "../api";
 
 const Rating = () => {
@@ -15,20 +15,25 @@ const Rating = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
-  const [loading, setLoading] = useState(false); 
-  const [submittingRating, setSubmittingRating] = useState(false); 
+  const [loading, setLoading] = useState(false);
+  const [submittingRating, setSubmittingRating] = useState(false);
   const user = useRecoilValue(userAtom);
 
   useEffect(() => {
     const getUserOrders = async () => {
-      setLoading(true); 
+      setLoading(true);
       try {
-        const response = await axios.get(`${API}/order/userOrders/${user?.uid}`);
-        setOrders(response.data.orders);
+        const response = await axios.get(
+          `${API}/order/userOrders/${user?.uid}`
+        );
+        const data = await response.data;
+        if (data) {
+          setOrders(data.orders);
+        }
       } catch (error) {
         console.error("Error fetching orders:", error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -51,7 +56,7 @@ const Rating = () => {
   const handleRatingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedOrder) {
-      setSubmittingRating(true); 
+      setSubmittingRating(true);
       try {
         const res = await axios.post(
           `${API}/order/rate/${selectedOrder.orderId}`,
@@ -70,7 +75,7 @@ const Rating = () => {
         console.error("Error submitting rating:", error);
         toast.error(error.response?.data?.message || "Error submitting rating");
       } finally {
-        setSubmittingRating(false); 
+        setSubmittingRating(false);
       }
     }
   };
@@ -81,7 +86,6 @@ const Rating = () => {
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold my-6 text-center">Your Orders</h1>
 
-        
         {loading ? (
           <div className="flex justify-center items-center">
             <RingLoader size={60} color="#4f46e5" loading={loading} />
@@ -171,7 +175,7 @@ const Rating = () => {
                 <button
                   className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-200"
                   onClick={handleRatingSubmit}
-                  disabled={submittingRating} 
+                  disabled={submittingRating}
                 >
                   {submittingRating ? (
                     <RingLoader
