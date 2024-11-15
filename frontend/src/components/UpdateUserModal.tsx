@@ -69,16 +69,25 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   };
 
   const handleUpdateAdminStatus = async () => {
-    const newAdminStatus = !isAdmin; 
+    const newAdminStatus = !isAdmin;
     try {
-      const res = await axios.post(`${API}/user/updateAdminStatus`, {
-        uid,
-        status: newAdminStatus,
-      });
+      const res = await axios.post(
+        `${API}/user/updateAdminStatus`,
+        {
+          uid,
+          status: newAdminStatus,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
       const data = res.data;
       if (data) {
         toast.success(data.message);
-        setIsAdmin(newAdminStatus); 
+        setIsAdmin(newAdminStatus);
       }
     } catch (error: any) {
       console.log(error);
