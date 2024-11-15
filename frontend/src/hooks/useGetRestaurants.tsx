@@ -17,7 +17,7 @@ export const useGetRestaurants = () => {
   const getRestaurants = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API}/api/restaurant/get`, {
+      const res = await axios.get(`${API}/restaurant/get`, {
         headers: {
           "Content-Type": "application/json",
         },
