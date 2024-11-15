@@ -1,12 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
-    "start": "nodemon src/index.ts",
-    "build": "tsc",
-    "add-build": "git add dist",
-    "vercel-build": "echo build"
+    "start": "nodemon src/index.ts"
+   
   },
   "keywords": [],
   "author": "",
