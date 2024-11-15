@@ -21,7 +21,7 @@ interface Meal {
   _id: string;
   name: string;
   description: string;
-  sizes: Size[]; 
+  sizes: Size[];
   additions: Addition[];
   price: number;
   mealImg: string;
@@ -29,10 +29,9 @@ interface Meal {
 }
 
 interface MealData extends Meal {
-  sizes: Size[]; 
+  sizes: Size[];
   additions: Addition[];
 }
-
 
 const topRatedDishes = [
   {
@@ -117,23 +116,32 @@ export const MealPage: React.FC = () => {
     );
 
     try {
-      const res = await axios.post(`${API}/cart/add-new-item`, {
-        userId: user.uid,
-        items: [
-          {
-            mealId: meal._id,
-            quantity,
-            size: selectedSize
-              ? { name: selectedSize.name, price: selectedSize.price }
-              : undefined,
-            additions: selectedAdditions.map((addition) => ({
-              name: addition.name,
-              price: addition.price,
-            })),
-            price,
+      const res = await axios.post(
+        `${API}/cart/add-new-item`,
+        {
+          userId: user.uid,
+          items: [
+            {
+              mealId: meal._id,
+              quantity,
+              size: selectedSize
+                ? { name: selectedSize.name, price: selectedSize.price }
+                : undefined,
+              additions: selectedAdditions.map((addition) => ({
+                name: addition.name,
+                price: addition.price,
+              })),
+              price,
+            },
+          ],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
           },
-        ],
-      });
+          withCredentials: true,
+        }
+      );
       toast.success(res.data.message);
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Error adding item to cart.");

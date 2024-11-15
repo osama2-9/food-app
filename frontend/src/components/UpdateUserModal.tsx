@@ -23,7 +23,6 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const [isVerified, setIsVerified] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Initialize form fields when the user data changes
   useEffect(() => {
     if (user) {
       setUid(user.uid);
@@ -38,7 +37,6 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Handle updating user profile (excluding isAdmin and isVerified)
   const handleSubmit = async () => {
     try {
       const res = await axios.put(
@@ -70,9 +68,8 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
     }
   };
 
-  // Handle updating user admin status
   const handleUpdateAdminStatus = async () => {
-    const newAdminStatus = !isAdmin; // Toggle admin status
+    const newAdminStatus = !isAdmin; 
     try {
       const res = await axios.post(`${API}/user/updateAdminStatus`, {
         uid,
@@ -81,7 +78,7 @@ export const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
       const data = res.data;
       if (data) {
         toast.success(data.message);
-        setIsAdmin(newAdminStatus); // Update the local state with the new admin status
+        setIsAdmin(newAdminStatus); 
       }
     } catch (error: any) {
       console.log(error);

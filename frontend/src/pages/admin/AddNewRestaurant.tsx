@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useShowImg } from "../../hooks/useShowImg";
 import { API } from "../../api";
-import { ClipLoader } from "react-spinners"; 
+import { ClipLoader } from "react-spinners";
 
 interface RestaurantData {
   restaurantName: string;
@@ -13,6 +13,16 @@ interface RestaurantData {
   cuisineType: string;
   brandImg: string;
 }
+
+const restaurantType = [
+  "Palestinian",
+  "Egyption",
+  "Syrian",
+  "Italian",
+  "Amircan",
+  "Fast-Food",
+  "Pizza",
+];
 
 export const AddNewRestaurant: React.FC = () => {
   const { img, handleImageChange } = useShowImg();
@@ -24,9 +34,11 @@ export const AddNewRestaurant: React.FC = () => {
     brandImg: img,
   });
 
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setRestaurantData((prev) => ({
       ...prev,
@@ -36,7 +48,7 @@ export const AddNewRestaurant: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true)
+    setLoading(true);
 
     try {
       await axios.post(
@@ -72,7 +84,7 @@ export const AddNewRestaurant: React.FC = () => {
       }
       console.error(error);
     } finally {
-      setLoading(false); // Set loading to false after the request completes
+      setLoading(false);
     }
   };
 
@@ -136,15 +148,22 @@ export const AddNewRestaurant: React.FC = () => {
             <label className="block text-gray-700 font-medium mb-1">
               Cuisine Type
             </label>
-            <input
-              type="text"
+            <select
               name="cuisineType"
               value={restaurantData.cuisineType}
               onChange={handleChange}
-              placeholder="Enter cuisine type"
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            />
+            >
+              <option value="" disabled>
+                Select cuisine type
+              </option>
+              {restaurantType.map((type, index) => (
+                <option key={index} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
@@ -175,7 +194,7 @@ export const AddNewRestaurant: React.FC = () => {
             <button
               type="submit"
               className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-lg transition duration-300"
-              disabled={loading} // Disable the button when loading
+              disabled={loading}
             >
               {loading ? (
                 <ClipLoader color="#ffffff" loading={loading} size={20} />
