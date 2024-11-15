@@ -31,7 +31,7 @@ export const Account = () => {
       }
 
       setLoading(true);
-      const res = await axios.get(`${API}/api/order/userOrders/${userProfile.uid}`, {
+      const res = await axios.get(`${API}/order/userOrders/${userProfile.uid}`, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });

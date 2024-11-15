@@ -12,11 +12,11 @@ import { API } from "../api";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // Stores search query
-  const [searchResults, setSearchResults] = useState<any>(null); // Stores search results (restaurants and meals)
-  const [loading, setLoading] = useState(false); // Loading state for search
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const [searchResults, setSearchResults] = useState<any>(null); 
+  const [loading, setLoading] = useState(false); 
   const user = useRecoilValue(userAtom);
-  const navigate = useNavigate(); // For redirecting to the search results page
+  const navigate = useNavigate(); 
   const { handleLogout } = UseLogout();
 
   const toggleMenu = () => {
@@ -32,7 +32,7 @@ export const Navbar = () => {
 
       setLoading(true);
       try {
-        const response = await axios.get(`${API}/api/user/search`, {
+        const response = await axios.get(`${API}/user/search`, {
           params: { query },
         });
         setSearchResults(response.data); 
@@ -70,7 +70,6 @@ export const Navbar = () => {
         <img src="/logo.png" alt="Logo" className="h-10" />
 
         <div className="flex-grow mx-4 relative">
-          {/* Search input */}
           <input
             type="text"
             value={searchTerm}
@@ -80,14 +79,12 @@ export const Navbar = () => {
             className="w-full p-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
 
-          {/* Loading spinner */}
           {loading && searchTerm && (
             <div className="absolute right-0 top-0 p-2">
               <BeatLoader color="#4B8BF5" size={8} />
             </div>
           )}
 
-          {/* Dropdown for search results */}
           {searchResults && searchTerm && !loading && (
             <div className="absolute bg-white shadow-lg rounded-lg mt-2 w-full z-10">
               <ul className="max-h-60 overflow-y-auto">

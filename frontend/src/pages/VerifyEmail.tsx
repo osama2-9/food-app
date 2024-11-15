@@ -24,7 +24,7 @@ export const VerifyEmail = () => {
   const handleSendVerificationCode = async () => {
     try {
       const res = await axios.post(
-        `${API}/api/user/send-verification-code`,
+        `${API}/user/send-verification-code`,
         {
           uid: user.uid,
         },
@@ -57,7 +57,7 @@ export const VerifyEmail = () => {
 
     try {
       const res = await axios.post(
-        `${API}/api/user/verify-email`,
+        `${API}/user/verify-email`,
         { verificationCode: CastedCode, token: token },
         {
           withCredentials: true,

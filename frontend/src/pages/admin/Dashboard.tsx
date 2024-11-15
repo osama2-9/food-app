@@ -40,7 +40,7 @@ export const Dashboard = () => {
   const sortedRestaurants = topRestaurants.reverse();
   const getDashboardOverview = async () => {
     try {
-      const res = await axios.get(`${API}/api/dashboard/overview`, {
+      const res = await axios.get(`${API}/dashboard/overview`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -59,7 +59,7 @@ export const Dashboard = () => {
 
   const getTopRestaurants = async () => {
     try {
-      const res = await axios.get(`${API}/api/dashboard/getTopRestaurants`, {
+      const res = await axios.get(`${API}/dashboard/getTopRestaurants`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -79,7 +79,7 @@ export const Dashboard = () => {
 
   const getRecentOrders = async () => {
     try {
-      const res = await axios.get(`${API}/api/dashboard/recentOrders`, {
+      const res = await axios.get(`${API}/dashboard/recentOrders`, {
         headers: {
           "Content-Type": "application/json",
         },

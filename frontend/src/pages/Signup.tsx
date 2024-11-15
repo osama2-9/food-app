@@ -17,7 +17,7 @@ export const Signup = () => {
     password: "",
   });
 
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Loading state for the spinner
+  const [isLoading, setIsLoading] = useState<boolean>(false); 
 
   const onInputsValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
@@ -25,10 +25,10 @@ export const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true); // Show spinner on submit
+    setIsLoading(true); 
     try {
       const res = await axios.post(
-        `${API}/api/user/signup`,
+        `${API}/user/signup`,
         { ...inputs },
         {
           withCredentials: true,
@@ -49,20 +49,20 @@ export const Signup = () => {
           email: "",
           phone: "",
           password: "",
-        }); // Clear inputs
+        }); 
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
         toast.error(error.response.data.error);
       }
     } finally {
-      setIsLoading(false); // Hide spinner after request completes
+      setIsLoading(false); 
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
-      {/* Left Side - Signup Form */}
+      
       <div className="w-full lg:w-1/2 p-8 flex items-center justify-center bg-white md:shadow-md lg:rounded-l-lg">
         <div className="w-full max-w-sm">
           <h2 className="text-3xl font-semibold text-center text-purple-600 mb-8">

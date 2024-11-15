@@ -45,7 +45,7 @@ export const RestaurantPage = () => {
   const getRestaurantData = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/api/restaurant/details/${name}`, {
+      const res = await axios.get(`${API}/restaurant/details/${name}`, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });

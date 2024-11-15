@@ -28,7 +28,6 @@ const Maps: React.FC<MapComponentProps> = ({
   const [location, setLocation] = useState({ lat, lng });
   const [address, setAddress] = useState<string>("");
 
-  // Get current geolocation
   const getCurrentCityLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -135,7 +134,6 @@ const Maps: React.FC<MapComponentProps> = ({
     );
   };
 
-  // Trigger map zoom to current location once the position is fetched
   const MapZoomToLocation = () => {
     const map = useMap();
     useEffect(() => {

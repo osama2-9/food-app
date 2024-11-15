@@ -9,7 +9,7 @@ export const UseLogout = () => {
   const handleLogout = async () => {
     try {
       const res = await axios.post(
-        `${API}/api/user/logout`,
+        `${API}/user/logout`,
         {},
         {
           headers: {

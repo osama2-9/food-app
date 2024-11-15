@@ -18,7 +18,7 @@ export const Users: React.FC = () => {
 
   const getAllUsers = async () => {
     try {
-      const res = await axios.get(`${API}/api/user/get`, {
+      const res = await axios.get(`${API}/user/get`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -42,7 +42,7 @@ export const Users: React.FC = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      const res = await fetch(`${API}/api/user/delete-user`, {
+      const res = await fetch(`${API}/user/delete-user`, {
         headers: {
           "Content-Type": "application/json",
         },

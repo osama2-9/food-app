@@ -18,7 +18,7 @@ export const Login: React.FC = () => {
     setIsLoading(true);
     try {
       const res = await axios.post(
-        `${API}/api/user/login`,
+        `${API}/user/login`,
         { email: email, password: password },
         {
           headers: { "Content-Type": "application/json" },

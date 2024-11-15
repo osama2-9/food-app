@@ -16,14 +16,14 @@ const Rating = () => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false); 
-  const [submittingRating, setSubmittingRating] = useState(false); // Loading state for rating submission
+  const [submittingRating, setSubmittingRating] = useState(false); 
   const user = useRecoilValue(userAtom);
 
   useEffect(() => {
     const getUserOrders = async () => {
       setLoading(true); 
       try {
-        const response = await axios.get(`${API}/api/order/userOrders/${user?.uid}`);
+        const response = await axios.get(`${API}/order/userOrders/${user?.uid}`);
         setOrders(response.data.orders);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -54,7 +54,7 @@ const Rating = () => {
       setSubmittingRating(true); 
       try {
         const res = await axios.post(
-          `${API}/api/order/rate/${selectedOrder.orderId}`,
+          `${API}/order/rate/${selectedOrder.orderId}`,
           {
             menuItemId: selectedOrder.items[0].mealId,
             rating,

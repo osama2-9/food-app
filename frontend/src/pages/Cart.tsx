@@ -35,7 +35,7 @@ export const Cart: React.FC = () => {
 
   const fetchCartItems = async () => {
     try {
-      const response = await axios.get(`${API}/api/cart/getItems/${user?.uid}`);
+      const response = await axios.get(`${API}/cart/getItems/${user?.uid}`);
       const items = response.data.carts.flatMap(
         (cart: { items: CartItem[] }) => cart.items
       );
@@ -75,7 +75,7 @@ export const Cart: React.FC = () => {
   const removeItemFromCart = async (mealId: string) => {
     try {
       await axios.delete(
-        `${API}/api/cart/remove-items-in-cart/${user?.uid}/${mealId}`,
+        `${API}/cart/remove-items-in-cart/${user?.uid}/${mealId}`,
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -95,7 +95,7 @@ export const Cart: React.FC = () => {
   const handleConfirmOrder = async () => {
     try {
       const res = await axios.post(
-        `${API}/api/order/create-new-order`,
+        `${API}/order/create-new-order`,
         {
           userId: user?.uid,
         },

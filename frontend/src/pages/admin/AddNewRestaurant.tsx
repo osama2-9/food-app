@@ -43,7 +43,7 @@ export const AddNewRestaurant: React.FC = () => {
        
 
         try {
-            await axios.post(`${API}/api/restaurant/create`, {
+            await axios.post(`${API}/restaurant/create`, {
                 name:restaurantData.restaurantName,
                 phone:restaurantData.phone,
                 email:restaurantData.email,

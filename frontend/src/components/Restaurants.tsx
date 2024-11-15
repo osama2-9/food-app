@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useGetRestaurants } from "../hooks/useGetRestaurants";
-import { ClipLoader } from "react-spinners"; // Import the desired spinner
+import { ClipLoader } from "react-spinners"; 
 
 export const Restaurants = () => {
   const { restaurant, loading } = useGetRestaurants();
@@ -20,7 +20,6 @@ export const Restaurants = () => {
 
       {loading ? (
         <div className="flex justify-center items-center py-10">
-          {/* React Spinner: You can customize the size and color */}
           <ClipLoader color="#6B21A8" loading={loading} size={50} />
         </div>
       ) : (

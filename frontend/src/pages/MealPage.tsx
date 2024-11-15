@@ -68,7 +68,7 @@ export const MealPage: React.FC = () => {
   useEffect(() => {
     const getMealData = async () => {
       try {
-        const res = await axios.get(`${API}/api/menu/meal/${mealId}`, {
+        const res = await axios.get(`${API}/menu/meal/${mealId}`, {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         });
@@ -117,7 +117,7 @@ export const MealPage: React.FC = () => {
     );
 
     try {
-      const res = await axios.post(`${API}/api/cart/add-new-item`, {
+      const res = await axios.post(`${API}/cart/add-new-item`, {
         userId: user.uid,
         items: [
           {

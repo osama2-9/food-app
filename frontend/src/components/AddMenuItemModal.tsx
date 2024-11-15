@@ -69,7 +69,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
 
     try {
       const res = await axios.post(
-        `${API}/api/menu/create`,
+        `${API}/menu/create`,
         {
           name,
           description,

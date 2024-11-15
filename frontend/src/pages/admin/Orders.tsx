@@ -38,7 +38,7 @@ export const Orders = () => {
   const handleGetOrders = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/api/order/get-orders-data`, {
+      const res = await axios.get(`${API}/order/get-orders-data`, {
         headers: {
           "Content-Type": "application/json",
         },
