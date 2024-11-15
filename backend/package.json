@@ -4,7 +4,7 @@
   "main": "index.ts",
   "scripts": {
     "start": "nodemon src/index.ts",
-    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend",
+    "build": "tsc",
     "add-build": "git add dist",
     "vercel-build": "echo build"
   },
