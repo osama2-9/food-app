@@ -5,6 +5,7 @@ import userAtom from "../atoms/userAtom";
 import { User } from "../types/User";
 import { ClipLoader } from "react-spinners";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 interface Restaurant {
   rId: string;
@@ -22,11 +23,19 @@ const RecommendedRestaurants = () => {
   useEffect(() => {
     const fetchRecommendedRestaurants = async () => {
       try {
-        const response = await fetch(`${API}/user/picks-for-you/${user?.uid}`);
-        if (!response.ok) {
+        const response = await axios.get(
+          `${API}/user/picks-for-you/${user?.uid}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+        if (!response) {
           throw new Error("Failed to fetch restaurants");
         }
-        const data = await response.json();
+        const data = await response.data;
         setRecommendedRestaurants(data.recommendedRestaurants);
       } catch (err) {
         console.error(err);
