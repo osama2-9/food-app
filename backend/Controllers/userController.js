@@ -5,6 +5,7 @@ import { sendVC } from "../emails/SendVerificationCode.js";
 import generateVerificationCode from "../utils/generateVerificationCode.js";
 import Restaurant from "../Model/Restaurant.js";
 import Menu from "../Model/Menu.js";
+import Order from "../Model/Order.js";
 
 const hasAuth = (req) => {
   return req.cookies.auth !== undefined;
@@ -44,7 +45,8 @@ export const signup = async (req, res) => {
 
     if (createdUser) {
       generateToken(createdUser._id.toString(), res);
-
+      createdUser.lastLogin = new Date();
+      await createdUser.save();
       return res.status(201).json({
         message: "Account created successfully.",
         userData: {
@@ -108,7 +110,8 @@ export const login = async (req, res) => {
     }
 
     generateToken(user._id.toString(), res);
-
+    user.lastLogin = new Date();
+    await user.save();
     return res.status(200).json({
       uid: user._id,
       firstname: user.firstname,
@@ -145,7 +148,6 @@ export const logout = async (req, res) => {
     });
   }
 };
-
 export const updateProfile = async (req, res) => {
   try {
     const {
@@ -161,11 +163,13 @@ export const updateProfile = async (req, res) => {
       name,
       floor,
     } = req.body;
+
     if (!uid) {
       return res.status(400).json({
-        error: "User not found",
+        error: "User ID is required",
       });
     }
+
     const user = await User.findById(uid);
     if (!user) {
       return res.status(400).json({
@@ -177,30 +181,36 @@ export const updateProfile = async (req, res) => {
     user.lastname = lastname || user.lastname;
     user.email = email || user.email;
     user.phone = phone || user.phone;
-    user.address.coordinates.lat = lat || user.address.coordinates.lat;
-    user.address.coordinates.lng = lng || user.address.coordinates.lng;
-    user.address.building = building || user.address.building;
-    user.address.floor = floor || user.address.floor;
-    user.address.apartment = apartment || user.address.apartment;
-    user.address.name = name || user.address.name;
 
-    const update = await user.save();
-    if (!update) {
+    if (lat || lng || apartment || building || name || floor) {
+      user.address.coordinates.lat = lat || user.address.coordinates.lat;
+      user.address.coordinates.lng = lng || user.address.coordinates.lng;
+      user.address.building = building || user.address.building;
+      user.address.floor = floor || user.address.floor;
+      user.address.apartment = apartment || user.address.apartment;
+      user.address.name = name || user.address.name;
+    }
+
+    const updatedUser = await user.save();
+
+    if (!updatedUser) {
       return res.status(400).json({
-        error: "Error occurred while updating",
+        error: "Error occurred while updating user profile",
       });
     }
+
     return res.status(200).json({
-      uid: user._id,
-      firstname: user.firstname,
-      lastname: user.lastname,
-      email: user.email,
-      phone: user.phone,
-      isVerified: user.isVerified,
-      isAdmin: user.isAdmin,
+      uid: updatedUser._id,
+      firstname: updatedUser.firstname,
+      lastname: updatedUser.lastname,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      isVerified: updatedUser.isVerified,
+      isAdmin: updatedUser.isAdmin,
+      address: updatedUser.address,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({
       error: "Internal server error",
     });
@@ -253,6 +263,7 @@ export const getAllUsers = async (req, res) => {
       isVerified: user.isVerified,
       isAdmin: user.isAdmin,
       address: user.address,
+      lastLogin: user.lastLogin,
     }));
 
     return res.status(200).json(usersData);
@@ -346,35 +357,29 @@ export const verifyEmail = async (req, res) => {
 };
 export const search = async (req, res) => {
   try {
-    const { query } = req.query
+    const { query } = req.query;
     if (!query) {
-      return
+      return;
     }
     const restaurants = await Restaurant.find({
-      name: { $regex: query, $options: 'i' }
-    }).select("name _id")
+      name: { $regex: query, $options: "i" },
+    }).select("name _id");
 
     const meals = await Menu.find({
-      name: { $regex: query, $options: 'i' }
-    }).select("name _id")
+      name: { $regex: query, $options: "i" },
+    }).select("name _id");
 
     return res.status(200).json({
       restaurants,
-      meals
-    })
-
-
-
+      meals,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
-      error: "Internal server error"
-    })
-
-
+      error: "Internal server error",
+    });
   }
-
-}
+};
 export const updateAdminStatus = async (req, res) => {
   try {
     const { uid, status } = req.body;
@@ -393,14 +398,13 @@ export const updateAdminStatus = async (req, res) => {
 
     if (updateResult.modifiedCount === 0) {
       return res.status(400).json({
-        error: "Error while trying to update the status or status was not changed",
+        error:
+          "Error while trying to update the status or status was not changed",
       });
     }
     return res.status(200).json({
-      message :`${user.firstname} Status Changed`
-    })
-
-   
+      message: `${user.firstname} Status Changed`,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -408,7 +412,7 @@ export const updateAdminStatus = async (req, res) => {
     });
   }
 };
-export const getAddressDetails = async (req ,res) => {
+export const getAddressDetails = async (req, res) => {
   try {
     const { uid } = req.params;
 
@@ -444,5 +448,104 @@ export const getRestaurants = async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const picksForYou = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        error: "No user ID provided",
+      });
+    }
+
+    const orders = await Order.find({ "user.userId": userId }).select(
+      "items.restaurantId"
+    );
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({
+        message: "No past orders found for this user",
+      });
+    }
+
+    const restaurantIds = [];
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        if (item.restaurantId) {
+          restaurantIds.push(item.restaurantId);
+        }
+      });
+    });
+
+    const uniqueRestaurantIds = [...new Set(restaurantIds)];
+
+    const restaurants = await Restaurant.find({
+      _id: { $in: uniqueRestaurantIds },
+    });
+
+    if (!restaurants || restaurants.length === 0) {
+      return res.status(404).json({
+        message: "No restaurants found for the past orders",
+      });
+    }
+
+    const recommendedRestaurants = restaurants.map((restaurant) => ({
+      name: restaurant.name,
+      rId: restaurant._id,
+      brandImg: restaurant.brandImg,
+    }));
+
+    const topThreeRestaurants = recommendedRestaurants.slice(0, 3);
+
+    return res.status(200).json({
+      recommendedRestaurants: topThreeRestaurants,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+export const updateAddress = async (req, res) => {
+  try {
+    const { uid, lat, lng, apartment, floor, building, name } = req.body;
+    if (!uid || !lat || !lng || !apartment || !floor || !building || !name) {
+      return res.status(400).json({
+        error: "Please fill all feilds",
+      });
+    }
+    const user = await User.findById(uid);
+    if (!user) {
+      return res.status(400).json({
+        error: "No user found",
+      });
+    }
+    user.address.coordinates.lat = lat || user.address.coordinates.lat;
+    user.address.coordinates.lng = lng || user.address.coordinates.lng;
+    user.address.apartment = apartment || user.address.apartment;
+    user.address.apartment = apartment || user.address.apartment;
+    user.address.floor = floor || user.address.floor;
+    user.address.building = building || user.address.building;
+    user.address.name = name || user.address.name;
+
+    const isUpdated = await user.save();
+    if (!isUpdated) {
+      return res.status(400).json({
+        error: "Error while update address",
+      });
+    }
+    return res.status(200).json({
+      message: "Your address updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
   }
 };

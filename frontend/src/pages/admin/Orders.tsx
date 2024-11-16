@@ -136,7 +136,7 @@ export const Orders = () => {
               </tr>
             </thead>
             <tbody>
-              {currentOrders.map((order) => {
+              {currentOrders?.map((order) => {
                 const isMatching =
                   order.orderItems.some((item) =>
                     item.restaurantName
@@ -155,8 +155,8 @@ export const Orders = () => {
                     }`}
                   >
                     <td className="py-2 px-4 border">
-                      {order.orderItems
-                        .map((item) => item.restaurantName)
+                      {order?.orderItems
+                        ?.map((item) => item.restaurantName)
                         .join(", ")}
                     </td>
                     <td className="py-2 px-4 border">

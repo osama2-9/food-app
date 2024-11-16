@@ -6,9 +6,11 @@ import {
   getAllUsers,
   login,
   logout,
+  picksForYou,
   search,
   sendVerificationCode,
   signup,
+  updateAddress,
   updateAdminStatus,
   updateProfile,
   verifyEmail,
@@ -31,5 +33,7 @@ userRoute.post("/verify-email", protectRoute, verifyEmail);
 userRoute.get("/search", search);
 userRoute.post("/updateAdminStatus", isSuperAdmin, updateAdminStatus);
 userRoute.get("/user-address/:uid", protectRoute, getAddressDetails);
+userRoute.get("/picks-for-you/:userId", protectRoute, picksForYou);
+userRoute.put("/update-address" ,protectRoute ,updateAddress)
 
 export default userRoute;

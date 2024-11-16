@@ -6,6 +6,7 @@ import { FeaturedDishes } from "../components/FeaturedDishes";
 import { SpecialOffers } from "../components/SpecialOffers";
 import { Navbar } from "../components/Navbar";
 import { Footer } from "../components/Footer";
+import RecommendedRestaurants from "../components/RecommendedRestaurants";
 
 export const HomePage = () => {
   return (
@@ -13,6 +14,7 @@ export const HomePage = () => {
         <Navbar />
         <Hero />
         <Services />
+        <RecommendedRestaurants/>
         <Restaurants />
         <FeaturedDishes />
         <SpecialOffers />

@@ -5,28 +5,31 @@ import axios from "axios";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import Maps from "../components/Maps";
-import { FaSpinner } from "react-icons/fa";
+import { ClipLoader } from "react-spinners"; 
 import { User } from "../types/User";
 import { API } from "../api";
 
 const UserProfile = () => {
   const user = useRecoilValue<User | null>(userAtom);
+
   const [userData, setUserData] = useState({
     firstName: user?.firstname || "",
     lastName: user?.lastname || "",
     email: user?.email || "",
     phone: user?.phone || "",
-    address: {
-      name: user?.address?.name || "",
-      coordinates: {
-        lat: user?.address?.coordinates?.lat || 0,
-        lng: user?.address?.coordinates?.lng || 0,
-      },
-      building: user?.address?.building || "",
-      floor: user?.address?.floor || "",
-      apartment: user?.address?.apartment || "",
-    },
   });
+
+  const [addressData, setAddressData] = useState({
+    name: user?.address?.name || "",
+    coordinates: {
+      lat: user?.address?.coordinates?.lat || 0,
+      lng: user?.address?.coordinates?.lng || 0,
+    },
+    building: user?.address?.building || "",
+    floor: user?.address?.floor || "",
+    apartment: user?.address?.apartment || "",
+  });
+
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,18 +43,15 @@ const UserProfile = () => {
       });
       const data = res.data;
       if (data) {
-        setUserData({
-          ...userData,
-          address: {
-            name: data.address.name,
-            coordinates: {
-              lat: data.address.coordinates.lat,
-              lng: data.address.coordinates.lng,
-            },
-            building: data.address.building,
-            floor: data.address.floor,
-            apartment: data.address.apartment,
+        setAddressData({
+          name: data.address.name,
+          coordinates: {
+            lat: data.address.coordinates.lat,
+            lng: data.address.coordinates.lng,
           },
+          building: data.address.building,
+          floor: data.address.floor,
+          apartment: data.address.apartment,
         });
       }
     } catch (error: any) {
@@ -73,8 +73,8 @@ const UserProfile = () => {
         lastname: userData.lastName,
         email: userData.email,
         phone: userData.phone,
-        address: userData.address,
       });
+
       const updatedUser = res.data;
       if (updatedUser) {
         localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -89,43 +89,67 @@ const UserProfile = () => {
     }
   };
 
-  useEffect(() => {
-    if (user?.uid) {
-      handleGetAddress();
+  const handleUpdateAddress = async () => {
+    if (!user) {
+      toast.error("Can't update your address");
+      return;
     }
-  }, [user]);
+
+    const { name, coordinates, building, floor, apartment } = addressData;
+
+    setIsLoading(true);
+    try {
+      const res = await axios.put(`${API}/user/update-address`, {
+        uid: user.uid,
+        lat: coordinates.lat,
+        lng: coordinates.lng,
+        apartment: apartment,
+        floor: floor,
+        building: building,
+        name: name,
+      });
+
+      const updatedUser = res.data;
+      if (updatedUser) {
+        toast.success("Address Updated");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Error updating address");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLocationChange = (lat: number, lng: number, address: string) => {
+    setAddressData((prevData) => ({
+      ...prevData,
+      name: address,
+      coordinates: {
+        lat,
+        lng,
+      },
+    }));
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     if (name.startsWith("address.")) {
       const [field, subfield] = name.split(".");
-      console.log(field);
-
-      setUserData((prevData) => ({
+      setAddressData((prevData) => ({
         ...prevData,
-        address: {
-          ...prevData.address,
-          [subfield]: value,
-        },
+        [subfield]: value,
       }));
     } else {
       setUserData({ ...userData, [name]: value });
     }
   };
 
-  const handleLocationChange = (lat: number, lng: number, address: string) => {
-    setUserData((prevData) => ({
-      ...prevData,
-      address: {
-        ...prevData.address,
-        name: address,
-        coordinates: {
-          lat,
-          lng,
-        },
-      },
-    }));
-  };
+  useEffect(() => {
+    if (user?.uid) {
+      handleGetAddress();
+    }
+  }, [user]);
 
   return (
     <>
@@ -193,7 +217,7 @@ const UserProfile = () => {
                 <input
                   type="text"
                   name="address.name"
-                  value={userData.address.name}
+                  value={addressData.name}
                   onChange={handleInputChange}
                   className="text-gray-800 p-2 border rounded-md"
                   disabled={!isEditing}
@@ -201,8 +225,8 @@ const UserProfile = () => {
               </div>
               <div className="w-64 h-64 rounded-lg overflow-hidden">
                 <Maps
-                  lat={userData.address.coordinates.lat}
-                  lng={userData.address.coordinates.lng}
+                  lat={addressData.coordinates.lat}
+                  lng={addressData.coordinates.lng}
                   onLocationChange={handleLocationChange}
                   isEditable={isEditing}
                 />
@@ -215,7 +239,7 @@ const UserProfile = () => {
                 <input
                   type="text"
                   name="address.building"
-                  value={userData.address.building}
+                  value={addressData.building}
                   onChange={handleInputChange}
                   className="text-gray-800 p-2 border rounded-md"
                   disabled={!isEditing}
@@ -226,7 +250,7 @@ const UserProfile = () => {
                 <input
                   type="text"
                   name="address.floor"
-                  value={userData.address.floor}
+                  value={addressData.floor}
                   onChange={handleInputChange}
                   className="text-gray-800 p-2 border rounded-md"
                   disabled={!isEditing}
@@ -237,7 +261,7 @@ const UserProfile = () => {
                 <input
                   type="text"
                   name="address.apartment"
-                  value={userData.address.apartment}
+                  value={addressData.apartment}
                   onChange={handleInputChange}
                   className="text-gray-800 p-2 border rounded-md"
                   disabled={!isEditing}
@@ -259,26 +283,37 @@ const UserProfile = () => {
                 <button
                   onClick={handleUpdateProfileData}
                   className="px-6 py-2 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition duration-200"
-                  disabled={isLoading}
                 >
                   {isLoading ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <FaSpinner className="w-6 h-6 text-white animate-spin" />
-                      <span>Saving...</span>
-                    </div>
+                    <ClipLoader color="#fff" loading={isLoading} size={24} />
                   ) : (
                     "Save Changes"
                   )}
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="px-6 py-2 bg-gray-600 text-white rounded-xl shadow-md hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 transition duration-200"
+                  className="px-6 py-2 bg-gray-400 text-white rounded-xl shadow-md hover:bg-gray-500 focus:outline-none"
                 >
                   Cancel
                 </button>
               </div>
             )}
           </div>
+
+          {isEditing && (
+            <div className="flex justify-center">
+              <button
+                onClick={handleUpdateAddress}
+                className="px-6 py-2 bg-yellow-600 text-white rounded-xl shadow-md hover:bg-yellow-700 focus:outline-none focus:ring-4 focus:ring-yellow-300 transition duration-200"
+              >
+                {isLoading ? (
+                  <ClipLoader color="#fff" loading={isLoading} size={24} />
+                ) : (
+                  "Update Address"
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>

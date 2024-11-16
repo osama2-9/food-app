@@ -107,7 +107,6 @@ export const createNewOrder = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
-
 export const getOrders = async (req, res) => {
   try {
     const orders = await Order.find();
@@ -129,30 +128,49 @@ export const getOrders = async (req, res) => {
 
         const restaurantMap = {};
         restaurants.forEach((r) => {
-          restaurantMap[r?._id.toString()] = {
-            name: r.name,
-            email: r.contact.email,
-            phone: r.contact.phone,
-          };
+          if (r) {
+            restaurantMap[r._id.toString()] = {
+              name: r.name,
+              email: r.contact.email,
+              phone: r.contact.phone,
+            };
+          } else {
+            console.warn(`Restaurant with ID ${r._id} is missing data`);
+          }
         });
 
         const mealMap = {};
         meals.forEach((m) => {
-          mealMap[m?._id.toString()] = m.name;
+          if (m) {
+            mealMap[m._id.toString()] = m.name;
+          } else {
+            console.warn(`Meal with ID ${m._id} is missing data`);
+          }
         });
 
-        const orderItems = order.items.map((item) => ({
-          restaurantId: item.restaurantId,
-          restaurantName: restaurantMap[item.restaurantId.toString()].name,
-          restaurantEmail: restaurantMap[item.restaurantId.toString()].email,
-          restaurantPhone: restaurantMap[item.restaurantId.toString()].phone,
-          mealId: item.menuItem,
-          mealName: mealMap[item.menuItem.toString()],
-          quantity: item.quantity,
-          price: item.price,
-          size: item.size,
-          additions: item.additions,
-        }));
+        const orderItems = order.items.map((item) => {
+          const restaurantName =
+            restaurantMap[item.restaurantId.toString()]?.name ||
+            "Unknown Restaurant";
+          const restaurantEmail =
+            restaurantMap[item.restaurantId.toString()]?.email || "N/A";
+          const restaurantPhone =
+            restaurantMap[item.restaurantId.toString()]?.phone || "N/A";
+          const mealName = mealMap[item.menuItem.toString()] || "Unknown Meal";
+
+          return {
+            restaurantId: item.restaurantId,
+            restaurantName,
+            restaurantEmail,
+            restaurantPhone,
+            mealId: item.menuItem,
+            mealName,
+            quantity: item.quantity,
+            price: item.price,
+            size: item.size,
+            additions: item.additions,
+          };
+        });
 
         return {
           orderId: order?._id,
@@ -174,6 +192,7 @@ export const getOrders = async (req, res) => {
     });
   }
 };
+
 
 export const getUserOrder = async (req, res) => {
   try {
@@ -222,7 +241,7 @@ export const getUserOrder = async (req, res) => {
                 ? { name: item.size.name, price: item.size.price }
                 : null,
               additions: item.additions
-                ? item.additions.map((add) => ({
+                ? item?.additions?.map((add) => ({
                     name: add.name,
                     price: add.price,
                   }))

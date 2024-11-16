@@ -2,13 +2,14 @@
 import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { API } from "../api";
 
 export const Signup = () => {
   const setUser = useSetRecoilState(userAtom);
+  const nav = useNavigate();
   const [inputs, setInputs] = useState({
     firstname: "",
     lastname: "",
@@ -17,7 +18,7 @@ export const Signup = () => {
     password: "",
   });
 
-  const [isLoading, setIsLoading] = useState<boolean>(false); 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onInputsValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
@@ -25,7 +26,7 @@ export const Signup = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true); 
+    setIsLoading(true);
     try {
       const res = await axios.post(
         `${API}/user/signup`,
@@ -43,26 +44,27 @@ export const Signup = () => {
         setUser(data.userData);
         localStorage.setItem("user", JSON.stringify(data.userData));
         toast.success("Signup successful!");
+        nav("/");
+
         setInputs({
           firstname: "",
           lastname: "",
           email: "",
           phone: "",
           password: "",
-        }); 
+        });
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
         toast.error(error.response.data.error);
       }
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
-      
       <div className="w-full lg:w-1/2 p-8 flex items-center justify-center bg-white md:shadow-md lg:rounded-l-lg">
         <div className="w-full max-w-sm">
           <h2 className="text-3xl font-semibold text-center text-purple-600 mb-8">

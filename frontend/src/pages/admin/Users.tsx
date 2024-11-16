@@ -7,6 +7,7 @@ import { DeleteModal } from "../../components/DeleteModal";
 import { UpdateUserModal } from "../../components/UpdateUserModal";
 import { User } from "../../types/User";
 import { API } from "../../api";
+import ClipLoader from "react-spinners/ClipLoader";
 
 export const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -15,8 +16,10 @@ export const Users: React.FC = () => {
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openUserDetailsModal, setOpenUserDetailsModal] =
     useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const getAllUsers = async () => {
+    setLoading(true);
     try {
       const res = await axios.get(`${API}/user/get`, {
         headers: {
@@ -32,6 +35,8 @@ export const Users: React.FC = () => {
     } catch (error: any) {
       console.error(error);
       toast.error(error.response?.data?.error || "An error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,7 +93,7 @@ export const Users: React.FC = () => {
         onConfirm={() => selectedUser && handleDeleteUser(selectedUser.uid)}
         userName={
           selectedUser
-            ? `${selectedUser.firstname} ${selectedUser.lastname}`
+            ? `${selectedUser.firstname} ${selectedUser.lastname} `
             : ""
         }
       />
@@ -170,6 +175,16 @@ export const Users: React.FC = () => {
                   </a>
                 </p>
               </div>
+
+              {/* Last Login */}
+              <div>
+                <p className="text-lg text-gray-700">
+                  <strong className="font-medium">Last Login:</strong>{" "}
+                  {selectedUser.lastLogin
+                    ? new Date(selectedUser.lastLogin).toLocaleString()
+                    : "Not available"}
+                </p>
+              </div>
             </div>
 
             <div className="flex justify-end space-x-4">
@@ -192,67 +207,74 @@ export const Users: React.FC = () => {
 
       <div className="overflow-x-auto">
         <h1 className="text-2xl font-bold mb-4">User List</h1>
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr className="bg-gray-100 text-gray-600 uppercase text-sm text-center">
-              <th className="py-3 px-4 border-b">Full Name</th>
-              <th className="py-3 px-4 border-b">Email</th>
-              <th className="py-3 px-4 border-b">Phone</th>
-              <th className="py-3 px-4 border-b">Verified</th>
-              <th className="py-3 px-4 border-b">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="py-3 px-4 text-center">
-                  No users found.
-                </td>
+
+        {loading ? (
+          <div className="flex justify-center items-center py-6">
+            <ClipLoader color="#4b92e3" size={50} />
+          </div>
+        ) : (
+          <table className="min-w-full bg-white border border-gray-200">
+            <thead>
+              <tr className="bg-gray-100 text-gray-600 uppercase text-sm text-center">
+                <th className="py-3 px-4 border-b">Full Name</th>
+                <th className="py-3 px-4 border-b">Email</th>
+                <th className="py-3 px-4 border-b">Phone</th>
+                <th className="py-3 px-4 border-b">Verified</th>
+                <th className="py-3 px-4 border-b">Actions</th>
               </tr>
-            ) : (
-              users.map((user) => (
-                <tr key={user.uid} className="hover:bg-gray-50">
-                  <td className="py-3 px-4 border-b">
-                    {user.firstname} {user.lastname}
-                  </td>
-                  <td className="py-3 px-4 border-b">{user.email}</td>
-                  <td className="py-3 px-4 border-b">{user.phone}</td>
-                  <td className="py-3 px-4 border-b">
-                    <span
-                      className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.isVerified
-                          ? "bg-green-200 text-green-600"
-                          : "bg-red-200 text-red-600"
-                      }`}
-                    >
-                      {user.isVerified ? "Verified" : "Not Verified"}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 border-b flex justify-center">
-                    <button
-                      onClick={() => onClickUpdate(user)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <FaPen />
-                    </button>
-                    <button
-                      onClick={() => onClickDelete(user)}
-                      className="text-red-600 hover:text-red-800 ml-4"
-                    >
-                      <FaTrash />
-                    </button>
-                    <button
-                      onClick={() => onClickUserDetails(user)}
-                      className="text-green-600 hover:text-green-800 ml-4"
-                    >
-                      Details
-                    </button>
+            </thead>
+            <tbody>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-3 px-4 text-center">
+                    No users found.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                users.map((user) => (
+                  <tr key={user.uid} className="hover:bg-gray-50">
+                    <td className="py-3 px-4 border-b">
+                      {user.firstname} {user.lastname}
+                    </td>
+                    <td className="py-3 px-4 border-b">{user.email}</td>
+                    <td className="py-3 px-4 border-b">{user.phone}</td>
+                    <td className="py-3 px-4 border-b">
+                      <span
+                        className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
+                          user.isVerified
+                            ? "bg-green-200 text-green-600"
+                            : "bg-red-200 text-red-600"
+                        }`}
+                      >
+                        {user.isVerified ? "Verified" : "Not Verified"}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 border-b flex justify-center">
+                      <button
+                        onClick={() => onClickUpdate(user)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        <FaPen />
+                      </button>
+                      <button
+                        onClick={() => onClickDelete(user)}
+                        className="text-red-600 hover:text-red-800 ml-4"
+                      >
+                        <FaTrash />
+                      </button>
+                      <button
+                        onClick={() => onClickUserDetails(user)}
+                        className="text-green-600 hover:text-green-800 ml-4"
+                      >
+                        Details
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </AdminLayout>
   );

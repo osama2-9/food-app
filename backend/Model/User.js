@@ -60,6 +60,10 @@ const UserSchema = new mongoose.Schema(
     verificationCodeToken: { type: String },
     verificationCodeTokenExpiresAt: { type: Date },
     verificationCode: { type: Number },
+    lastLogin:{
+      type:Date,
+      default:""
+    }
   },
   {
     timestamps: true,

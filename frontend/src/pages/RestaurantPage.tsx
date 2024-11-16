@@ -200,7 +200,7 @@ export const RestaurantPage = () => {
                       <div className="p-4">
                         <h4 className="text-lg font-semibold">{meal.name}</h4>
                         <p className="text-sm text-gray-500 mt-1">
-                          {meal.description}
+                          {meal.description?.slice(0 ,70)?.concat("...")}
                         </p>
                         <div className="flex justify-between items-center mt-2">
                           <span className="text-lg font-bold text-gray-600">
