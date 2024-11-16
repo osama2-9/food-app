@@ -78,7 +78,7 @@ export const RestaurantPage = () => {
         const data = res.data;
         if (data && data.items) {
           setMeals(data.items);
-          setFilteredMeals(data.items); 
+          setFilteredMeals(data.items);
           const counts: { [key: string]: number } = {};
           data.items.forEach((meal) => {
             counts[meal.mealType] = counts[meal.mealType]
@@ -200,7 +200,7 @@ export const RestaurantPage = () => {
                       <div className="p-4">
                         <h4 className="text-lg font-semibold">{meal.name}</h4>
                         <p className="text-sm text-gray-500 mt-1">
-                          {meal.description?.slice(0 ,70)?.concat("...")}
+                          {meal.description?.slice(0, 70)?.concat("...")}
                         </p>
                         <div className="flex justify-between items-center mt-2">
                           <span className="text-lg font-bold text-gray-600">

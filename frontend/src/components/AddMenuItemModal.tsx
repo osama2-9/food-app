@@ -17,23 +17,24 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
-  const [sizes, setSizes] = useState<{ name: string; price: number }[]>([
-    { name: "", price: 0 },
+  const [sizes, setSizes] = useState<{ size: string; price: number }[]>([
+    { size: "", price: 0 },
   ]);
   const [additions, setAdditions] = useState<{ name: string; price: number }[]>(
     [{ name: "", price: 0 }]
   );
   const [img, setImg] = useState<string | ArrayBuffer | null>("");
-  const [mealType, setMealType] = useState<String>();
+  const [mealType, setMealType] = useState<string | undefined>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleAddSize = () => setSizes([...sizes, { name: "", price: 0 }]);
+  const handleAddSize = () => setSizes([...sizes, { size: "", price: 0 }]);
+
   const handleAddAddition = () =>
     setAdditions([...additions, { name: "", price: 0 }]);
 
   const handleChangeSize = (
     index: number,
-    field: "name" | "price",
+    field: "size" | "price",
     value: string | number
   ) => {
     const newSizes = [...sizes];
@@ -93,7 +94,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
         setName("");
         setDescription("");
         setPrice(0);
-        setSizes([{ name: "", price: 0 }]);
+        setSizes([{ size: "", price: 0 }]);
         setAdditions([{ name: "", price: 0 }]);
         setImg("");
         setMealType("");
@@ -109,43 +110,48 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
       setLoading(false);
     }
   };
-  console.log(mealType);
 
   return (
     isOpen && (
-      <div className="fixed overflow-y-auto inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="bg-white p-6 rounded-lg mt-16 shadow-lg max-w-2xl w-full">
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full">
           <h2 className="text-xl font-bold mb-4">Add Menu Item</h2>
           <form onSubmit={handleSubmit}>
-            <div className="flex flex-col mb-4">
-              <label className="font-semibold mb-1" htmlFor="name">
-                Name
-              </label>
-              <input
-                id="name"
-                type="text"
-                placeholder="Enter item name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="border border-gray-300 p-2 rounded"
-                required
-              />
+            {/* Name and Description in the Same Line */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Name Input */}
+              <div className="flex flex-col">
+                <label className="font-semibold mb-1" htmlFor="name">
+                  Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  placeholder="Enter item name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="border border-gray-300 p-2 rounded"
+                  required
+                />
+              </div>
+
+              {/* Description Input */}
+              <div className="flex flex-col">
+                <label className="font-semibold mb-1" htmlFor="description">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  placeholder="Enter item description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="border border-gray-300 p-2 rounded"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="flex flex-col mb-4">
-              <label className="font-semibold mb-1" htmlFor="description">
-                Description
-              </label>
-              <textarea
-                id="description"
-                placeholder="Enter item description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="border border-gray-300 p-2 rounded"
-                required
-              />
-            </div>
-
+            {/* Price Input */}
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="price">
                 Price
@@ -161,6 +167,101 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               />
             </div>
 
+            {/* Sizes Section */}
+            <h4 className="font-semibold mb-2">Sizes</h4>
+            {sizes.map((size, index) => (
+              <div className="grid grid-cols-2 gap-4 mb-4" key={index}>
+                {/* Size Select */}
+                <select
+                  className="border border-gray-300 p-2 rounded"
+                  value={size.size}
+                  onChange={(e) =>
+                    handleChangeSize(index, "size", e.target.value)
+                  }
+                >
+                  <option value="">Select Size</option>
+                  <option value="SM">SM</option>
+                  <option value="MD">MD</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                </select>
+
+                {/* Price Input for Size */}
+                <input
+                  type="number"
+                  value={size.price}
+                  onChange={(e) =>
+                    handleChangeSize(index, "price", Number(e.target.value))
+                  }
+                  placeholder="Price"
+                  className="border border-gray-300 p-2 rounded"
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddSize}
+              className="text-blue-500 hover:underline mb-4"
+            >
+              Add Size
+            </button>
+
+            {/* Additions Section */}
+            <h4 className="font-semibold mb-2">Additions</h4>
+            {additions.map((addition, index) => (
+              <div className="flex flex-col mb-4" key={index}>
+                <input
+                  type="text"
+                  value={addition.name}
+                  onChange={(e) =>
+                    handleChangeAddition(index, "name", e.target.value)
+                  }
+                  placeholder="Addition"
+                  className="border border-gray-300 p-2 rounded mb-2"
+                />
+                <input
+                  type="number"
+                  value={addition.price}
+                  onChange={(e) =>
+                    handleChangeAddition(index, "price", Number(e.target.value))
+                  }
+                  placeholder="Price"
+                  className="border border-gray-300 p-2 rounded"
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={handleAddAddition}
+              className="text-blue-500 hover:underline mb-4"
+            >
+              Add Addition
+            </button>
+
+            {/* Meal Type Dropdown */}
+            <div className="flex flex-col mb-4">
+              <label className="font-semibold mb-1" htmlFor="mealType">
+                Meal Type
+              </label>
+              <select
+                id="mealType"
+                value={mealType}
+                onChange={(e) => setMealType(e.target.value || "")}
+                className="border border-gray-300 p-2 rounded"
+              >
+                <option value="" disabled>
+                  Select Meal Type
+                </option>
+                <option value="Fast-Food">Fast-Food</option>
+                <option value="Dessert">Dessert</option>
+                <option value="Grilled">Grilled</option>
+                <option value="Pizza">Pizza</option>
+                <option value="Smoothies">Smoothies</option>
+                <option value="Appetizers">Appetizers</option>
+              </select>
+            </div>
+
+            {/* Image Input */}
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="image">
                 Image
@@ -181,90 +282,8 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
                 />
               )}
             </div>
-            <div className="flex flex-col mb-4">
-              <label className="font-semibold mb-1" htmlFor="mealType">
-                Meal-Type
-              </label>
-              <select
-              className="border border-gray-300 p-2 rounded"
-                name="mealType"
-                onChange={(e) => setMealType(e.target.value)}
-                id="mealType"
-              >
-                <option value="" selected disabled>
-                  Select Meal Type
-                </option>
-                <option value="Fast-Food">Fast-Food</option>
-                <option value="Dessert">Dessert</option>
-                <option value="Grilled">Grilled</option>
-                <option value="Pizza">Pizza</option>
-                <option value="Smoothies">Smoothies</option>
-                <option value="Appetizers">Appetizers</option>
-              </select>
-            </div>
 
-            <h4 className="font-semibold mb-2">Sizes</h4>
-            {sizes.map((size, index) => (
-              <div className="flex flex-col mb-2" key={index}>
-                <input
-                  type="text"
-                  value={size.name}
-                  onChange={(e) =>
-                    handleChangeSize(index, "name", e.target.value)
-                  }
-                  placeholder="Size"
-                  className="border border-gray-300 p-2 rounded mb-1"
-                />
-                <input
-                  type="number"
-                  value={size.price}
-                  onChange={(e) =>
-                    handleChangeSize(index, "price", Number(e.target.value))
-                  }
-                  placeholder="Size Price"
-                  className="border border-gray-300 p-2 rounded"
-                />
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddSize}
-              className="text-blue-500 hover:underline mb-4"
-            >
-              Add Size
-            </button>
-
-            <h4 className="font-semibold mb-2">Additions</h4>
-            {additions.map((addition, index) => (
-              <div className="flex flex-col mb-2" key={index}>
-                <input
-                  type="text"
-                  value={addition.name}
-                  onChange={(e) =>
-                    handleChangeAddition(index, "name", e.target.value)
-                  }
-                  placeholder="Addition"
-                  className="border border-gray-300 p-2 rounded mb-1"
-                />
-                <input
-                  type="number"
-                  value={addition.price}
-                  onChange={(e) =>
-                    handleChangeAddition(index, "price", Number(e.target.value))
-                  }
-                  placeholder="Addition Price"
-                  className="border border-gray-300 p-2 rounded"
-                />
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={handleAddAddition}
-              className="text-blue-500 hover:underline mb-4"
-            >
-              Add Addition
-            </button>
-
+            {/* Submit Button */}
             <button
               type="submit"
               className={`bg-blue-500 text-white py-2 rounded w-full hover:bg-blue-600 transition ${
@@ -275,6 +294,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               {loading ? "Submitting..." : "Submit"}
             </button>
 
+            {/* Cancel Button */}
             <button
               type="button"
               onClick={onRequestClose}
