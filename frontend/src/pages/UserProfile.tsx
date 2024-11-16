@@ -73,6 +73,12 @@ const UserProfile = () => {
         lastname: userData.lastName,
         email: userData.email,
         phone: userData.phone,
+      } ,{
+        headers:{
+          "Content-Type":"application/json"
+
+        },
+        withCredentials:true
       });
 
       const updatedUser = res.data;
@@ -107,6 +113,12 @@ const UserProfile = () => {
         floor: floor,
         building: building,
         name: name,
+      } ,{
+        headers:{
+          "Content-Type":"application/json",
+
+        },
+        withCredentials:true
       });
 
       const updatedUser = res.data;

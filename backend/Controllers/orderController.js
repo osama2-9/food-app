@@ -193,7 +193,6 @@ export const getOrders = async (req, res) => {
   }
 };
 
-
 export const getUserOrder = async (req, res) => {
   try {
     let { userId } = req.params;
@@ -272,7 +271,6 @@ export const getUserOrder = async (req, res) => {
     });
   }
 };
-
 export const orderRating = async (req, res) => {
   const { orderId } = req.params;
   const { menuItemId, rating, comment } = req.body;
@@ -286,6 +284,7 @@ export const orderRating = async (req, res) => {
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+
     const orderItem = order.items.find(
       (item) => item.menuItem.toString() === menuItemId
     );
@@ -293,7 +292,10 @@ export const orderRating = async (req, res) => {
       return res.status(404).json({ message: "Menu item not found in order" });
     }
 
-    order.comment = comment;
+    orderItem.rating = rating;
+    orderItem.comment = comment;
+
+    await order.save();
 
     const menuItem = await MenuItem.findById(menuItemId);
     if (!menuItem) {
@@ -307,9 +309,8 @@ export const orderRating = async (req, res) => {
 
     menuItem.rating = newAverageRating;
     menuItem.numberOfRatings = newNumberOfRatings;
-    await menuItem.save();
 
-    await order.save();
+    await menuItem.save();
 
     res.status(200).json({ message: "Rating submitted successfully" });
   } catch (error) {

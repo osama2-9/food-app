@@ -74,6 +74,10 @@ const orderSchema = new mongoose.Schema(
       enum: ["Pending", "In Progress", "Completed", "Cancelled"],
       default: "Pending",
     },
+    rating: {
+      type: String,
+      default: 0,
+    },
     comment: {
       type: String,
       default: "",
