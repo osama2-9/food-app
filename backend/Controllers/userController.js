@@ -293,7 +293,7 @@ export const sendVerificationCode = async (req, res) => {
     user.verificationCode = code;
     user.verificationCodeToken = token;
     user.verificationCodeTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    const verificationCodeURL = `http://localhost:3000/email-verify/${token}`;
+    const verificationCodeURL = `https://food-app-main.vercel.app/email-verify/${token}`;
 
     await user.save();
 

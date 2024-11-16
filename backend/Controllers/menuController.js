@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import MenuItem from "../Model/Menu.js";
+import Restaurant from "../Model/Restaurant.js";
 
 export const addNewItem = async (req, res) => {
   try {
@@ -90,14 +91,14 @@ export const getMenuItems = async (req, res) => {
 
 export const deleteItem = async (req, res) => {
   try {
-    const { itemID } = req.body;
-    if (!itemID) {
+    const { _id } = req.params;
+    if (!_id) {
       return res.status(400).json({
         error: "Missing required parameters",
       });
     }
 
-    const item = await MenuItem.findById(itemID);
+    const item = await MenuItem.findById(_id);
     if (!item) {
       return res.status(404).json({
         error: "Item not found",
@@ -141,6 +142,49 @@ export const mealDetailes = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+export const getAllMenu = async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find();
+
+    if (!restaurants || restaurants.length === 0) {
+      return res.status(400).json({
+        error: "No restaurants found",
+      });
+    }
+
+    const restaurantIds = restaurants.map((res) => res._id);
+    const menu = await MenuItem.find({ restaurant: { $in: restaurantIds } });
+
+    if (!menu || menu.length === 0) {
+      return res.status(404).json({
+        error: "No menu items found for the restaurants",
+      });
+    }
+
+    const groupedMenu = restaurants.map((restaurant) => {
+      const restaurantMenuItems = menu.filter(
+        (item) => item.restaurant.toString() === restaurant._id.toString()
+      );
+
+      return {
+        restaurant: restaurant.name,
+        meals: restaurantMenuItems,
+        mealCount: restaurantMenuItems.length,
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      menu: groupedMenu,
+    });
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({
       error: "Internal server error",
     });

@@ -41,7 +41,14 @@ export const Sidebar = () => {
           className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
         >
           <FaUtensils className="text-xl" />
-          <span>Add Menu Items</span>
+          <span>Menu Items</span>
+        </Link>
+        <Link
+          to={`/show-menu-item`}
+          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
+        >
+          <FaUtensils className="text-xl" />
+          <span>Show Menu Items</span>
         </Link>
         <Link
           to={`/orders`}

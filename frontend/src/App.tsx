@@ -23,12 +23,12 @@ import { Cart } from "./pages/Cart";
 import UserProfile from "./pages/UserProfile";
 import Rating from "./pages/Rating";
 import { AllRestaurants } from "./pages/AllRestaurants";
+import { ShowMenu } from "./pages/admin/ShowMenu";
 
 function App() {
   const user = useRecoilValue(userAtom);
   const isAdmin = user?.isAdmin;
   console.log(import.meta.env.VITE_BACKEND_API);
-  
 
   return (
     <>
@@ -53,6 +53,10 @@ function App() {
           element={
             isAdmin ? <AddMenuItem /> : <Navigate to={"/not-authorizrd"} />
           }
+        />
+        <Route
+          path="/show-menu-item"
+          element={isAdmin ? <ShowMenu /> : <Navigate to={"/not-authorized"} />}
         />
 
         <Route path="/restaurant/meal/:mealId" element={<MealPage />} />
