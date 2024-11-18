@@ -11,6 +11,7 @@ import cartRoute from "./Router/cartRoutes.js";
 import orderRoute from "./Router/orderRoutes.js";
 import dashboardRoute from "./Router/dashboardRoutes.js";
 import path from "path";
+import offerRoute from "./Router/offerRoutes.js";
 dotenv.config();
 
 DBconnect();
@@ -52,6 +53,7 @@ app.use("/api/restaurant", restaurantRoute);
 app.use("/api/menu", menuRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/order", orderRoute);
+app.use("/api/offer", offerRoute);
 app.use("/api/dashboard", dashboardRoute);
 if (process.env.NODE_ENV === "production") {
   console.log("production test");

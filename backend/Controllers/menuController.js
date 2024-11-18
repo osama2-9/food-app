@@ -104,6 +104,10 @@ export const deleteItem = async (req, res) => {
         error: "Item not found",
       });
     }
+    if (mealImg) {
+      const imgId = item.mealImg.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(imgId);
+    }
 
     const isDeleted = await item.deleteOne();
     if (!isDeleted) {
@@ -187,6 +191,96 @@ export const getAllMenu = async (req, res) => {
     console.error(error);
     return res.status(500).json({
       error: "Internal server error",
+    });
+  }
+};
+export const updateMeal = async (req, res) => {
+  try {
+    const {
+      mealId,
+      name,
+      description,
+      price,
+      restaurantID,
+      additions,
+      sizes,
+      mealType,
+    } = req.body;
+    let { mealImg } = req.body;
+
+    if (!mealId) {
+      return res.status(400).json({
+        error: "No meal found to update. Please try again.",
+      });
+    }
+
+    const meal = await MenuItem.findById(mealId);
+    if (!meal) {
+      return res.status(400).json({
+        error: "No meal found.",
+      });
+    }
+
+    if (mealImg) {
+      if (meal.mealImg) {
+        try {
+          const imgId = meal.mealImg.split("/").pop().split(".")[0];
+          const deleteImgResult = await cloudinary.uploader.destroy(imgId);
+
+          if (deleteImgResult.result !== "ok") {
+            console.error(
+              "Error deleting image from Cloudinary:",
+              deleteImgResult
+            );
+            return res.status(400).json({
+              error: "Error while trying to delete the old image.",
+            });
+          }
+        } catch (cloudinaryError) {
+          console.error(
+            "Error deleting old image from Cloudinary:",
+            cloudinaryError
+          );
+          return res.status(500).json({
+            error: "Failed to delete the old image from Cloudinary.",
+          });
+        }
+      }
+
+      try {
+        const uploadResult = await cloudinary.uploader.upload(mealImg);
+        mealImg = uploadResult.secure_url;
+      } catch (uploadError) {
+        console.error("Error uploading new image to Cloudinary:", uploadError);
+        return res.status(500).json({
+          error: "Failed to upload the new image to Cloudinary.",
+        });
+      }
+    }
+
+    meal.name = name || meal.name;
+    meal.price = price || meal.price;
+    meal.description = description || meal.description;
+    meal.restaurant = restaurantID || meal.restaurant;
+    meal.additions = additions || meal.additions;
+    meal.sizes = sizes || meal.sizes;
+    meal.mealType = mealType || meal.mealType;
+    meal.mealImg = mealImg || meal.mealImg; 
+
+    const updatedMeal = await meal.save();
+    if (!updatedMeal) {
+      return res.status(400).json({
+        error: "Error while trying to update the meal.",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Meal updated successfully.",
+    });
+  } catch (error) {
+    console.error("Error during meal update:", error);
+    return res.status(500).json({
+      error: "Internal server error.",
     });
   }
 };

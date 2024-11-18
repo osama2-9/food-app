@@ -34,6 +34,6 @@ userRoute.get("/search", search);
 userRoute.post("/updateAdminStatus", isSuperAdmin, updateAdminStatus);
 userRoute.get("/user-address/:uid", protectRoute, getAddressDetails);
 userRoute.get("/picks-for-you/:userId", protectRoute, picksForYou);
-userRoute.put("/update-address" ,protectRoute ,updateAddress)
+userRoute.put("/update-address", protectRoute, updateAddress);
 
 export default userRoute;

@@ -1,12 +1,22 @@
-interface Meal {
+
+
+export interface Size {
     name: string;
-    description: string;
-    price: number;
-    mealImg: string;
-    sizes: string[];
-    additions: string[];
-    restaurant: string;
-    rating: number;
+    price: string; 
 }
 
-export type {Meal}
+export interface Addition {
+    name: string;
+    price: string; 
+}
+
+export interface Meal {
+    _id: string; 
+    name: string;
+    price: string;
+    mealType: string;
+    description: string;
+    mealImg: string;
+    sizes: Size[];
+    additions: Addition[];
+}

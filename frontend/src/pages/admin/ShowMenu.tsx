@@ -4,6 +4,7 @@ import axios from "axios";
 import { AdminLayout } from "../../layouts/AdminLayout";
 import { API } from "../../api";
 import { ClipLoader } from "react-spinners";
+import { useNavigate } from "react-router-dom";
 
 interface Meal {
   _id: string;
@@ -27,8 +28,8 @@ export const ShowMenu = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filteredMenu, setFilteredMenu] = useState<RestaurantMenu[]>([]);
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
-  console.log(selectedMeal);
-  
+  const navigate = useNavigate();
+
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const handleGetMenu = async () => {
@@ -69,8 +70,8 @@ export const ShowMenu = () => {
       if (data) {
         toast.success(data.message);
         setIsModalOpen(false);
-        setSelectedMeal(null); 
-        handleGetMenu(); 
+        setSelectedMeal(null);
+        handleGetMenu();
       }
     } catch (error: any) {
       console.log(error);
@@ -96,13 +97,12 @@ export const ShowMenu = () => {
     setFilteredMenu(filtered);
   };
 
-  const setMeal = (meal: Meal) => {
+  const setMeal =  (meal: Meal) => {
     setSelectedMeal(meal);
-    setIsModalOpen(true); 
+    setIsModalOpen(true);
   };
-
-  const handleUpdate = (mealId: string) => {
-    toast.success("Redirecting to update page...");
+  const handleUpdate =async (meal: Meal) => {
+    navigate("/update-meal", { state: { meal } });
   };
 
   return (
@@ -172,7 +172,7 @@ export const ShowMenu = () => {
                         <td className="px-4 py-2">
                           <button
                             className="btn btn-warning bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-                            onClick={() => handleUpdate(meal._id)}
+                            onClick={() => handleUpdate(meal)}
                           >
                             Update
                           </button>

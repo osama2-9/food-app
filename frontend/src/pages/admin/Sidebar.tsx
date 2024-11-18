@@ -8,9 +8,17 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-export const Sidebar = () => {
+interface SidebarProps {
+  isOpen: boolean;
+}
+
+export const Sidebar = ({ isOpen }: SidebarProps) => {
   return (
-    <aside className="w-64 h-screen bg-gray-900 text-white flex flex-col shadow-lg">
+    <aside
+      className={`w-64 h-screen bg-gray-900 text-white flex flex-col shadow-lg ${
+        isOpen ? "block" : "hidden"
+      } md:block`}
+    >
       <div className="p-6 text-2xl font-bold text-center border-b border-gray-700">
         Dashboard
       </div>
@@ -72,7 +80,7 @@ export const Sidebar = () => {
           <span>Users</span>
         </Link>
         <Link
-          to={``}
+          to={`/offers`}
           className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
         >
           <FaTags className="text-xl" />

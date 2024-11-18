@@ -24,11 +24,12 @@ import UserProfile from "./pages/UserProfile";
 import Rating from "./pages/Rating";
 import { AllRestaurants } from "./pages/AllRestaurants";
 import { ShowMenu } from "./pages/admin/ShowMenu";
+import { UpdateMeal } from "./pages/admin/UpdateMeal";
+import { CreateOffer } from "./pages/admin/CreateOffer";
 
 function App() {
   const user = useRecoilValue(userAtom);
   const isAdmin = user?.isAdmin;
-  console.log(import.meta.env.VITE_BACKEND_API);
 
   return (
     <>
@@ -67,12 +68,22 @@ function App() {
           }
         />
         <Route
+          path="/offers"
+          element={
+            isAdmin ? <CreateOffer /> : <Navigate to={"/not-authorized"} />
+          }
+        />
+        <Route
           path="/orders"
           element={isAdmin ? <Orders /> : <Navigate to="/not-authorized" />}
         />
         <Route
           path="/account"
           element={user ? <Account /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/update-meal"
+          element={isAdmin ? <UpdateMeal /> : <Navigate to="/not-authorized" />}
         />
         <Route path="/restaurants" element={<AllRestaurants />} />
         <Route path="/user-profile" element={<UserProfile />} />
