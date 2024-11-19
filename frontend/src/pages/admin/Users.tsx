@@ -91,7 +91,7 @@ export const Users: React.FC = () => {
         isOpen={openDeleteModal}
         onClose={() => setOpenDeleteModal(false)}
         onConfirm={() => selectedUser && handleDeleteUser(selectedUser.uid)}
-        userName={
+        name={
           selectedUser
             ? `${selectedUser.firstname} ${selectedUser.lastname} `
             : ""

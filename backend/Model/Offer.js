@@ -29,6 +29,10 @@ const offerSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  totalOrders: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const Offer = mongoose.model("offer", offerSchema);

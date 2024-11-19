@@ -7,6 +7,7 @@ import { ClipLoader } from "react-spinners";
 import { FaTimes } from "react-icons/fa";
 import { User } from "../../types/User";
 import { API } from "../../api";
+
 interface OrderItem {
   restaurantId: string;
   restaurantName: string;
@@ -34,7 +35,6 @@ export const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-
   const [currentPage, setCurrentPage] = useState(1);
   const [ordersPerPage] = useState(12);
 
@@ -72,6 +72,7 @@ export const Orders = () => {
   const handleCloseModal = () => {
     setSelectedOrder(null);
   };
+
   const filteredOrders = orders.filter((order) => {
     return (
       order.orderItems?.some(
@@ -157,6 +158,9 @@ export const Orders = () => {
                     <td className="py-2 px-4 border">
                       {order?.orderItems
                         ?.map((item) => item.restaurantName)
+                        .filter(
+                          (value, index, self) => self.indexOf(value) === index
+                        ) // Ensures restaurant name is only shown once
                         .join(", ")}
                     </td>
                     <td className="py-2 px-4 border">
@@ -235,9 +239,14 @@ interface ModalProps {
 }
 
 const Modal = ({ order, onClose }: ModalProps) => {
+  const restaurantNames = Array.from(
+    new Set(order.orderItems.map((item) => item.restaurantName))
+  ); 
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full lg:w-2/3 transform transition-all overflow-y-auto">
+      <div className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full lg:w-2/3 transform transition-all overflow-y-auto max-h-[90vh] relative border-2 border-gray-300">
+        {/* Close Icon */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none"
@@ -300,36 +309,46 @@ const Modal = ({ order, onClose }: ModalProps) => {
         <h3 className="text-xl font-semibold text-gray-700 mb-4">
           Order Items
         </h3>
-        <div className="space-y-6">
-          {order.orderItems.map((item, index) => (
-            <div
-              key={index}
-              className="p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-md"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-lg font-semibold text-gray-800">
-                  {item.mealName}
-                </h4>
-                <p className="text-lg font-semibold text-gray-900">
-                  ${item.price.toFixed(2)} (x{item.quantity})
-                </p>
-              </div>
-              <div className="mb-3">
-                <strong className="text-gray-700">Size:</strong>{" "}
-                {item.size.name} (${item.size.price.toFixed(2)})
-              </div>
-              {item.additions.length > 0 && (
-                <div>
-                  <strong className="text-gray-700">Additions:</strong>
-                  <ul className="list-inside list-disc ml-4 text-sm text-gray-600">
-                    {item.additions.map((add, idx) => (
-                      <li key={idx}>
-                        {add.name} (+${add.price.toFixed(2)})
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+        <div className="space-y-6 overflow-y-auto max-h-[50vh]">
+          {" "}
+          {restaurantNames.map((restaurantName, idx) => (
+            <div key={idx} className="space-y-4">
+              <h4 className="text-lg font-semibold text-gray-800">
+                {restaurantName}
+              </h4>
+              {order.orderItems
+                .filter((item) => item.restaurantName === restaurantName)
+                .map((item, index) => (
+                  <div
+                    key={index}
+                    className="p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-md"
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-lg font-semibold text-gray-800">
+                        {item.mealName}
+                      </h4>
+                      <p className="text-lg font-semibold text-gray-900">
+                        ${item.price.toFixed(2)} (x{item.quantity})
+                      </p>
+                    </div>
+                    <div className="mb-3">
+                      <strong className="text-gray-700">Size:</strong>{" "}
+                      {item.size.name} (${item.size.price.toFixed(2)})
+                    </div>
+                    {item.additions.length > 0 && (
+                      <div>
+                        <strong className="text-gray-700">Additions:</strong>
+                        <ul className="list-inside list-disc ml-4 text-sm text-gray-600">
+                          {item.additions.map((add, idx) => (
+                            <li key={idx}>
+                              {add.name} (+${add.price.toFixed(2)})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ))}
             </div>
           ))}
         </div>

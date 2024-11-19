@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   FaUtensils,
   FaUsers,
@@ -5,6 +6,8 @@ import {
   FaTags,
   FaChartLine,
   FaUser,
+  FaChevronDown,
+  FaChevronUp,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
@@ -13,6 +16,14 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isOpen }: SidebarProps) => {
+  // State to control the collapse/expand of the "Offers" section
+  const [isOffersCollapsed, setIsOffersCollapsed] = useState(true);
+
+  // Toggle the collapsed state when clicking on "Offers"
+  const toggleOffers = () => {
+    setIsOffersCollapsed(!isOffersCollapsed);
+  };
+
   return (
     <aside
       className={`w-64 h-screen bg-gray-900 text-white flex flex-col shadow-lg ${
@@ -79,13 +90,39 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
           <FaUsers className="text-xl" />
           <span>Users</span>
         </Link>
-        <Link
-          to={`/offers`}
-          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
-        >
-          <FaTags className="text-xl" />
-          <span>Offers</span>
-        </Link>
+        {/* Toggleable Offers section */}
+        <div className="space-y-2">
+          <button
+            onClick={toggleOffers}
+            className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md w-full text-left"
+          >
+            <FaTags className="text-xl" />
+            <span>Offers</span>
+            {isOffersCollapsed ? (
+              <FaChevronDown className="ml-auto" />
+            ) : (
+              <FaChevronUp className="ml-auto" />
+            )}
+          </button>
+          {!isOffersCollapsed && (
+            <>
+              <Link
+                to={`/offers`}
+                className="flex items-center space-x-3 pl-10 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
+              >
+                <FaTags className="text-xl" />
+                <span>Create Offer</span>
+              </Link>
+              <Link
+                to={`/show-offers`}
+                className="flex items-center space-x-3 pl-10 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
+              >
+                <FaTags className="text-xl" />
+                <span>Show Offers</span>
+              </Link>
+            </>
+          )}
+        </div>
       </nav>
     </aside>
   );

@@ -26,6 +26,8 @@ import { AllRestaurants } from "./pages/AllRestaurants";
 import { ShowMenu } from "./pages/admin/ShowMenu";
 import { UpdateMeal } from "./pages/admin/UpdateMeal";
 import { CreateOffer } from "./pages/admin/CreateOffer";
+import ShowOffers from "./pages/admin/ShowOffers";
+import { UpdateOffer } from "./pages/admin/UpdateOffer";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -71,6 +73,18 @@ function App() {
           path="/offers"
           element={
             isAdmin ? <CreateOffer /> : <Navigate to={"/not-authorized"} />
+          }
+        />
+        <Route
+          path="/show-offers"
+          element={
+            isAdmin ? <ShowOffers /> : <Navigate to={"/not-authorized"} />
+          }
+        />
+        <Route
+          path="/update-offer"
+          element={
+            isAdmin ? <UpdateOffer /> : <Navigate to={"/not-authorized"} />
           }
         />
         <Route
