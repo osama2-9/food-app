@@ -5,6 +5,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { User } from "../types/User";
 import { API } from "../api";
+import { Footer } from "../components/Footer";
 
 interface Addition {
   _id: string;
@@ -123,6 +124,7 @@ export const Cart: React.FC = () => {
   };
 
   return (
+    <>
     <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
       <h1 className="text-4xl font-bold mb-6 text-gray-800">Your Cart</h1>
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
@@ -200,12 +202,14 @@ export const Cart: React.FC = () => {
             <button
               onClick={handleConfirmOrder}
               className="bg-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition"
-            >
+              >
               Confirm Order
             </button>
           </div>
         )}
       </div>
     </div>
+    <Footer/>
+        </>
   );
 };

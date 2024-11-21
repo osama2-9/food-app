@@ -211,13 +211,13 @@ export const getRestaurntOffers = async (req, res) => {
     }
     const offersDetails = offers.map((offer) => {
       return {
-        offerId:offer._id,
+        offerId: offer._id,
         name: offer.name,
         img: offer.img,
         description: offer.description,
         price: offer.price,
         validity: offer.validity,
-        isActive:offer.isActive
+        isActive: offer.isActive,
       };
     });
     return res.status(200).json({
@@ -226,6 +226,31 @@ export const getRestaurntOffers = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(400).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+export const getOfferDetails = async (req, res) => {
+  try {
+    const { offerId } = req.params;
+    if (!offerId) {
+      return res.status(400).json({
+        error: "Please select offer to see details",
+      });
+    }
+    const offer = await Offer.findById(offerId);
+    if (!offer) {
+      return res.status(400).json({
+        error: "No offer found",
+      });
+    }
+    return res.status(200).json({
+      offer,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
       error: "Internal server error",
     });
   }

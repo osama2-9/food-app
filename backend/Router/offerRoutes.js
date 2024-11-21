@@ -4,6 +4,7 @@ import {
   createOffer,
   deleteOffer,
   getAllOffer,
+  getOfferDetails,
   getRestaurntOffers,
   updateActivicationStatus,
   updateOffer,
@@ -16,4 +17,5 @@ offerRoute.put("/update-status", isAdmin, updateActivicationStatus);
 offerRoute.delete("/delete-offer/:offerId", isAdmin, deleteOffer);
 offerRoute.put("/update-offer", isAdmin, updateOffer);
 offerRoute.get("/get-restaurnt-offers/:restaurntId", getRestaurntOffers);
+offerRoute.get('/offer-details/:offerId' ,getOfferDetails)
 export default offerRoute;

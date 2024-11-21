@@ -17,8 +17,8 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
-  const [sizes, setSizes] = useState<{ size: string; price: number }[]>([
-    { size: "", price: 0 },
+  const [sizes, setSizes] = useState<{ name: string; price: number }[]>([
+    { name: "", price: 0 },
   ]);
   const [additions, setAdditions] = useState<{ name: string; price: number }[]>(
     [{ name: "", price: 0 }]
@@ -27,20 +27,25 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
   const [mealType, setMealType] = useState<string | undefined>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleAddSize = () => setSizes([...sizes, { size: "", price: 0 }]);
+  const handleAddSize = () => setSizes([...sizes, { name: "", price: 0 }]);
 
   const handleAddAddition = () =>
     setAdditions([...additions, { name: "", price: 0 }]);
 
-  const handleChangeSize = (
-    index: number,
-    field: "size" | "price",
-    value: string | number
-  ) => {
-    const newSizes = [...sizes];
-    newSizes[index] = { ...newSizes[index], [field]: value };
-    setSizes(newSizes);
-  };
+ const handleChangeSize = (
+   index: number,
+   field: "size" | "price",
+   value: string | number
+ ) => {
+   const newSizes = [...sizes];
+   if (field === "size") {
+     newSizes[index] = { ...newSizes[index], name: value as string }; 
+   } else if (field === "price") {
+     newSizes[index] = { ...newSizes[index], price: value as number };
+   }
+   setSizes(newSizes);
+ };
+
 
   const handleChangeAddition = (
     index: number,
@@ -94,7 +99,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
         setName("");
         setDescription("");
         setPrice(0);
-        setSizes([{ size: "", price: 0 }]);
+        setSizes([{ name: "", price: 0 }]);
         setAdditions([{ name: "", price: 0 }]);
         setImg("");
         setMealType("");
@@ -117,9 +122,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
         <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full overflow-y-auto max-h-[90vh]">
           <h2 className="text-xl font-bold mb-4">Add Menu Item</h2>
           <form onSubmit={handleSubmit}>
-            {/* Name and Description in the Same Line */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              {/* Name Input */}
               <div className="flex flex-col">
                 <label className="font-semibold mb-1" htmlFor="name">
                   Name
@@ -135,7 +138,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
                 />
               </div>
 
-              {/* Description Input */}
               <div className="flex flex-col">
                 <label className="font-semibold mb-1" htmlFor="description">
                   Description
@@ -174,12 +176,11 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
                 className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4"
                 key={index}
               >
-                {/* Size Select */}
                 <select
                   className="border border-gray-300 p-2 rounded"
-                  value={size.size}
-                  onChange={(e) =>
-                    handleChangeSize(index, "size", e.target.value)
+                  value={size.name} 
+                  onChange={
+                    (e) => handleChangeSize(index, "size", e.target.value) 
                   }
                 >
                   <option value="">Select Size</option>
@@ -193,14 +194,16 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
                 <input
                   type="number"
                   value={size.price}
-                  onChange={(e) =>
-                    handleChangeSize(index, "price", Number(e.target.value))
+                  onChange={
+                    (e) =>
+                      handleChangeSize(index, "price", Number(e.target.value)) 
                   }
                   placeholder="Price"
                   className="border border-gray-300 p-2 rounded"
                 />
               </div>
             ))}
+
             <button
               type="button"
               onClick={handleAddSize}
@@ -209,7 +212,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               Add Size
             </button>
 
-            {/* Additions Section */}
             <h4 className="font-semibold mb-2">Additions</h4>
             {additions.map((addition, index) => (
               <div className="flex flex-col mb-4" key={index}>
@@ -241,7 +243,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               Add Addition
             </button>
 
-            {/* Meal Type Dropdown */}
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="mealType">
                 Meal Type
@@ -264,7 +265,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               </select>
             </div>
 
-            {/* Image Input */}
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="image">
                 Image
@@ -286,7 +286,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               )}
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className={`bg-blue-500 text-white py-2 rounded w-full hover:bg-blue-600 transition ${
@@ -297,7 +296,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               {loading ? "Submitting..." : "Submit"}
             </button>
 
-            {/* Cancel Button */}
             <button
               type="button"
               onClick={onRequestClose}

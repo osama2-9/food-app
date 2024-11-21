@@ -20,6 +20,7 @@ export const addNewItem = async (req, res) => {
         error: "Please fill all required fields",
       });
     }
+console.log(req.body);
 
     const existingItem = await MenuItem.findOne({ name });
     if (existingItem) {

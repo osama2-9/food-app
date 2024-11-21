@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { API } from "../api";
+import { Footer } from "../components/Footer";
 
 interface Meal {
   _id: string;
@@ -149,6 +150,7 @@ export const RestaurantPage = () => {
   }, [searchTerm, selectedType, meals]);
 
   return (
+    <>
     <div className="min-h-screen max-w-7xl mx-auto p-6 flex flex-col md:flex-row gap-8">
       {loading ? (
         <div className="flex justify-center items-center w-full h-full">
@@ -183,10 +185,10 @@ export const RestaurantPage = () => {
                   onClick={() => setSelectedType(type)}
                   className={`w-full px-4 py-2 rounded-md text-left ${
                     selectedType === type
-                      ? "bg-purple-600 text-white"
-                      : "bg-gray-100 hover:bg-gray-200"
+                    ? "bg-purple-600 text-white"
+                    : "bg-gray-100 hover:bg-gray-200"
                   } transition duration-300 flex justify-between items-center mb-2`}
-                >
+                  >
                   <span>{type}</span>
                   <span className="ml-2 text-sm text-gray-600">
                     ({mealCounts[type] || 0})
@@ -212,7 +214,7 @@ export const RestaurantPage = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search menu items..."
                 className="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500"
-              />
+                />
             </div>
 
             <h3 className="text-2xl font-semibold mb-4 text-gray-800">Menu</h3>
@@ -264,8 +266,8 @@ export const RestaurantPage = () => {
           <div className="space-y-4">
             {offers.map((offer) => (
               <Link
-                key={offer.offerId}
-                to={`/restaurant/meal/${offer.offerId}`}
+              key={offer.offerId}
+              to={`/restaurnt/offer/${offer.offerId}`}
               >
                 <div className="bg-gray-50 p-2 rounded-md transition-all hover:scale-105">
                   <div>
@@ -296,5 +298,7 @@ export const RestaurantPage = () => {
         </div>
       )}
     </div>
+    <Footer/>
+      </>
   );
 };

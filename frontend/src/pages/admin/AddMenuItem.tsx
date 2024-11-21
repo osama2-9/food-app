@@ -76,7 +76,6 @@ export const AddMenuItem = () => {
           </table>
         )}
 
-        {/* Modal for Adding Menu Item */}
         <AddMenuItemModal
           isOpen={isModalOpen}
           onRequestClose={closeModal}

@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { API } from "../api";
+import { Footer } from "../components/Footer";
 interface Size {
   _id: string;
   name: string;
@@ -174,6 +175,7 @@ export const MealPage: React.FC = () => {
   }
 
   return (
+    <>
     <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         {meal && (
@@ -183,7 +185,7 @@ export const MealPage: React.FC = () => {
                 src={meal.mealImg}
                 alt={meal.name}
                 className="rounded-lg shadow-lg object-cover max-h-96 w-full"
-              />
+                />
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-xl space-y-4">
@@ -205,14 +207,14 @@ export const MealPage: React.FC = () => {
                 <button
                   onClick={decrementQuantity}
                   className="bg-gray-200 text-gray-800 py-2 px-4 rounded-lg font-semibold"
-                >
+                  >
                   -
                 </button>
                 <span className="text-lg font-semibold">{quantity}</span>
                 <button
                   onClick={incrementQuantity}
                   className="bg-gray-200 text-gray-800 py-2 px-4 rounded-lg font-semibold"
-                >
+                  >
                   +
                 </button>
               </div>
@@ -226,10 +228,10 @@ export const MealPage: React.FC = () => {
                       onClick={() => setSelectedSize(size)}
                       className={`py-2 px-4 rounded-lg border ${
                         selectedSize?.name === size.name
-                          ? "bg-purple-500 text-white"
-                          : "bg-gray-200 text-gray-800"
-                      }`}
-                    >
+                        ? "bg-purple-500 text-white"
+                        : "bg-gray-200 text-gray-800"
+                        }`}
+                        >
                       {size.name} (+${size.price})
                     </button>
                   ))}
@@ -243,7 +245,7 @@ export const MealPage: React.FC = () => {
                 <div className="flex flex-wrap gap-3">
                   {meal.additions.map((addition) => (
                     <button
-                      key={addition._id}
+                    key={addition._id}
                       onClick={() => handleAdditionChange(addition)}
                       className={`py-2 px-4 rounded-full border ${
                         selectedAdditions.some(
@@ -262,7 +264,7 @@ export const MealPage: React.FC = () => {
               <button
                 onClick={handleAddToCart}
                 className="w-full bg-purple-500 text-white py-3 rounded-lg mt-6 font-semibold hover:bg-purple-600 transition"
-              >
+                >
                 Add to Cart
               </button>
             </div>
@@ -277,14 +279,14 @@ export const MealPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {topRatedDishes.map((dish) => (
             <div
-              key={dish.name}
-              className="bg-white p-6 rounded-lg shadow-lg text-center"
+            key={dish.name}
+            className="bg-white p-6 rounded-lg shadow-lg text-center"
             >
               <img
                 src={dish.mealImg}
                 alt={dish.name}
                 className="rounded-lg object-cover h-48 w-full mb-4"
-              />
+                />
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
                 {dish.name}
               </h3>
@@ -297,6 +299,8 @@ export const MealPage: React.FC = () => {
         </div>
       </div>
     </div>
+    <Footer/>
+                </>
   );
 };
 
