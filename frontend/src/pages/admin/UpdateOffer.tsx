@@ -12,15 +12,15 @@ export const UpdateOffer = () => {
   const navigate = useNavigate();
   const { offer } = location.state || {};
 
-  const [formData, setFormData] = useState({
-    offerName: offer?.offerName || "",
-    offerPrice: offer?.offerPrice || 0,
-    offerValidity: offer?.offerValidity
-      ? new Date(offer.offerValidity)
-      : new Date(),
-    offerDescription: offer?.offerDescription || "",
-    offerStatus: offer?.offerStatus || false,
-  });
+  const [offerName, setOfferName] = useState(offer?.offerName || "");
+  const [offerPrice, setOfferPrice] = useState(offer?.offerPrice || 0);
+  const [offerValidity, setOfferValidity] = useState(
+    offer?.offerValidity ? new Date(offer.offerValidity) : new Date()
+  );
+  const [offerDescription, setOfferDescription] = useState(
+    offer?.offerDescription || ""
+  );
+  const [offerStatus, setOfferStatus] = useState(offer?.offerStatus || false);
 
   useEffect(() => {
     if (!offer) {
@@ -34,27 +34,29 @@ export const UpdateOffer = () => {
       | React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    // Based on input name, update the respective state
+    if (name === "offerName") setOfferName(value);
+    if (name === "offerPrice") setOfferPrice(Number(value));
+    if (name === "offerDescription") setOfferDescription(value);
   };
 
   const handleDateChange = (date: Date | null) => {
-    setFormData((prev) => ({
-      ...prev,
-      offerValidity: date || new Date(),
-    }));
+    setOfferValidity(date || new Date());
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Send the data separately, not inside a formData object
       const res = await axios.put(
         `${API}/offer/update-offer`,
         {
-          offerId: offer.offerId,
-          formData,
+          offerId: offer?.offerId,
+          offerName,
+          offerPrice,
+          offerValidity,
+          offerDescription,
+          offerStatus,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -89,7 +91,7 @@ export const UpdateOffer = () => {
               id="offerName"
               name="offerName"
               type="text"
-              value={formData.offerName}
+              value={offerName}
               onChange={handleChange}
               required
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -107,7 +109,7 @@ export const UpdateOffer = () => {
               id="offerPrice"
               name="offerPrice"
               type="number"
-              value={formData.offerPrice}
+              value={offerPrice}
               onChange={handleChange}
               required
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -122,7 +124,7 @@ export const UpdateOffer = () => {
               Validity
             </label>
             <DatePicker
-              selected={formData.offerValidity}
+              selected={offerValidity}
               onChange={handleDateChange}
               dateFormat="yyyy/MM/dd"
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -140,7 +142,7 @@ export const UpdateOffer = () => {
             <textarea
               id="offerDescription"
               name="offerDescription"
-              value={formData.offerDescription}
+              value={offerDescription}
               onChange={handleChange}
               rows={4}
               className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

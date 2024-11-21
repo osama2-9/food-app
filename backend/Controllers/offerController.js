@@ -150,38 +150,82 @@ export const deleteOffer = async (req, res) => {
     });
   }
 };
+
 export const updateOffer = async (req, res) => {
+  console.log(req.body);
+
   try {
-    const { offerId, restaurntId, name, description, price, validity } =
+    const { offerId, offerName, offerDescription, offerPrice, offerValidity } =
       req.body;
+
     if (!offerId) {
       return res.status(400).json({
         error: "Please select offer to update",
       });
     }
+
     const offer = await Offer.findById(offerId);
     if (!offer) {
       return res.status(400).json({
         error: "No offer found",
       });
     }
-    offer.restaurntId = restaurntId || offer.restaurntId;
-    offer.name = name || offer.name;
-    offer.description = description || offer.description;
-    offer.price = price || offer.price;
-    offer.validity = validity || offer.validity;
+
+    offer.name = offerName || offer.name;
+    offer.description = offerDescription || offer.description;
+    offer.price = offerPrice || offer.price;
+    offer.validity = offerValidity || offer.validity;
+
     const isOfferUpdated = await offer.save();
+
     if (!isOfferUpdated) {
       return res.status(400).json({
-        error: "Error while try to update error",
+        error: "Error while trying to update the offer",
       });
     }
+
     return res.status(200).json({
       message: "Offer updated successfully",
     });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+export const getRestaurntOffers = async (req, res) => {
+  try {
+    const { restaurntId } = req.params;
+    if (!restaurntId) {
+      return res.status(400).json({
+        error: "No restaurnt selected",
+      });
+    }
+    const offers = await Offer.find({ restaurntId: restaurntId });
+    if (!offers) {
+      return res.status(400).json({
+        errro: "No offers found",
+      });
+    }
+    const offersDetails = offers.map((offer) => {
+      return {
+        offerId:offer._id,
+        name: offer.name,
+        img: offer.img,
+        description: offer.description,
+        price: offer.price,
+        validity: offer.validity,
+        isActive:offer.isActive
+      };
+    });
+    return res.status(200).json({
+      offersDetails,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
       error: "Internal server error",
     });
   }
