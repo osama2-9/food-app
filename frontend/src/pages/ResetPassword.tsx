@@ -1,88 +1,106 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useSetRecoilState } from "recoil";
-import userAtom from "../atoms/userAtom";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { API } from "../api";
 
-export const Login: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+export const ResetPassword: React.FC = () => {
+  const [newPassword, setNewPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const setUser = useSetRecoilState(userAtom);
-  const navigator = useNavigate();
+  const navigate = useNavigate();
+  const { token } = useParams();
 
+  const handleVerifyTokenValidity = async () => {
+    try {
+      const res = await axios.get(`${API}/user/check-token-validity/${token}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+      const data = await res.data;
+      if (data) {
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error?.response?.data?.error);
+    }
+  };
+
+  useEffect(() => {
+    handleVerifyTokenValidity();
+  }, []);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const res = await axios.post(
-        `${API}/user/login`,
-        { email: email, password: password },
+        `${API}/user/reset-password`,
+        { newPassword, token },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true,
         }
       );
       const data = res.data;
       if (data) {
-        localStorage.setItem("user", JSON.stringify(data));
-        setUser(data);
-        console.log(data.error || "No error in response");
-        navigator("/");
+        toast.success("Your password has been reset successfully!");
+        navigate("/login");
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
         toast.error(error.response.data.error);
-        console.error("Error message:", error.response.data.error);
       } else {
-        console.error(
-          "Error during login:",
-          error.message || "An unknown error occurred"
-        );
+        toast.error("An error occurred while resetting the password.");
       }
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row md:bg-gray-50">
-      <div className="w-full lg:w-1/2  p-8 flex items-center justify-center bg-white shadow- lg:rounded-l-lg">
+      <div className="w-full lg:w-1/2 p-8 flex items-center justify-center bg-white shadow-lg lg:rounded-l-lg">
         <div className="w-full mt-52 md:mt-0 max-w-sm">
           <h2 className="text-3xl font-semibold text-center text-purple-600 mb-8">
-            Login
+            Reset Password
           </h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label
-                htmlFor="email"
+                htmlFor="newPassword"
                 className="block text-gray-700 font-medium mb-2"
               >
-                Email
+                New Password
               </label>
               <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="password"
+                id="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
                 className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
                 required
               />
             </div>
             <div className="mb-6">
               <label
-                htmlFor="password"
+                htmlFor="confirmPassword"
                 className="block text-gray-700 font-medium mb-2"
               >
-                Password
+                Confirm Password
               </label>
               <input
                 type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full p-3 border border-black rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
                 required
               />
@@ -95,18 +113,13 @@ export const Login: React.FC = () => {
               {isLoading && (
                 <div className="w-5 h-5 mr-3 border-4 border-t-4 border-white border-solid rounded-full animate-spin"></div>
               )}
-              Login
+              Reset Password
             </button>
           </form>
           <p className="text-center text-gray-500 mt-4">
-            Don't have an account?{" "}
-            <Link to={"/signup"} className="text-purple-600 hover:underline">
-              Sign up
-            </Link>
-          </p>
-          <p className="text-center text-gray-500 mt-4">
-            <Link to={"/forget-password"} className="text-purple-600 hover:underline">
-              forget password ?
+            Remembered your password?{" "}
+            <Link to={"/login"} className="text-purple-600 hover:underline">
+              Login
             </Link>
           </p>
         </div>
@@ -115,9 +128,10 @@ export const Login: React.FC = () => {
       <div className="hidden lg:flex w-1/2 bg-purple-600 text-white items-center justify-center lg:rounded-r-lg">
         <div className="text-center">
           <img src="/logo.png" alt="Logo" className="mb-6 w-24 mx-auto" />
-          <h1 className="text-4xl font-semibold mb-4">Welcome Back!</h1>
+          <h1 className="text-4xl font-semibold mb-4">Reset Your Password</h1>
           <p className="text-lg">
-            We're happy to see you again. Please log in to continue.
+            Please enter your new password and confirm it to complete the
+            process.
           </p>
         </div>
       </div>

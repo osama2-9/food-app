@@ -29,6 +29,8 @@ import { CreateOffer } from "./pages/admin/CreateOffer";
 import ShowOffers from "./pages/admin/ShowOffers";
 import { UpdateOffer } from "./pages/admin/UpdateOffer";
 import { OfferPage } from "./pages/OfferPage";
+import { ForgetPassword } from "./pages/ForgetPassword";
+import { ResetPassword } from "./pages/ResetPassword";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -41,6 +43,8 @@ function App() {
         <Route path="/*" element={<PageNotFound />} />
         <Route path="/users" element={isAdmin ? <Users /> : <PageNotFound />} />
         <Route path="/email-verify/:token" element={<VerifyEmail />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/cart" element={<Cart />} />
         <Route
           path="/dashboard"
@@ -89,6 +93,7 @@ function App() {
             isAdmin ? <UpdateOffer /> : <Navigate to={"/not-authorized"} />
           }
         />
+
         <Route
           path="/orders"
           element={isAdmin ? <Orders /> : <Navigate to="/not-authorized" />}

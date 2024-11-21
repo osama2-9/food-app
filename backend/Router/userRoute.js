@@ -1,13 +1,16 @@
 import { Router } from "express";
 import {
   checkAuth,
+  checkTokenValidity,
   deleteUser,
   getAddressDetails,
   getAllUsers,
   login,
   logout,
   picksForYou,
+  resetPassword,
   search,
+  sendResetPasswordMail,
   sendVerificationCode,
   signup,
   updateAddress,
@@ -35,5 +38,8 @@ userRoute.post("/updateAdminStatus", isSuperAdmin, updateAdminStatus);
 userRoute.get("/user-address/:uid", protectRoute, getAddressDetails);
 userRoute.get("/picks-for-you/:userId", protectRoute, picksForYou);
 userRoute.put("/update-address", protectRoute, updateAddress);
+userRoute.post('/forget-password' ,sendResetPasswordMail)
+userRoute.get('/check-token-validity/:token' ,checkTokenValidity)
+userRoute.post('/reset-password/' ,resetPassword)
 
 export default userRoute;

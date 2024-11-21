@@ -6,6 +6,8 @@ import generateVerificationCode from "../utils/generateVerificationCode.js";
 import Restaurant from "../Model/Restaurant.js";
 import Menu from "../Model/Menu.js";
 import Order from "../Model/Order.js";
+import sendResetPasswordLink from "../emails/sendResetPassword.js";
+import jwt from "jsonwebtoken";
 
 const hasAuth = (req) => {
   return req.cookies.auth !== undefined;
@@ -541,6 +543,134 @@ export const updateAddress = async (req, res) => {
     }
     return res.status(200).json({
       message: "Your address updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+export const sendResetPasswordMail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Please enter your email",
+      });
+    }
+
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      return res.status(400).json({
+        error: "Invalid email",
+      });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.SECRET, {
+      expiresIn: "30m",
+    });
+
+    user.resetPasswordToken = token;
+    user.resetPasswordTokenExpiresAt = Date.now() + 30 * 60 * 1000;
+
+    await user.save();
+
+    const url = `https://food-app-main.vercel.app//reset-password/${token}`;
+
+    await sendResetPasswordLink(email, url);
+
+    return res.status(200).json({
+      message: "Check your inbox for reset instructions!",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+export const checkTokenValidity = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({
+        error: "Can't verify the token sent",
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.SECRET);
+
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(400).json({
+        error: "User not found",
+      });
+    }
+
+    if (user.resetPasswordToken !== token) {
+      return res.status(400).json({
+        error: "Invalid or mismatched token",
+      });
+    }
+
+    if (Date.now() > user.resetPasswordTokenExpiresAt) {
+      return res.status(400).json({
+        error: "Reset token has expired",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Token is valid",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      error: "Invalid or expired token",
+    });
+  }
+};
+export const resetPassword = async (req, res) => {
+  const { newPassword, token } = req.body;
+
+  try {
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        error: "Missing required inputs",
+      });
+    }
+
+    const user = await User.findOne({ resetPasswordToken: token });
+    if (!user) {
+      return res.status(400).json({
+        error: "User not found or invalid token",
+      });
+    }
+
+    if (Date.now() > user.resetPasswordTokenExpiresAt) {
+      return res.status(400).json({
+        error: "Reset token has expired. Please request a new one.",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        error: "Password must be at least 6 characters long",
+      });
+    }
+    let hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+
+    user.resetPasswordToken = undefined;
+    user.resetPasswordTokenExpiresAt = undefined;
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Password has been reset successfully!",
     });
   } catch (error) {
     console.log(error);
