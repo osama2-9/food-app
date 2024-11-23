@@ -97,6 +97,11 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+server.listen(PORT ,()=>{
+  console.log('SERVER');
+  
+})
+
 export default server;
 
 export { io };
