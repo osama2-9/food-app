@@ -38,11 +38,13 @@ app.use(
   })
 );
 
+// Middleware setup
 app.use(cookieParser());
 app.use(express.json({ limit: "30mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:3000", "https://food-app-main.vercel.app"],
@@ -60,7 +62,6 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
- 
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
@@ -96,8 +97,6 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+export default server;
 
-export {io}
+export { io };
