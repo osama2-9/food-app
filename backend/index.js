@@ -37,7 +37,6 @@ app.use(
     ],
   })
 );
-
 app.use(cookieParser());
 app.use(express.json({ limit: "30mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -82,12 +81,12 @@ app.use("/api/dashboard", dashboardRoute);
 
 app.get("/test", (req, res) => {
   res.status(200).json({
-    message: "Server work",
+    message: "Server is working",
   });
 });
 
 if (process.env.NODE_ENV === "production") {
-  console.log("production test");
+  console.log("Running in production mode");
 
   app.use(express.static(path.join(__dirname, "/frontend/dist")));
 
@@ -97,9 +96,8 @@ if (process.env.NODE_ENV === "production") {
 }
 
 server.listen(PORT, () => {
-  console.log("SERVER");
+  console.log(`Server running on port ${PORT}`);
 });
 
 export default server;
-
 export { io };
