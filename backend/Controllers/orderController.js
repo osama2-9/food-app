@@ -4,7 +4,9 @@ import Order from "../Model/Order.js";
 import Restaurant from "../Model/Restaurant.js";
 import MenuItem from "../Model/Menu.js";
 import mongoose from "mongoose";
-
+import { createNotification } from "./notificationController.js";
+import { actions, messageTypes } from "../Model/Notification.js";
+import { io } from "../index.js";
 export const createNewOrder = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -94,6 +96,15 @@ export const createNewOrder = async (req, res) => {
       totalAmount,
       orderDate: new Date(Date.now()),
     });
+    const orderConfirmation = await createNotification({
+      message: "new order created",
+      messageType: messageTypes.NEW_ORDER,
+      action: actions.CREATE,
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
+      createdAt: Date.now(),
+    });
+
+    io.emit('newOrder' ,orderConfirmation)
 
     await newOrder.save();
 
@@ -220,7 +231,9 @@ export const getUserOrder = async (req, res) => {
             const mealData = await MenuItem.findById(item.menuItem);
             const restaurantData = await Restaurant.findById(item.restaurantId);
 
-            let totalPrice = mealData?.price || 0;
+            let totalPrice = mealData?.isOffer
+              ? mealData?.offerPrice
+              : mealData?.price || 0;
             if (item.size && item.size.price) totalPrice += item.size.price;
             if (item.additions && item.additions.length > 0) {
               totalPrice += item.additions.reduce(

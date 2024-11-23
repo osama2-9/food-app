@@ -36,10 +36,12 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "follow-redirects": "^1.15.9",
+    "inquirer": "^12.1.0",
     "install": "^0.13.0",
     "mailtrap": "^3.4.0",
     "mongoose": "^8.7.2",
     "npm": "^10.9.0",
+    "socket.io": "^4.8.1",
     "vercel": "^39.0.2"
   }
 }

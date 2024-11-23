@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import {
   FaEye,
   FaEyeSlash,
@@ -23,7 +23,6 @@ interface Offer {
   offerValidity: Date;
   offerImg: string;
   offerStatus: boolean;
-  offerTotalOrder: Number;
   offerDescription: String;
 }
 
@@ -35,18 +34,18 @@ const ShowOffers = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [offerIdToDelete, setOfferIdToDelete] = useState<string | null>(null);
   const [offerNameToDelete, setOfferNameToDelete] = useState<string>("");
-  const navigate = useNavigate(); // Hook to navigate to the UpdateOffer page
+  const navigate = useNavigate();
 
   const handleGetOffers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API}/offer/get-offers`, {
+      const res = await axios.get(`${API}/menu/get-offers`, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
       const data = res.data;
       if (data) {
-        setOffers(data.offersDetails); // assuming response structure is correct
+        setOffers(data.offersDetails);
       } else {
         console.error("Data is not an array", data);
         toast.error("Failed to load offers");
@@ -62,7 +61,7 @@ const ShowOffers = () => {
   const handleUpdateActivaitionStatus = async (offerId: string) => {
     try {
       const res = await axios.put(
-        `${API}/offer/update-status`,
+        `${API}/menu/update-status`,
         { offerId },
         {
           headers: { "Content-Type": "application/json" },
@@ -88,7 +87,7 @@ const ShowOffers = () => {
 
   const handleDeleteOffer = async (offerId: string) => {
     try {
-      const res = await axios.delete(`${API}/offer/delete-offer/${offerId}`, {
+      const res = await axios.delete(`${API}/meals/delete${offerId}`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -142,7 +141,7 @@ const ShowOffers = () => {
   };
 
   const openUpdateModal = (offer: Offer) => {
-    navigate("/update-offer", { state: { offer } }); // Pass offer data as state
+    navigate("/update-offer", { state: { offer } });
   };
 
   return (
@@ -246,7 +245,7 @@ const ShowOffers = () => {
                   <td className="px-6 py-4 text-sm flex space-x-3">
                     <button
                       className="text-blue-500 hover:text-blue-700"
-                      onClick={() => openUpdateModal(offer)} // Open update modal
+                      onClick={() => openUpdateModal(offer)}
                     >
                       <FaPen className="w-5 h-5" />
                     </button>

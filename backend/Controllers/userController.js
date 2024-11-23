@@ -8,19 +8,19 @@ import Menu from "../Model/Menu.js";
 import Order from "../Model/Order.js";
 import sendResetPasswordLink from "../emails/sendResetPassword.js";
 import jwt from "jsonwebtoken";
+import { createNotification } from "./notificationController.js";
+import { actions, messageTypes } from "../Model/Notification.js";
+import { io } from "../index.js";
 
 const hasAuth = (req) => {
   return req.cookies.auth !== undefined;
 };
-
 export const signup = async (req, res) => {
   try {
     const { firstname, lastname, email, password, phone } = req.body;
 
     if (!firstname || !lastname || !email || !password || !phone) {
-      return res.status(400).json({
-        error: "Please fill all form fields.",
-      });
+      return res.status(400).json({ error: "Please fill all form fields." });
     }
 
     const findSameEmailOrPhone = await User.findOne({
@@ -28,9 +28,7 @@ export const signup = async (req, res) => {
     });
 
     if (findSameEmailOrPhone) {
-      return res.status(400).json({
-        error: "Email or phone already used.",
-      });
+      return res.status(400).json({ error: "Email or phone already used." });
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
@@ -46,9 +44,20 @@ export const signup = async (req, res) => {
     const createdUser = await newUser.save();
 
     if (createdUser) {
+      const notification = await createNotification({
+        message: `User with email ${newUser.email} has registered successfully.`,
+        messageType: messageTypes.NEW_USER,
+        action: actions.CREATE,
+        expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
+        createdAt: Date.now(),
+      });
+
+      io.emit("newUser", notification); 
       generateToken(createdUser._id.toString(), res);
-      createdUser.lastLogin = new Date();
+
+      createdUser.lastLogin = new Date(); 
       await createdUser.save();
+
       return res.status(201).json({
         message: "Account created successfully.",
         userData: {
@@ -114,6 +123,7 @@ export const login = async (req, res) => {
     generateToken(user._id.toString(), res);
     user.lastLogin = new Date();
     await user.save();
+
     return res.status(200).json({
       uid: user._id,
       firstname: user.firstname,

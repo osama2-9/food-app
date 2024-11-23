@@ -141,23 +141,23 @@ export const Dashboard = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-              <div className="p-6 bg-white text-gray-700 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+              <div className="p-6 bg-white text-blue-500 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
                 <h3 className="text-lg font-semibold">Total Restaurants</h3>
-                <p className="text-3xl font-bold">
+                <p className="text-3xl text-gray-600 font-bold">
                   {overview?.totalRestaurants}
                 </p>
               </div>
-              <div className="p-6 bg-white text-gray-700 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+              <div className="p-6 bg-white text-blue-500 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
                 <h3 className="text-lg font-semibold">Orders Today</h3>
-                <p className="text-3xl font-bold">{overview?.ordersToday}</p>
+                <p className="text-3xl text-gray-600 font-bold">{overview?.ordersToday}</p>
               </div>
-              <div className="p-6 bg-white text-gray-700 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+              <div className="p-6 bg-white text-blue-500 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
                 <h3 className="text-lg font-semibold">Total Sales</h3>
-                <p className="text-3xl font-bold">${overview?.totalSales}</p>
+                <p className="text-3xl text-gray-600 font-bold">${overview?.totalSales}</p>
               </div>
-              <div className="p-6 bg-white text-gray-700 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
+              <div className="p-6 bg-white text-blue-500 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
                 <h3 className="text-lg font-semibold">Available Offers</h3>
-                <p className="text-3xl font-bold">5</p>
+                <p className="text-3xl text-gray-600 font-bold">5</p>
               </div>
             </div>
 

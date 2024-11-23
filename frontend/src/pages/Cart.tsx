@@ -23,10 +23,12 @@ interface CartItem {
   mealId: string;
   name: string;
   mealImg: string;
-  price: number;
+  price: number; // Original price
+  offerPrice?: number; // Discounted offer price
   size?: Size;
   additions: Addition[];
   quantity: number;
+  isOffer: boolean; // Indicates if the meal has an offer
 }
 
 export const Cart: React.FC = () => {
@@ -67,9 +69,12 @@ export const Cart: React.FC = () => {
         0
       );
 
+      // Use offerPrice if available, otherwise fallback to the original price
+      const itemPrice =
+        item.isOffer && item.offerPrice ? item.offerPrice : item.price;
+
       return (
-        total +
-        item.quantity * (Number(item.price) + sizePrice + additionsPrice)
+        total + item.quantity * (Number(itemPrice) + sizePrice + additionsPrice)
       );
     }, 0);
   };
@@ -125,91 +130,98 @@ export const Cart: React.FC = () => {
 
   return (
     <>
-    <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
-      <h1 className="text-4xl font-bold mb-6 text-gray-800">Your Cart</h1>
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        {cartItems.length === 0 ? (
-          <div className="text-center">
-            <img
-              src="/empty-cart.png"
-              alt="Empty Cart"
-              className="mx-auto mb-4 w-40 h-40"
-            />
-            <p className="text-center text-gray-600">Your cart is empty!</p>
-          </div>
-        ) : (
-          <ul className="space-y-4">
-            {cartItems.map((item) => {
-              const sizePrice = Number(item.size?.price) || 0;
-              const totalItemPrice = (
-                Number(item.price) +
-                sizePrice +
-                item.additions.reduce(
-                  (sum, addition) => sum + Number(addition.price),
-                  0
-                )
-              ).toFixed(2);
+      <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
+        <h1 className="text-4xl font-bold mb-6 text-gray-800">Your Cart</h1>
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+          {cartItems.length === 0 ? (
+            <div className="text-center">
+              <img
+                src="/empty-cart.png"
+                alt="Empty Cart"
+                className="mx-auto mb-4 w-40 h-40"
+              />
+              <p className="text-center text-gray-600">Your cart is empty!</p>
+            </div>
+          ) : (
+            <ul className="space-y-4">
+              {cartItems.map((item) => {
+                const sizePrice = Number(item.size?.price) || 0;
+                const totalItemPrice = (
+                  (item.isOffer && item.offerPrice
+                    ? item.offerPrice
+                    : item.price) +
+                  sizePrice +
+                  item.additions.reduce(
+                    (sum, addition) => sum + Number(addition.price),
+                    0
+                  )
+                ).toFixed(2);
 
-              return (
-                <li
-                  key={item.mealId}
-                  className="flex items-center justify-between border-b pb-4"
-                >
-                  <div className="flex items-center">
-                    <img
-                      src={item.mealImg}
-                      alt={item.name}
-                      className="h-20 w-20 border-2 mr-4 shadow-sm"
-                    />
-                    <div>
-                      <h2 className="text-lg font-semibold text-gray-800">
-                        {item.name}
-                      </h2>
-                      <p className="text-gray-600">
-                        {item.size?.name
-                          ? `${item.size.name} (+$${sizePrice.toFixed(2)})`
-                          : "No size selected"}
-                      </p>
-                      <p className="text-gray-600">
-                        {item.additions.length > 0
-                          ? item.additions.map((a) => a.name).join(", ")
-                          : "No additions"}
-                      </p>
+                return (
+                  <li
+                    key={item.mealId}
+                    className="flex items-center justify-between border-b pb-4"
+                  >
+                    <div className="flex items-center">
+                      <img
+                        src={item.mealImg}
+                        alt={item.name}
+                        className="h-20 w-20 border-2 mr-4 shadow-sm"
+                      />
+                      <div>
+                        <h2 className="text-lg font-semibold text-gray-800">
+                          {item.name}
+                        </h2>
+                        <p className="text-gray-600">
+                          {item.size?.name
+                            ? `${item.size.name} (+$${sizePrice.toFixed(2)})`
+                            : "No size selected"}
+                        </p>
+                        <p className="text-gray-600">
+                          {item.additions.length > 0
+                            ? item.additions.map((a) => a.name).join(", ")
+                            : "No additions"}
+                        </p>
+                        {item.isOffer && (
+                          <p className="text-red-500 text-sm">
+                            Special offer: ${item.offerPrice?.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-lg text-purple-500">
-                      ${totalItemPrice}
-                    </p>
-                    <p className="text-gray-600">Qty: {item.quantity}</p>
-                    <button
-                      onClick={() => removeItemFromCart(item.mealId)}
-                      className="text-red-500 hover:text-red-700 transition"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        {cartItems.length > 0 && (
-          <div className="flex justify-between items-center mt-4">
-            <h2 className="text-2xl font-bold text-gray-800">
-              Total: ${totalPrice.toFixed(2)}
-            </h2>
-            <button
-              onClick={handleConfirmOrder}
-              className="bg-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition"
+                    <div className="text-right">
+                      <p className="font-semibold text-lg text-purple-500">
+                        ${totalItemPrice}
+                      </p>
+                      <p className="text-gray-600">Qty: {item.quantity}</p>
+                      <button
+                        onClick={() => removeItemFromCart(item.mealId)}
+                        className="text-red-500 hover:text-red-700 transition"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {cartItems.length > 0 && (
+            <div className="flex justify-between items-center mt-4">
+              <h2 className="text-2xl font-bold text-gray-800">
+                Total: ${totalPrice.toFixed(2)}
+              </h2>
+              <button
+                onClick={handleConfirmOrder}
+                className="bg-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition"
               >
-              Confirm Order
-            </button>
-          </div>
-        )}
+                Confirm Order
+              </button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-    <Footer/>
-        </>
+      <Footer />
+    </>
   );
 };

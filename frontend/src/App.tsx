@@ -27,12 +27,12 @@ import { ShowMenu } from "./pages/admin/ShowMenu";
 import { UpdateMeal } from "./pages/admin/UpdateMeal";
 import { CreateOffer } from "./pages/admin/CreateOffer";
 import ShowOffers from "./pages/admin/ShowOffers";
-import { UpdateOffer } from "./pages/admin/UpdateOffer";
 import { OfferPage } from "./pages/OfferPage";
 import { ForgetPassword } from "./pages/ForgetPassword";
 import { ResetPassword } from "./pages/ResetPassword";
 
 function App() {
+  
   const user = useRecoilValue(userAtom);
   const isAdmin = user?.isAdmin;
 
@@ -87,13 +87,7 @@ function App() {
             isAdmin ? <ShowOffers /> : <Navigate to={"/not-authorized"} />
           }
         />
-        <Route
-          path="/update-offer"
-          element={
-            isAdmin ? <UpdateOffer /> : <Navigate to={"/not-authorized"} />
-          }
-        />
-
+       
         <Route
           path="/orders"
           element={isAdmin ? <Orders /> : <Navigate to="/not-authorized" />}

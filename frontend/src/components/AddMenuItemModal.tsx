@@ -2,6 +2,8 @@ import axios from "axios";
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import { API } from "../api";
+import "react-datepicker/dist/react-datepicker.css"; // Import DatePicker styles
+import DatePicker from "react-datepicker"; // If using react-datepicker library
 
 interface AddMenuItemModalProps {
   isOpen: boolean;
@@ -27,25 +29,29 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
   const [mealType, setMealType] = useState<string | undefined>("");
   const [loading, setLoading] = useState<boolean>(false);
 
+  // New state for offer-related fields
+  const [isOffer, setIsOffer] = useState<boolean>(false);
+  const [offerValidity, setOfferValidity] = useState<Date | null>(null);
+  const [offerPrice, setOfferPrice] = useState<number>(0);
+
   const handleAddSize = () => setSizes([...sizes, { name: "", price: 0 }]);
 
   const handleAddAddition = () =>
     setAdditions([...additions, { name: "", price: 0 }]);
 
- const handleChangeSize = (
-   index: number,
-   field: "size" | "price",
-   value: string | number
- ) => {
-   const newSizes = [...sizes];
-   if (field === "size") {
-     newSizes[index] = { ...newSizes[index], name: value as string }; 
-   } else if (field === "price") {
-     newSizes[index] = { ...newSizes[index], price: value as number };
-   }
-   setSizes(newSizes);
- };
-
+  const handleChangeSize = (
+    index: number,
+    field: "size" | "price",
+    value: string | number
+  ) => {
+    const newSizes = [...sizes];
+    if (field === "size") {
+      newSizes[index] = { ...newSizes[index], name: value as string };
+    } else if (field === "price") {
+      newSizes[index] = { ...newSizes[index], price: value as number };
+    }
+    setSizes(newSizes);
+  };
 
   const handleChangeAddition = (
     index: number,
@@ -85,6 +91,9 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
           restaurantID: restaurantId,
           sizes,
           mealType,
+          isOffer, 
+          offerValidity,
+          offerPrice,
         },
         {
           headers: {
@@ -103,6 +112,9 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
         setAdditions([{ name: "", price: 0 }]);
         setImg("");
         setMealType("");
+        setIsOffer(false);
+        setOfferPrice(0);
+        setOfferValidity(null);
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
@@ -153,7 +165,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               </div>
             </div>
 
-            {/* Price Input */}
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="price">
                 Price
@@ -169,7 +180,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               />
             </div>
 
-            {/* Sizes Section */}
             <h4 className="font-semibold mb-2">Sizes</h4>
             {sizes.map((size, index) => (
               <div
@@ -178,9 +188,9 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               >
                 <select
                   className="border border-gray-300 p-2 rounded"
-                  value={size.name} 
-                  onChange={
-                    (e) => handleChangeSize(index, "size", e.target.value) 
+                  value={size.name}
+                  onChange={(e) =>
+                    handleChangeSize(index, "size", e.target.value)
                   }
                 >
                   <option value="">Select Size</option>
@@ -190,13 +200,11 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
                   <option value="XL">XL</option>
                 </select>
 
-                {/* Price Input for Size */}
                 <input
                   type="number"
                   value={size.price}
-                  onChange={
-                    (e) =>
-                      handleChangeSize(index, "price", Number(e.target.value)) 
+                  onChange={(e) =>
+                    handleChangeSize(index, "price", Number(e.target.value))
                   }
                   placeholder="Price"
                   className="border border-gray-300 p-2 rounded"
@@ -250,59 +258,97 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
               <select
                 id="mealType"
                 value={mealType}
-                onChange={(e) => setMealType(e.target.value || "")}
+                onChange={(e) => setMealType(e.target.value)}
                 className="border border-gray-300 p-2 rounded"
+                required
               >
-                <option value="" disabled>
-                  Select Meal Type
-                </option>
+                <option value="">Select Meal Type</option>
                 <option value="Fast-Food">Fast-Food</option>
                 <option value="Dessert">Dessert</option>
                 <option value="Grilled">Grilled</option>
-                <option value="Pizza">Pizza</option>
                 <option value="Smoothies">Smoothies</option>
+                <option value="Pizza">Pizza</option>
                 <option value="Appetizers">Appetizers</option>
               </select>
             </div>
 
+            <div className="flex items-center mb-4">
+              <input
+                type="checkbox"
+                checked={isOffer}
+                onChange={() => setIsOffer(!isOffer)}
+                id="isOffer"
+                className="mr-2"
+              />
+              <label htmlFor="isOffer" className="font-semibold">
+                Is this an offer?
+              </label>
+            </div>
+
+            {isOffer && (
+              <div className="flex flex-col mb-4">
+                <label className="font-semibold mb-1" htmlFor="offerPrice">
+                  Offer Price
+                </label>
+                <input
+                  type="number"
+                  id="offerPrice"
+                  value={offerPrice}
+                  onChange={(e) => setOfferPrice(Number(e.target.value))}
+                  className="border border-gray-300 p-2 rounded"
+                  placeholder="Offer Price"
+                  required
+                />
+
+                <label className="font-semibold mb-1" htmlFor="offerValidity">
+                  Offer Validity
+                </label>
+                <DatePicker
+                  selected={offerValidity}
+                  onChange={(date: Date | null) => setOfferValidity(date)}
+                  dateFormat="yyyy-MM-dd"
+                  className="border border-gray-300 p-2 rounded"
+                  placeholderText="Select Offer Validity"
+                  required
+                />
+              </div>
+            )}
+
             <div className="flex flex-col mb-4">
               <label className="font-semibold mb-1" htmlFor="image">
-                Image
+                Upload Image
               </label>
               <input
-                id="image"
                 type="file"
-                accept="image/*"
                 onChange={handleImageChange}
                 className="border border-gray-300 p-2 rounded"
-                required
+                accept="image/*"
               />
-              {img && (
+              {img && typeof img === "string" && (
                 <img
-                  src={img as string}
-                  alt="Preview"
-                  className="w-full h-auto mt-2 mb-4 rounded"
+                  src={img}
+                  alt="Item Preview"
+                  className="mt-4 max-w-full h-auto"
                 />
               )}
             </div>
 
-            <button
-              type="submit"
-              className={`bg-blue-500 text-white py-2 rounded w-full hover:bg-blue-600 transition ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              disabled={loading}
-            >
-              {loading ? "Submitting..." : "Submit"}
-            </button>
-
-            <button
-              type="button"
-              onClick={onRequestClose}
-              className="text-red-500 mt-4 hover:underline"
-            >
-              Cancel
-            </button>
+            <div className="flex justify-between items-center">
+              <button
+                type="button"
+                onClick={onRequestClose}
+                className="bg-gray-500 text-white py-2 px-4 rounded"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-blue-500 text-white py-2 px-4 rounded"
+              >
+                {loading ? "Saving..." : "Save Item"}
+              </button>
+            </div>
           </form>
         </div>
       </div>

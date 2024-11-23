@@ -2,15 +2,13 @@ import { Link } from "react-router-dom";
 
 export const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white py-6">
+    <footer className="bg-gray-800 text-white py-6 mt-3">
       <div className="max-w-screen-xl mx-auto px-6 lg:px-8 flex flex-col lg:flex-row justify-between items-center">
-        {/* Left Side: Logo */}
         <div className="flex items-center mb-4 lg:mb-0">
           <img src="/logo.png" alt="App Logo" className="w-12 h-12 mr-3" />
           <span className="text-xl font-semibold text-white">Cehf</span>
         </div>
 
-        {/* Center: Links or Information */}
         <div className="flex flex-wrap justify-center mb-4 lg:mb-0">
           <Link
             to="/about"
@@ -38,7 +36,6 @@ export const Footer = () => {
           </Link>
         </div>
 
-        {/* Right Side: Social Media */}
         <div className="flex space-x-6">
           <a
             href="https://facebook.com"

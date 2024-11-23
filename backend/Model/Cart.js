@@ -6,7 +6,7 @@ const CartItemSchema = new mongoose.Schema({
     required: true,
     ref: "Restaurant",
   },
-  mealId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Meal" },
+  mealId: { type: mongoose.Schema.Types.ObjectId, required: false, ref: "Meal" },
   quantity: { type: Number, required: true, min: 1 },
   price: {
     type: Number,
@@ -19,10 +19,19 @@ const CartItemSchema = new mongoose.Schema({
   },
   additions: [
     {
-      name: { type: String, required: true },
-      price: { type: Number, required: true },
+      name: { type: String },
+      price: { type: Number },
     },
   ],
+  offerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Offer",
+    required: false,
+  },
+  offerPrice: {
+    type: Number,
+    required: false,
+  },
 });
 
 const CartSchema = new mongoose.Schema(
@@ -41,4 +50,4 @@ const CartSchema = new mongoose.Schema(
 
 const Cart = mongoose.model("Cart", CartSchema);
 
-export default Cart
+export default Cart;

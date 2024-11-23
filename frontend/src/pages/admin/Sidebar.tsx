@@ -16,85 +16,126 @@ interface SidebarProps {
 }
 
 export const Sidebar = ({ isOpen }: SidebarProps) => {
-  // State to control the collapse/expand of the "Offers" section
+  const [isRestaurantCollapsed, setIsRestaurantCollapsed] = useState(true);
+  const [isMenuCollapsed, setIsMenuCollapsed] = useState(true);
   const [isOffersCollapsed, setIsOffersCollapsed] = useState(true);
 
-  // Toggle the collapsed state when clicking on "Offers"
-  const toggleOffers = () => {
-    setIsOffersCollapsed(!isOffersCollapsed);
-  };
+  const toggleRestaurant = () =>
+    setIsRestaurantCollapsed(!isRestaurantCollapsed);
+
+  const toggleMenu = () => setIsMenuCollapsed(!isMenuCollapsed);
+
+  const toggleOffers = () => setIsOffersCollapsed(!isOffersCollapsed);
 
   return (
     <aside
-      className={`w-64 h-screen bg-gray-900 text-white flex flex-col shadow-lg ${
+      className={`w-64 h-screen bg-white text-blue-400 flex flex-col shadow-lg ${
         isOpen ? "block" : "hidden"
       } md:block`}
     >
-      <div className="p-6 text-2xl font-bold text-center border-b border-gray-700">
-        Dashboard
-      </div>
+     
       <nav className="flex-1 p-4 space-y-2">
         <Link
           to={`/dashboard`}
-          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
+          className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
         >
           <FaUser className="text-xl" />
           <span>Home</span>
         </Link>
-        <Link
-          to={`/add-new-restaurant`}
-          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
-        >
-          <FaUtensils className="text-xl" />
-          <span>Add New Restaurant</span>
-        </Link>
-        <Link
-          to={`/show-restaurants`}
-          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
-        >
-          <FaUtensils className="text-xl" />
-          <span>View Restaurants</span>
-        </Link>
-        <Link
-          to={`/add-menu-item`}
-          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
-        >
-          <FaUtensils className="text-xl" />
-          <span>Menu Items</span>
-        </Link>
-        <Link
-          to={`/show-menu-item`}
-          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
-        >
-          <FaUtensils className="text-xl" />
-          <span>Show Menu Items</span>
-        </Link>
+
+        <div>
+          <button
+            onClick={toggleRestaurant}
+            className="flex items-center space-x-3 p-3 w-full rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400"
+          >
+            <FaUtensils className="text-xl" />
+            <span>Restaurants</span>
+            {isRestaurantCollapsed ? (
+              <FaChevronDown className="ml-auto" />
+            ) : (
+              <FaChevronUp className="ml-auto" />
+            )}
+          </button>
+          {!isRestaurantCollapsed && (
+            <div className="space-y-2 pl-8">
+              <Link
+                to={`/add-new-restaurant`}
+                className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
+              >
+                <FaUtensils className="text-xl" />
+                <span>Add New Restaurant</span>
+              </Link>
+              <Link
+                to={`/show-restaurants`}
+                className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
+              >
+                <FaUtensils className="text-xl" />
+                <span>View Restaurants</span>
+              </Link>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <button
+            onClick={toggleMenu}
+            className="flex items-center space-x-3 p-3 w-full rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400"
+          >
+            <FaUtensils className="text-xl" />
+            <span>Menu Items</span>
+            {isMenuCollapsed ? (
+              <FaChevronDown className="ml-auto" />
+            ) : (
+              <FaChevronUp className="ml-auto" />
+            )}
+          </button>
+          {!isMenuCollapsed && (
+            <div className="space-y-2 pl-8">
+              <Link
+                to={`/add-menu-item`}
+                className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
+              >
+                <FaUtensils className="text-xl" />
+                <span>Add Menu Item</span>
+              </Link>
+              <Link
+                to={`/show-menu-item`}
+                className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
+              >
+                <FaUtensils className="text-xl" />
+                <span>Show Menu Items</span>
+              </Link>
+            </div>
+          )}
+        </div>
+
         <Link
           to={`/orders`}
-          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
+          className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
         >
           <FaShoppingCart className="text-xl" />
           <span>Orders</span>
         </Link>
+
         <Link
           to={``}
-          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
+          className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
         >
           <FaChartLine className="text-xl" />
           <span>Sales</span>
         </Link>
         <Link
           to={`/users`}
-          className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
+          className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
         >
           <FaUsers className="text-xl" />
           <span>Users</span>
         </Link>
-        {/* Toggleable Offers section */}
-        <div className="space-y-2">
+
+        <div>
           <button
             onClick={toggleOffers}
-            className="flex items-center space-x-3 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md w-full text-left"
+            className="flex items-center space-x-3 p-3 w-full rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400"
           >
             <FaTags className="text-xl" />
             <span>Offers</span>
@@ -105,22 +146,15 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
             )}
           </button>
           {!isOffersCollapsed && (
-            <>
-              <Link
-                to={`/offers`}
-                className="flex items-center space-x-3 pl-10 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
-              >
-                <FaTags className="text-xl" />
-                <span>Create Offer</span>
-              </Link>
+            <div className="space-y-2 pl-8">
               <Link
                 to={`/show-offers`}
-                className="flex items-center space-x-3 pl-10 p-3 rounded-md text-gray-300 hover:text-white transition-colors duration-200 hover:bg-gray-700 hover:shadow-md"
+                className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
               >
                 <FaTags className="text-xl" />
                 <span>Show Offers</span>
               </Link>
-            </>
+            </div>
           )}
         </div>
       </nav>

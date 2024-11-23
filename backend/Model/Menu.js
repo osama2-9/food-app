@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const menuItemSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -68,6 +69,27 @@ const menuItemSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  isOffer: {
+    type: Boolean,
+    default: false,
+  },
+  offerValidity: {
+    type: Date,
+    required: function () {
+      return this.isOffer;
+    },
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
+  offerPrice: {
+    type: Number,
+    min: 0,
+    required: function () {
+      return this.isOffer;
+    },
+  },
 });
 
 menuItemSchema.index({ restaurant: 1 });
@@ -75,4 +97,4 @@ menuItemSchema.index({ name: "text" });
 
 const Menu = mongoose.model("MenuItem", menuItemSchema);
 
-export default Menu
+export default Menu;

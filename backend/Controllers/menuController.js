@@ -1,7 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import MenuItem from "../Model/Menu.js";
 import Restaurant from "../Model/Restaurant.js";
-
 export const addNewItem = async (req, res) => {
   try {
     const {
@@ -12,6 +11,9 @@ export const addNewItem = async (req, res) => {
       additions,
       sizes,
       mealType,
+      isOffer,
+      offerPrice,
+      offerValidity,
     } = req.body;
     let { mealImg } = req.body;
 
@@ -20,7 +22,15 @@ export const addNewItem = async (req, res) => {
         error: "Please fill all required fields",
       });
     }
-console.log(req.body);
+
+    if (isOffer) {
+      if (!offerPrice || !offerValidity) {
+        return res.status(400).json({
+          error:
+            "Offer price and offer validity are required when the item is an offer.",
+        });
+      }
+    }
 
     const existingItem = await MenuItem.findOne({ name });
     if (existingItem) {
@@ -29,15 +39,17 @@ console.log(req.body);
       });
     }
 
-    try {
-      if (mealImg) {
+    console.log(req.body);
+
+    if (mealImg) {
+      try {
         const imgUploadResponse = await cloudinary.uploader.upload(mealImg);
         mealImg = imgUploadResponse.secure_url;
+      } catch (imgError) {
+        return res.status(500).json({
+          error: "Error uploading image",
+        });
       }
-    } catch (imgError) {
-      return res.status(500).json({
-        error: "Error uploading image",
-      });
     }
 
     const newMenu = new MenuItem({
@@ -45,11 +57,14 @@ console.log(req.body);
       description,
       price,
       restaurant: restaurantID,
-      mealImg: mealImg,
+      mealImg,
       additions: additions || [],
       sizes: sizes || [],
       createdAt: Date.now(),
-      mealType: mealType,
+      mealType,
+      isOffer,
+      offerPrice: isOffer ? offerPrice : undefined,
+      offerValidity: isOffer ? offerValidity : undefined,
     });
 
     const created = await newMenu.save();
@@ -206,6 +221,10 @@ export const updateMeal = async (req, res) => {
       additions,
       sizes,
       mealType,
+      isOffer,
+      offerValidity,
+      isActive,
+      offerPrice,
     } = req.body;
     let { mealImg } = req.body;
 
@@ -266,7 +285,11 @@ export const updateMeal = async (req, res) => {
     meal.additions = additions || meal.additions;
     meal.sizes = sizes || meal.sizes;
     meal.mealType = mealType || meal.mealType;
-    meal.mealImg = mealImg || meal.mealImg; 
+    meal.mealImg = mealImg || meal.mealImg;
+    meal.isOffer = isOffer !== undefined ? isOffer : meal.isOffer; // Update the offer flag
+    meal.offerValidity = offerValidity || meal.offerValidity; // Update the offer validity date
+    meal.isActive = isActive !== undefined ? isActive : meal.isActive; // Update the active status
+    meal.offerPrice = offerPrice !== undefined ? offerPrice : meal.offerPrice; // Update the offer price
 
     const updatedMeal = await meal.save();
     if (!updatedMeal) {
@@ -282,6 +305,94 @@ export const updateMeal = async (req, res) => {
     console.error("Error during meal update:", error);
     return res.status(500).json({
       error: "Internal server error.",
+    });
+  }
+};
+
+export const getOffers = async (req, res) => {
+  try {
+    const offers = await MenuItem.find({ isOffer: true });
+
+    if (!offers || offers.length === 0) {
+      return res.status(400).json({
+        error: "No offers found",
+      });
+    }
+
+    const currentDate = new Date();
+
+    const updatedOffers = offers.map((offer) => {
+      if (new Date(offer.offerValidity) < currentDate) {
+        offer.isActive = false;
+        offer.save();
+      }
+      return offer;
+    });
+
+    const restaurantIds = updatedOffers.map((offer) => offer.restaurant);
+
+    const restaurants = await Restaurant.find({ _id: { $in: restaurantIds } });
+
+    const restaurantMap = restaurants.reduce((acc, restaurant) => {
+      acc[restaurant._id.toString()] = restaurant.name;
+      return acc;
+    }, {});
+
+    const offersDetails = await Promise.all(
+      updatedOffers.map(async (offer) => {
+        const restaurantName = restaurantMap[offer.restaurant.toString()];
+
+        return {
+          offerId: offer._id,
+          restaurantName: restaurantName,
+          offerName: offer.name,
+          offerPrice: offer.offerPrice,
+          offerValidity: offer.offerValidity,
+          offerStatus: offer.isActive,
+          offerDescription: offer.description,
+        };
+      })
+    );
+
+    res.status(200).json({
+      offersDetails,
+    });
+  } catch (error) {
+    console.error("Error fetching offers:", error);
+    return res.status(500).json({
+      error: "An error occurred while fetching offers",
+    });
+  }
+};
+
+export const offerActivationStatus = async (req, res) => {
+  try {
+    const { offerId } = req.body;
+
+    if (!offerId) {
+      return res.status(400).json({
+        error: "Please select an offer to update",
+      });
+    }
+
+    const offer = await MenuItem.findById(offerId);
+    if (!offer) {
+      return res.status(400).json({
+        error: "No offer found",
+      });
+    }
+
+    offer.isActive = !offer.isActive;
+
+    await offer.save();
+
+    return res.status(200).json({
+      message: `Offer ${offer.isActive ? "Activated" : "Deactivated"}`,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: "Internal server error",
     });
   }
 };
