@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { FaBell } from "react-icons/fa";
-import { Socket } from "../socket/socket.ts";
+import { Socket } from "../socket/socket";
 
 interface Update {
   message: string;
