@@ -4,7 +4,7 @@ const SOCKET_URL: string = import.meta.env.VITE_SOCKET;
 
 const clintSocket: SocketIOClient = io(SOCKET_URL, { withCredentials: true });
 
-export const socket = () => {
+export const Socket = () => {
     clintSocket.on('connect', () => {
         console.log(clintSocket.id);
     });

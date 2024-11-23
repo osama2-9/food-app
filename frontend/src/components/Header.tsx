@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaBell } from "react-icons/fa";
-import { socket } from "../socket/socket.ts";
+import { Socket } from "../socket/socket"; 
+
 
 interface Update {
   message: string;
@@ -9,7 +10,7 @@ interface Update {
 }
 
 export const Header = () => {
-  const { clintSocket } = socket();
+  const { clintSocket } = Socket();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [notifications, setNotifications] = useState<Update[]>([]);
   const [hasInteracted, setHasInteracted] = useState(false);
