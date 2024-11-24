@@ -26,14 +26,18 @@ const app = express();
 app.use(
   cors({
     origin: ["http://localhost:3000", "https://food-app-main.vercel.app"],
-    methods: ["POST", "GET", "PUT", "DELETE"],
+    methods: ["POST", "GET", "PUT", "DELETE" ,"OPTIONS"],
     credentials: true,
     allowedHeaders: [
-      "content-type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
+      "Content-Type",
+      "Authorization", 
+      "X-Requested-With", 
+      "Accept", 
       "Origin",
+      "Upgrade",
+      "Connection", 
+      "Content-Length",
+      "X-Client-ID", 
     ],
   })
 );
@@ -95,6 +99,9 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+server.listen(PORT, () => {
+  console.log("server work");
+});
 
 export default server;
 export { io };
