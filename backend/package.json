@@ -19,6 +19,7 @@
     "@types/express": "^5.0.0",
     "@types/follow-redirects": "^1.14.4",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/socket.io-redis": "^1.0.27",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
@@ -41,7 +42,9 @@
     "mailtrap": "^3.4.0",
     "mongoose": "^8.7.2",
     "npm": "^10.9.0",
+    "redis": "^4.7.0",
     "socket.io": "^4.8.1",
+    "socket.io-redis": "^5.4.0",
     "vercel": "^39.0.2"
   }
 }

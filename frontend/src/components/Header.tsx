@@ -104,9 +104,9 @@ export const Header = () => {
               <p className="text-gray-500">No new updates</p>
             ) : (
               <div className="space-y-2">
-                {notifications.map((update) => (
+                {notifications.map((update, index) => (
                   <div
-                    key={update.message}
+                    key={`${update.message}-${update.createdAt}-${index}`}
                     className="flex justify-between items-center p-2 hover:bg-gray-200 rounded-md"
                   >
                     <span>{update.message}</span>

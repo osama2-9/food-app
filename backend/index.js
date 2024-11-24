@@ -37,7 +37,6 @@ app.use(
       "Upgrade",
       "Connection",
       "Content-Length",
-      "X-Client-ID",
     ],
   })
 );
@@ -61,7 +60,6 @@ const io = new Server(server, {
       "Upgrade",
       "Connection",
       "Content-Length",
-      "X-Client-ID",
     ],
   },
 });
@@ -102,6 +100,10 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });
 }
+
+server.listen(PORT, () => {
+  console.log("server work");
+});
 
 export default server;
 export { io };
