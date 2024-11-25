@@ -101,9 +101,6 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-server.listen(PORT, () => {
-  console.log("server work");
-});
 
 export default server;
 export { io };
