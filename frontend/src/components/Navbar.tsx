@@ -183,7 +183,7 @@ export const Navbar = () => {
             {user ? (
               <>
                 <Link
-                  to="/account"
+                  to="/my-orders"
                   className="flex items-center text-purple-500 hover:underline"
                 >
                   <FaUserCircle className="text-purple-500 text-lg mr-1" />
