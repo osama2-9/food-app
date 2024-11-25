@@ -11,6 +11,7 @@ import jwt from "jsonwebtoken";
 import { createNotification } from "./notificationController.js";
 import { actions, messageTypes } from "../Model/Notification.js";
 import { io } from "../index.js";
+import { sendActivationUrl } from "../emails/SendActivetionEmail.js";
 
 const hasAuth = (req) => {
   return req.cookies.auth !== undefined;
@@ -52,10 +53,10 @@ export const signup = async (req, res) => {
         createdAt: Date.now(),
       });
 
-      io.emit("newUser", notification); 
+      io.emit("newUser", notification);
       generateToken(createdUser._id.toString(), res);
 
-      createdUser.lastLogin = new Date(); 
+      createdUser.lastLogin = new Date();
       await createdUser.save();
 
       return res.status(201).json({
@@ -110,6 +111,11 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         error: "Invalid email or password.",
+      });
+    }
+    if (!user.isAccountActive) {
+      return res.status(400).json({
+        error: "deactived account",
       });
     }
 
@@ -686,6 +692,107 @@ export const resetPassword = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       error: "Internal server error",
+    });
+  }
+};
+
+export const deactiveAccount = async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) {
+    return res.status(400).json({
+      error: "Missing required parameters",
+    });
+  }
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(400).json({
+      error: "No user found",
+    });
+  }
+  user.isAccountActive = false;
+  await user.save();
+  return res.status(200).json({
+    success: true,
+  });
+};
+
+export const sendActivationMail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      error: "Please provide your email to reactivate your account",
+    });
+  }
+
+  const user = await User.findOne({ email: email });
+
+  if (!user) {
+    return res.status(400).json({
+      error: "No user found with this email",
+    });
+  }
+
+  if (user.isAccountActive) {
+    return res.status(400).json({
+      error: "Your account is already active",
+    });
+  }
+
+  if (user.isAccountActive === false) {
+    const token = jwt.sign({ userId: user._id }, process.env.SECRET, {
+      expiresIn: "30m",
+    });
+
+    user.activeitionToken = token;
+    user.activeitionTokenExpiresAt = Date.now() + 30 * 60 * 1000;
+
+    await user.save();
+
+    const activationUrl = `https://food-app-main.vercel.app/reactivate-account/${token}`;
+    await sendActivationUrl(user.email, activationUrl);
+
+    return res.status(200).json({
+      message:
+        "We've sent a reactivation link to your email. Please check your inbox.",
+    });
+  }
+};
+export const accountActivetion = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(400).json({
+        error: "Error while trying to reactivate. Please try again later.",
+      });
+    }
+
+    const user = await User.findOne({ activeitionToken: token });
+    if (!user) {
+      return res.status(400).json({
+        error: "Invalid or expired token. Please try again.",
+      });
+    }
+
+    if (user.activeitionTokenExpiresAt < Date.now()) {
+      return res.status(400).json({
+        error: "The token has expired. Please request a new activation link.",
+      });
+    }
+
+    user.isAccountActive = true;
+    user.activeitionToken = undefined;
+    user.activeitionTokenExpiresAt = undefined;
+    await user.save();
+
+    return res.status(200).json({
+      message: "Account activated successfully!",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error. Please try again later.",
     });
   }
 };

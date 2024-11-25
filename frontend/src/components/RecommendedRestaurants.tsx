@@ -50,7 +50,7 @@ const RecommendedRestaurants = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10">
-        <ClipLoader color="#3498db" loading={loading} size={50} />
+        <ClipLoader color="#6B21A8" loading={loading} size={50} />
       </div>
     );
   }

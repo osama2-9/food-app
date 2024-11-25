@@ -1,4 +1,3 @@
-import { Usidebar } from "../components/Usidebar";
 import {
   FaBoxOpen,
   FaCalendarAlt,
@@ -15,6 +14,7 @@ import { format } from "date-fns";
 import { User } from "../types/User";
 import { Order } from "../types/Order";
 import { API } from "../api";
+import { UserLayout } from "../layouts/UserLayout";
 
 export const Account = () => {
   const userProfile = useRecoilValue<User | null>(userAtom);
@@ -91,8 +91,9 @@ export const Account = () => {
   };
 
   return (
+    <UserLayout>
+
     <div className="min-h-screen bg-gray-50">
-      <Usidebar />
       <div className="flex flex-col items-center justify-center mt-8 px-4">
         <div className="w-full max-w-6xl bg-white p-8 rounded-lg shadow-lg">
           <div className="mb-6 text-center">
@@ -135,12 +136,12 @@ export const Account = () => {
                 <tbody>
                   {currentOrders?.map((order, index) => (
                     <tr
-                      key={order.orderId}
+                    key={order.orderId}
                       className={`${
                         index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                      } hover:bg-gray-100 transition-colors`}
-                      onClick={() => handleOrderClick(order.orderId)}
-                    >
+                        } hover:bg-gray-100 transition-colors`}
+                        onClick={() => handleOrderClick(order.orderId)}
+                        >
                       <td className="py-3 px-6 border">
                         <div className="flex items-center">
                           <span className="mr-2">
@@ -168,8 +169,8 @@ export const Account = () => {
                             : order?.status === "cancelled"
                             ? "text-red-500"
                             : "text-gray-500"
-                        }`}
-                      >
+                            }`}
+                            >
                         {order.status}
                       </td>
                       <td className="py-3 px-6 border">
@@ -216,7 +217,7 @@ export const Account = () => {
             <button
               onClick={closeOrderDetails}
               className="absolute top-4 right-4 text-red-500 text-xl font-semibold"
-            >
+              >
               ✕
             </button>
 
@@ -244,12 +245,12 @@ export const Account = () => {
                   <li
                     key={index}
                     className="flex gap-4 items-center border-b pb-4"
-                  >
+                    >
                     <img
                       src={item.mealImg || "/path/to/default-image.jpg"}
                       alt={item.meal}
                       className="w-16 h-16 object-cover rounded-md shadow-md"
-                    />
+                      />
                     <div className="flex-1">
                       <p className="text-lg font-semibold">{item.meal}</p>
                       <p className="text-sm text-gray-600">{item.restaurant}</p>
@@ -281,7 +282,7 @@ export const Account = () => {
               <button
                 onClick={closeOrderDetails}
                 className="bg-red-500 text-white py-2 px-6 rounded-full text-lg font-semibold hover:bg-red-600 transition duration-300"
-              >
+                >
                 Close
               </button>
             </div>
@@ -289,5 +290,6 @@ export const Account = () => {
         </div>
       )}
     </div>
+      </UserLayout>
   );
 };

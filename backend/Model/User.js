@@ -55,15 +55,21 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isAccountActive: {
+      type: Boolean,
+      default: false,
+    },
     resetPasswordToken: { type: String },
     resetPasswordTokenExpiresAt: { type: Date },
     verificationCodeToken: { type: String },
     verificationCodeTokenExpiresAt: { type: Date },
     verificationCode: { type: Number },
-    lastLogin:{
-      type:Date,
-      default:""
-    }
+    activeitionToken: { type: String },
+    activeitionTokenExpiresAt: { type: Date },
+    lastLogin: {
+      type: Date,
+      default: "",
+    },
   },
   {
     timestamps: true,
@@ -72,4 +78,4 @@ const UserSchema = new mongoose.Schema(
 
 const User = mongoose.model("User", UserSchema);
 
-export default User
+export default User;

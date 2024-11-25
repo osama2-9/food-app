@@ -4,6 +4,7 @@ import {
   getAllMenu,
   getMenuItems,
   getOffers,
+  getTopRatedOffers,
   mealDetailes,
   offerActivationStatus,
   updateMeal,
@@ -20,4 +21,5 @@ menuRoute.get("/meals", isAdmin, getAllMenu);
 menuRoute.post("/update-meal", isAdmin, updateMeal);
 menuRoute.get('/get-offers' ,isAdmin,getOffers)
 menuRoute.put("/update-status",isAdmin,offerActivationStatus);
+menuRoute.get('/top-offers' , getTopRatedOffers)
 export default menuRoute;

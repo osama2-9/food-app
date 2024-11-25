@@ -154,7 +154,7 @@ export const Navbar = () => {
         <div className="hidden md:flex space-x-4 mt-2">
           {user ? (
             <>
-              <Link to="/account" className="text-purple-500 hover:underline">
+              <Link to="/my-orders" className="text-purple-500 hover:underline">
                 <FaUserCircle className="text-purple-500 text-2xl" />
               </Link>
               <button

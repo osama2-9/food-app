@@ -246,6 +246,7 @@ export const getUserOrder = async (req, res) => {
               restaurant: restaurantData
                 ? restaurantData.name
                 : "Unknown Restaurant",
+                restaurantImg:restaurantData ? restaurantData.brandImg : "",
               meal: mealData ? mealData.name : "Unknown Meal",
               mealId: mealData?._id,
               mealImg: mealData ? mealData.mealImg : "",

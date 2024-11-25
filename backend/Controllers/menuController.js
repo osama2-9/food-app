@@ -396,3 +396,69 @@ export const offerActivationStatus = async (req, res) => {
     });
   }
 };
+
+export const getTopRatedOffers = async (req, res) => {
+  try {
+    const offers = await MenuItem.find({ isOffer: true });
+
+    if (!offers || offers.length === 0) {
+      return res.status(400).json({
+        error: "No offers found",
+      });
+    }
+
+    const sortedOffers = offers
+      .sort((a, b) => {
+        if (a.rating === undefined && b.rating === undefined) {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        if (a.rating === undefined) return 1;
+        if (b.rating === undefined) return -1;
+        return b.rating - a.rating;
+      })
+      .slice(0, 3);
+
+    const currentDate = new Date();
+
+    const updatedOffers = await Promise.all(
+      sortedOffers.map(async (offer) => {
+        if (new Date(offer.offerValidity) < currentDate) {
+          offer.isActive = false;
+          await offer.save();
+        }
+        return offer;
+      })
+    );
+
+    const restaurantIds = updatedOffers.map((offer) => offer.restaurant);
+    const restaurants = await Restaurant.find({ _id: { $in: restaurantIds } });
+
+    const restaurantMap = restaurants.reduce((acc, restaurant) => {
+      acc[restaurant._id.toString()] = restaurant.name;
+      return acc;
+    }, {});
+
+    const offersDetails = updatedOffers.map((offer) => {
+      const restaurantName = restaurantMap[offer.restaurant.toString()];
+
+      return {
+        offerId: offer._id,
+        offerImg:offer.mealImg,
+        restaurantName: restaurantName,
+        offerName: offer.name,
+        offerPrice: offer.offerPrice,
+        offerValidity: offer.offerValidity,
+        offerStatus: offer.isActive,
+        offerDescription: offer.description,
+        isActive:offer.isActive
+      };
+    });
+
+    return res.status(200).json({ topRatedOffers: offersDetails });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};

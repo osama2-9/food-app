@@ -2,6 +2,7 @@ import {User} from './User'
 interface Item {
 
     restaurant: string;
+    restaurantImg:string
     meal: string;
     mealId: string;
     mealImg: string;

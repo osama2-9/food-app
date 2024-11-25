@@ -16,8 +16,8 @@ export const HomePage = () => {
         <Services />
         <RecommendedRestaurants/>
         <Restaurants />
-        <FeaturedDishes />
         <SpecialOffers />
+        <FeaturedDishes />
         <Testimonials />
         <Footer/>
       </div>

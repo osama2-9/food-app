@@ -1,23 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { Usidebar } from "../components/Usidebar";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import Maps from "../components/Maps";
-import { ClipLoader } from "react-spinners"; 
 import { User } from "../types/User";
 import { API } from "../api";
+import { Link } from "react-router-dom";
+import { UserLayout } from "../layouts/UserLayout";
 
 const UserProfile = () => {
   const user = useRecoilValue<User | null>(userAtom);
 
-  const [userData, setUserData] = useState({
-    firstName: user?.firstname || "",
-    lastName: user?.lastname || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-  });
+  const handleToast = () => {
+    toast.custom((t) => (
+      <div className="flex items-center p-4 bg-gray-600 text-white rounded-xl shadow-md space-x-4">
+        <span>
+          You are viewing the profile in read-only mode.{" "}
+          <Link className="font-bold" to={"/settings/profile"}>
+            Customize your profile settings
+          </Link>
+        </span>
+        <button
+          onClick={() => toast.dismiss(t.id)}
+          className="bg-gray-800 text-white px-3 py-1 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+        >
+          Dismiss
+        </button>
+      </div>
+    ));
+  };
 
   const [addressData, setAddressData] = useState({
     name: user?.address?.name || "",
@@ -29,9 +41,6 @@ const UserProfile = () => {
     floor: user?.address?.floor || "",
     apartment: user?.address?.apartment || "",
   });
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleGetAddress = async () => {
     try {
@@ -60,103 +69,6 @@ const UserProfile = () => {
     }
   };
 
-  const handleUpdateProfileData = async () => {
-    if (!user) {
-      toast.error("Can't update your profile");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const res = await axios.put(`${API}/user/update-profile`, {
-        uid: user.uid,
-        firstname: userData.firstName,
-        lastname: userData.lastName,
-        email: userData.email,
-        phone: userData.phone,
-      } ,{
-        headers:{
-          "Content-Type":"application/json"
-
-        },
-        withCredentials:true
-      });
-
-      const updatedUser = res.data;
-      if (updatedUser) {
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        toast.success("Profile Data Updated");
-      }
-    } catch (error: any) {
-      toast.error("Something went wrong");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-      setIsEditing(false);
-    }
-  };
-
-  const handleUpdateAddress = async () => {
-    if (!user) {
-      toast.error("Can't update your address");
-      return;
-    }
-
-    const { name, coordinates, building, floor, apartment } = addressData;
-
-    setIsLoading(true);
-    try {
-      const res = await axios.put(`${API}/user/update-address`, {
-        uid: user.uid,
-        lat: coordinates.lat,
-        lng: coordinates.lng,
-        apartment: apartment,
-        floor: floor,
-        building: building,
-        name: name,
-      } ,{
-        headers:{
-          "Content-Type":"application/json",
-
-        },
-        withCredentials:true
-      });
-
-      const updatedUser = res.data;
-      if (updatedUser) {
-        toast.success("Address Updated");
-      }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.error || "Error updating address");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLocationChange = (lat: number, lng: number, address: string) => {
-    setAddressData((prevData) => ({
-      ...prevData,
-      name: address,
-      coordinates: {
-        lat,
-        lng,
-      },
-    }));
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (name.startsWith("address.")) {
-      const [field, subfield] = name.split(".");
-      setAddressData((prevData) => ({
-        ...prevData,
-        [subfield]: value,
-      }));
-    } else {
-      setUserData({ ...userData, [name]: value });
-    }
-  };
-
   useEffect(() => {
     if (user?.uid) {
       handleGetAddress();
@@ -164,171 +76,116 @@ const UserProfile = () => {
   }, [user]);
 
   return (
-    <>
-      <Usidebar />
+    <UserLayout>
       <div className="max-w-4xl mx-auto p-8 font-sans">
-        <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800">
-          User Profile
-        </h1>
-        <div className="bg-white p-6 rounded-2xl shadow-xl space-y-6">
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <div className="flex flex-col w-1/2">
-                <label className="text-gray-700 font-medium">First Name</label>
+        <div className="space-y-8">
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold text-gray-700">
+              Personal Information
+            </h2>
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col">
+                <label className="text-gray-600">First Name</label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={userData.firstName}
-                  onChange={handleInputChange}
-                  className="text-gray-800 p-2 border rounded-md w-full"
-                  disabled={!isEditing}
+                  value={user?.firstname}
+                  className="text-gray-800 p-3 border rounded-md mt-1 w-full"
+                  disabled
                 />
               </div>
-              <div className="flex flex-col w-1/2">
-                <label className="text-gray-700 font-medium">Last Name</label>
+              <div className="flex flex-col">
+                <label className="text-gray-600">Last Name</label>
                 <input
                   type="text"
-                  name="lastName"
-                  value={userData.lastName}
-                  onChange={handleInputChange}
-                  className="text-gray-800 p-2 border rounded-md w-full"
-                  disabled={!isEditing}
+                  value={user?.lastname}
+                  className="text-gray-800 p-3 border rounded-md mt-1 w-full"
+                  disabled
                 />
               </div>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-gray-700 font-medium">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={userData.email}
-                onChange={handleInputChange}
-                className="text-gray-800 p-2 border rounded-md"
-                disabled={!isEditing}
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-gray-700 font-medium">Phone</label>
-              <input
-                type="text"
-                name="phone"
-                value={userData.phone}
-                onChange={handleInputChange}
-                className="text-gray-800 p-2 border rounded-md"
-                disabled={!isEditing}
-              />
+              <div className="flex flex-col">
+                <label className="text-gray-600">Email</label>
+                <input
+                  type="email"
+                  value={user?.email}
+                  className="text-gray-800 p-3 border rounded-md mt-1 w-full"
+                  disabled
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-gray-600">Phone</label>
+                <input
+                  type="text"
+                  value={user?.phone}
+                  className="text-gray-800 p-3 border rounded-md mt-1 w-full"
+                  disabled
+                />
+              </div>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <div className="flex flex-col w-1/2">
-                <label className="text-gray-700 font-medium">Address</label>
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold text-gray-700">
+              Address Information
+            </h2>
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col">
+                <label className="text-gray-600">Address</label>
                 <input
                   type="text"
-                  name="address.name"
                   value={addressData.name}
-                  onChange={handleInputChange}
-                  className="text-gray-800 p-2 border rounded-md"
-                  disabled={!isEditing}
+                  className="text-gray-800 p-3 border rounded-md mt-1 w-full"
+                  disabled
                 />
               </div>
-              <div className="w-64 h-64 rounded-lg overflow-hidden">
+              <div className="w-full h-64 rounded-lg overflow-hidden">
                 <Maps
+                  onLocationChange={() => {}}
                   lat={addressData.coordinates.lat}
                   lng={addressData.coordinates.lng}
-                  onLocationChange={handleLocationChange}
-                  isEditable={isEditing}
+                  isEditable={false}
                 />
               </div>
-            </div>
-
-            <div className="flex space-x-4">
-              <div className="flex flex-col w-1/3">
-                <label className="text-gray-700 font-medium">Building</label>
+              <div className="flex flex-col">
+                <label className="text-gray-600">Building</label>
                 <input
                   type="text"
-                  name="address.building"
                   value={addressData.building}
-                  onChange={handleInputChange}
-                  className="text-gray-800 p-2 border rounded-md"
-                  disabled={!isEditing}
+                  className="text-gray-800 p-3 border rounded-md mt-1 w-full"
+                  disabled
                 />
               </div>
-              <div className="flex flex-col w-1/3">
-                <label className="text-gray-700 font-medium">Floor</label>
+              <div className="flex flex-col">
+                <label className="text-gray-600">Floor</label>
                 <input
                   type="text"
-                  name="address.floor"
                   value={addressData.floor}
-                  onChange={handleInputChange}
-                  className="text-gray-800 p-2 border rounded-md"
-                  disabled={!isEditing}
+                  className="text-gray-800 p-3 border rounded-md mt-1 w-full"
+                  disabled
                 />
               </div>
-              <div className="flex flex-col w-1/3">
-                <label className="text-gray-700 font-medium">Apartment</label>
+              <div className="flex flex-col">
+                <label className="text-gray-600">Apartment</label>
                 <input
                   type="text"
-                  name="address.apartment"
                   value={addressData.apartment}
-                  onChange={handleInputChange}
-                  className="text-gray-800 p-2 border rounded-md"
-                  disabled={!isEditing}
+                  className="text-gray-800 p-3 border rounded-md mt-1 w-full"
+                  disabled
                 />
               </div>
             </div>
           </div>
 
-          <div className="text-center">
-            {!isEditing ? (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-6 py-2 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition duration-200"
-              >
-                Edit Profile
-              </button>
-            ) : (
-              <div className="flex justify-center space-x-4">
-                <button
-                  onClick={handleUpdateProfileData}
-                  className="px-6 py-2 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-300 transition duration-200"
-                >
-                  {isLoading ? (
-                    <ClipLoader color="#fff" loading={isLoading} size={24} />
-                  ) : (
-                    "Save Changes"
-                  )}
-                </button>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="px-6 py-2 bg-gray-400 text-white rounded-xl shadow-md hover:bg-gray-500 focus:outline-none"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
+          <div className="text-center mt-6">
+            <button
+              onClick={handleToast}
+              className="text-purple-500 hover:text-purple-700 focus:outline-none transition duration-200"
+            >
+              Edit Profile
+            </button>
           </div>
-
-          {isEditing && (
-            <div className="flex justify-center">
-              <button
-                onClick={handleUpdateAddress}
-                className="px-6 py-2 bg-yellow-600 text-white rounded-xl shadow-md hover:bg-yellow-700 focus:outline-none focus:ring-4 focus:ring-yellow-300 transition duration-200"
-              >
-                {isLoading ? (
-                  <ClipLoader color="#fff" loading={isLoading} size={24} />
-                ) : (
-                  "Update Address"
-                )}
-              </button>
-            </div>
-          )}
         </div>
       </div>
-    </>
+    </UserLayout>
   );
 };
 

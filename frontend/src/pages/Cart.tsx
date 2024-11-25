@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { User } from "../types/User";
 import { API } from "../api";
 import { Footer } from "../components/Footer";
+import { ClipLoader } from "react-spinners"; // Spinner import
 
 interface Addition {
   _id: string;
@@ -23,20 +24,22 @@ interface CartItem {
   mealId: string;
   name: string;
   mealImg: string;
-  price: number; // Original price
-  offerPrice?: number; // Discounted offer price
+  price: number;
+  offerPrice?: number;
   size?: Size;
   additions: Addition[];
   quantity: number;
-  isOffer: boolean; // Indicates if the meal has an offer
+  isOffer: boolean;
 }
 
 export const Cart: React.FC = () => {
   const user = useRecoilValue<User | null>(userAtom);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false); 
 
   const fetchCartItems = async () => {
+    setLoading(true); 
     try {
       const response = await axios.get(`${API}/cart/getItems/${user?.uid}`, {
         headers: {
@@ -48,10 +51,10 @@ export const Cart: React.FC = () => {
         (cart: { items: CartItem[] }) => cart.items
       );
       setCartItems(items);
-      console.log(items);
-    } catch (error) {
+    } catch (error:any) {
       console.error("Error fetching cart items:", error);
-      toast.error("Failed to fetch cart items");
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -68,8 +71,6 @@ export const Cart: React.FC = () => {
         (sum, addition) => sum + Number(addition.price),
         0
       );
-
-      // Use offerPrice if available, otherwise fallback to the original price
       const itemPrice =
         item.isOffer && item.offerPrice ? item.offerPrice : item.price;
 
@@ -92,7 +93,6 @@ export const Cart: React.FC = () => {
           withCredentials: true,
         }
       );
-
       fetchCartItems();
       toast.success("Item removed successfully!");
     } catch (error: any) {
@@ -133,17 +133,27 @@ export const Cart: React.FC = () => {
       <div className="container mx-auto p-8 bg-gray-50 min-h-screen">
         <h1 className="text-4xl font-bold mb-6 text-gray-800">Your Cart</h1>
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-          {cartItems.length === 0 ? (
-            <div className="text-center">
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <ClipLoader color="#7C3AED" loading={loading} size={50} />
+            </div>
+          ) : cartItems.length === 0 ? (
+            <div className="text-center py-16">
               <img
                 src="/empty-cart.png"
                 alt="Empty Cart"
-                className="mx-auto mb-4 w-40 h-40"
+                className="mx-auto mb-6 w-52 h-52"
               />
-              <p className="text-center text-gray-600">Your cart is empty!</p>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                Your cart is currently empty.
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Looks like you haven't added anything to your cart yet. Start
+                shopping and add items to your cart!
+              </p>
             </div>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-6">
               {cartItems.map((item) => {
                 const sizePrice = Number(item.size?.price) || 0;
                 const totalItemPrice = (
@@ -160,16 +170,16 @@ export const Cart: React.FC = () => {
                 return (
                   <li
                     key={item.mealId}
-                    className="flex items-center justify-between border-b pb-4"
+                    className="flex items-center justify-between border-b pb-6 pt-4"
                   >
                     <div className="flex items-center">
                       <img
                         src={item.mealImg}
                         alt={item.name}
-                        className="h-20 w-20 border-2 mr-4 shadow-sm"
+                        className="h-24 w-24 rounded-md border-2 mr-4 shadow-md"
                       />
                       <div>
-                        <h2 className="text-lg font-semibold text-gray-800">
+                        <h2 className="text-xl font-semibold text-gray-800">
                           {item.name}
                         </h2>
                         <p className="text-gray-600">
@@ -196,7 +206,7 @@ export const Cart: React.FC = () => {
                       <p className="text-gray-600">Qty: {item.quantity}</p>
                       <button
                         onClick={() => removeItemFromCart(item.mealId)}
-                        className="text-red-500 hover:text-red-700 transition"
+                        className="text-red-500 hover:text-red-700 transition duration-300"
                       >
                         Remove
                       </button>
@@ -206,14 +216,15 @@ export const Cart: React.FC = () => {
               })}
             </ul>
           )}
+
           {cartItems.length > 0 && (
-            <div className="flex justify-between items-center mt-4">
+            <div className="flex justify-between items-center mt-6">
               <h2 className="text-2xl font-bold text-gray-800">
                 Total: ${totalPrice.toFixed(2)}
               </h2>
               <button
                 onClick={handleConfirmOrder}
-                className="bg-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition"
+                className="bg-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition duration-300"
               >
                 Confirm Order
               </button>

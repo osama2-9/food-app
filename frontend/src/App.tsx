@@ -6,7 +6,6 @@ import { Signup } from "./pages/Signup";
 import { HomePage } from "./pages/HomePage";
 import { useRecoilValue } from "recoil";
 import userAtom from "./atoms/userAtom";
-import { Account } from "./pages/Account";
 import { RestaurantPage } from "./pages/RestaurantPage";
 import { AdminLogin } from "./pages/admin/AdminLogin";
 import { Dashboard } from "./pages/admin/Dashboard";
@@ -20,7 +19,6 @@ import { CheckAuth } from "./hooks/CheckAuth";
 import { AddMenuItem } from "./pages/admin/AddMenuItem";
 import { MealPage } from "./pages/MealPage";
 import { Cart } from "./pages/Cart";
-import UserProfile from "./pages/UserProfile";
 import Rating from "./pages/Rating";
 import { AllRestaurants } from "./pages/AllRestaurants";
 import { ShowMenu } from "./pages/admin/ShowMenu";
@@ -30,9 +28,14 @@ import ShowOffers from "./pages/admin/ShowOffers";
 import { OfferPage } from "./pages/OfferPage";
 import { ForgetPassword } from "./pages/ForgetPassword";
 import { ResetPassword } from "./pages/ResetPassword";
+import { UserOrders } from "./pages/UserOrders";
+import ProfileSetting from "./pages/ProfileSetting";
+import UserProfile from "./pages/UserProfile";
+import { AccountSetting } from "./pages/AccountSetting";
+import { ReactiveAccount } from "./pages/ReactiveAccount";
+import { ActiveAccount } from "./pages/ActiveAccount";
 
 function App() {
-  
   const user = useRecoilValue(userAtom);
   const isAdmin = user?.isAdmin;
 
@@ -45,6 +48,9 @@ function App() {
         <Route path="/email-verify/:token" element={<VerifyEmail />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/reactive-request" element={<ReactiveAccount />} />
+        <Route path="/reactivate-account/:token" element={<ActiveAccount />} />
+
         <Route path="/cart" element={<Cart />} />
         <Route
           path="/dashboard"
@@ -87,21 +93,23 @@ function App() {
             isAdmin ? <ShowOffers /> : <Navigate to={"/not-authorized"} />
           }
         />
-       
+
         <Route
           path="/orders"
           element={isAdmin ? <Orders /> : <Navigate to="/not-authorized" />}
         />
         <Route
-          path="/account"
-          element={user ? <Account /> : <Navigate to="/login" />}
+          path="/my-orders"
+          element={user ? <UserOrders /> : <Navigate to="/login" />}
         />
         <Route
           path="/update-meal"
           element={isAdmin ? <UpdateMeal /> : <Navigate to="/not-authorized" />}
         />
         <Route path="/restaurants" element={<AllRestaurants />} />
-        <Route path="/user-profile" element={<UserProfile />} />
+        <Route path="/settings/profile" element={<ProfileSetting />} />
+        <Route path="/settings/account" element={<AccountSetting />} />
+        <Route path="/profile" element={<UserProfile />} />
         <Route path="/restaurant/:name/:id" element={<RestaurantPage />} />
         <Route path="/rating" element={<Rating />} />
         <Route path="/admin-login" element={<AdminLogin />} />
