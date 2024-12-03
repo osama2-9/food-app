@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  FaEye,
-  FaEyeSlash,
-  FaPen,
-  FaToggleOff,
-  FaToggleOn,
-  FaTrash,
-} from "react-icons/fa";
+import { FaPen, FaToggleOff, FaToggleOn, FaTrash } from "react-icons/fa";
 import { ClipLoader } from "react-spinners";
 import { AdminLayout } from "../../layouts/AdminLayout";
 import toast from "react-hot-toast";
@@ -23,18 +15,21 @@ interface Offer {
   offerValidity: Date;
   offerImg: string;
   offerStatus: boolean;
-  offerDescription: String;
+  offerDescription: string;
 }
 
 const ShowOffers = () => {
   const [offers, setOffers] = useState<Offer[]>([]);
-  const [showDescription, setShowDescription] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [offerIdToDelete, setOfferIdToDelete] = useState<string | null>(null);
   const [offerNameToDelete, setOfferNameToDelete] = useState<string>("");
-  const navigate = useNavigate();
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+
+  const [offerName, setOfferName] = useState<string>("");
+  const [offerPrice, setOfferPrice] = useState<number>(0);
+  const [offerValidity, setOfferValidity] = useState<string>("");
 
   const handleGetOffers = async () => {
     try {
@@ -110,10 +105,6 @@ const ShowOffers = () => {
     handleGetOffers();
   }, []);
 
-  const toggleDescription = () => {
-    setShowDescription(!showDescription);
-  };
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
@@ -141,7 +132,48 @@ const ShowOffers = () => {
   };
 
   const openUpdateModal = (offer: Offer) => {
-    navigate("/update-offer", { state: { offer } });
+    setSelectedOffer(offer);
+
+    setOfferName(offer.offerName);
+    setOfferPrice(offer.offerPrice);
+    setOfferValidity(offer.offerValidity.toString().split("T")[0]);
+  };
+
+  const closeUpdateModal = () => {
+    setSelectedOffer(null);
+  };
+
+  const handleUpdateOffer = async () => {
+    if (selectedOffer) {
+      try {
+        const updatedOffer = {
+          offerId: selectedOffer.offerId,
+          offerName,
+          offerPrice,
+          offerValidity: new Date(offerValidity),
+        };
+
+        const res = await axios.put(`${API}/menu/update-offer`, updatedOffer, {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        });
+        const data = res.data;
+        if (data) {
+          toast.success(data.message);
+          setOffers((prevOffers) =>
+            prevOffers.map((offer) =>
+              offer.offerId === updatedOffer.offerId
+                ? { ...offer, ...updatedOffer }
+                : offer
+            )
+          );
+          closeUpdateModal();
+        }
+      } catch (error: any) {
+        console.log(error);
+        toast.error(error?.response?.data?.error);
+      }
+    }
   };
 
   return (
@@ -158,127 +190,132 @@ const ShowOffers = () => {
         name={offerNameToDelete}
       />
 
+      {selectedOffer && (
+        <div className="fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-xl font-semibold">Update Offer</h3>
+            <div className="mt-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Offer Name
+                </label>
+                <input
+                  type="text"
+                  value={offerName}
+                  onChange={(e) => setOfferName(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Price
+                </label>
+                <input
+                  type="number"
+                  value={offerPrice}
+                  onChange={(e) => setOfferPrice(parseFloat(e.target.value))}
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">
+                  Validity
+                </label>
+                <input
+                  type="date"
+                  value={offerValidity}
+                  onChange={(e) => setOfferValidity(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                className="px-4 py-2 bg-gray-200 rounded"
+                onClick={closeUpdateModal}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={handleUpdateOffer}
+              >
+                Update Offer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <div className="flex flex-col lg:flex-row justify-between items-center mb-4 space-y-4 lg:space-y-0">
           <div className="flex items-center space-x-2 w-full lg:w-auto">
             <input
               type="text"
               placeholder="Search by name or restaurant"
-              className="px-4 py-2 w-full lg:w-96 border border-gray-300 rounded-md text-gray-700 focus:outline-none"
+              className="px-4 py-2 border border-gray-300 rounded w-full"
               value={searchQuery}
               onChange={handleSearch}
             />
           </div>
-          <button
-            onClick={toggleDescription}
-            className="text-gray-600 hover:text-gray-800 focus:outline-none flex items-center mt-2 lg:mt-0"
-          >
-            {showDescription ? (
-              <FaEyeSlash className="w-5 h-5" />
-            ) : (
-              <FaEye className="w-5 h-5" />
-            )}
-            <span className="ml-2 text-lg">
-              {showDescription ? "Hide Description" : "Show Description"}
-            </span>
-          </button>
         </div>
-
         {loading ? (
-          <div className="flex justify-center items-center py-8">
-            <ClipLoader size={50} color="#4A90E2" />
+          <div className="flex justify-center items-center">
+            <ClipLoader size={50} color="#3b82f6" />
           </div>
         ) : (
-          <table className="min-w-full table-auto text-gray-700 border-collapse">
-            <thead>
-              <tr className="bg-gray-100 text-left">
-                <th className="px-6 py-3 text-sm font-medium text-gray-800">
-                  Restaurant
-                </th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-800">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-800">
-                  Price
-                </th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-800">
-                  Validity (Until)
-                </th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-800">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-sm font-medium text-gray-800">
-                  Actions
-                </th>
-                {showDescription && (
-                  <th className="px-6 py-3 text-sm font-medium text-gray-800">
-                    Description
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOffers?.map((offer) => (
-                <tr
-                  key={offer.offerId}
-                  className="hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <td className="px-6 py-4 text-sm">{offer.restaurantName}</td>
-                  <td className="px-6 py-4 text-sm">{offer.offerName}</td>
-                  <td className="px-6 py-4 text-sm">
-                    ${offer.offerPrice?.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    {new Date(offer.offerValidity).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                        offer.offerStatus
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {offer.offerStatus ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm flex space-x-3">
-                    <button
-                      className="text-blue-500 hover:text-blue-700"
-                      onClick={() => openUpdateModal(offer)}
-                    >
-                      <FaPen className="w-5 h-5" />
-                    </button>
-                    <button
-                      className="text-red-500 hover:text-red-700"
-                      onClick={() =>
-                        openDeleteModal(offer.offerId, offer.offerName)
-                      }
-                    >
-                      <FaTrash className="w-5 h-5" />
-                    </button>
-                    <button
-                      className="text-green-500 hover:text-green-700"
-                      onClick={() =>
-                        handleUpdateActivaitionStatus(offer.offerId)
-                      }
-                    >
-                      {offer.offerStatus ? (
-                        <FaToggleOn className="w-5 h-5" />
-                      ) : (
-                        <FaToggleOff className="w-5 h-5" />
-                      )}
-                    </button>
-                  </td>
-                  {showDescription && (
-                    <td className="px-6 py-4 text-sm">
-                      {offer.offerDescription}
-                    </td>
-                  )}
+          <div>
+            <table className="min-w-full table-auto">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="px-4 py-2 text-sm">Offer Name</th>
+                  <th className="px-4 py-2 text-sm">Price</th>
+                  <th className="px-4 py-2 text-sm">Validity</th>
+                  <th className="px-4 py-2 text-sm">Status</th>
+                  <th className="px-4 py-2 text-sm">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredOffers.map((offer) => (
+                  <tr key={offer.offerId} className="border-t text-center">
+                    <td className="px-4 py-2">{offer.offerName}</td>
+                    <td className="px-4 py-2">${offer.offerPrice}</td>
+                    <td className="px-4 py-2">
+                      {new Date(offer.offerValidity).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-2">
+                      <button
+                        onClick={() =>
+                          handleUpdateActivaitionStatus(offer.offerId)
+                        }
+                        className={`px-2 py-1 rounded-full ${
+                          offer.offerStatus ? "bg-green-400" : "bg-red-400"
+                        } text-white`}
+                      >
+                        {offer.offerStatus ? <FaToggleOn /> : <FaToggleOff />}
+                      </button>
+                    </td>
+                    <td className="px-4 py-2 space-x-2">
+                      <button
+                        onClick={() => openUpdateModal(offer)}
+                        className="text-blue-500"
+                      >
+                        <FaPen />
+                      </button>
+                      <button
+                        onClick={() =>
+                          openDeleteModal(offer.offerId, offer.offerName)
+                        }
+                        className="text-red-500"
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </AdminLayout>

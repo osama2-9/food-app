@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const UserSchema = new mongoose.Schema(
   {
     firstname: {
@@ -70,6 +71,7 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: "",
     },
+    coupons: [{ type: mongoose.Schema.Types.ObjectId, ref: "Coupon" }], 
   },
   {
     timestamps: true,

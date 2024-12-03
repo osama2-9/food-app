@@ -8,6 +8,7 @@ import menuRoute from "./Router/menuRoutes.js";
 import cartRoute from "./Router/cartRoutes.js";
 import orderRoute from "./Router/orderRoutes.js";
 import dashboardRoute from "./Router/dashboardRoutes.js";
+import couponRoute from "./Router/couponRoutes.js";
 import cors from "cors";
 import { v2 as cloudinary } from "cloudinary";
 import path from "path";
@@ -84,6 +85,7 @@ app.use("/api/menu", menuRoute);
 app.use("/api/cart", cartRoute);
 app.use("/api/order", orderRoute);
 app.use("/api/dashboard", dashboardRoute);
+app.use("/api/coupon", couponRoute);
 
 app.get("/test", (req, res) => {
   res.status(200).json({

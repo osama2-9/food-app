@@ -1,9 +1,11 @@
 import { Router } from "express";
 import {
   accountActivetion,
+  activeAccount,
   checkAuth,
   checkTokenValidity,
   deactiveAccount,
+  deleteMyAccount,
   deleteUser,
   getAddressDetails,
   getAllUsers,
@@ -45,7 +47,11 @@ userRoute.post("/forget-password", sendResetPasswordMail);
 userRoute.get("/check-token-validity/:token", checkTokenValidity);
 userRoute.post("/reset-password/", resetPassword);
 userRoute.post("/deactive-account", protectRoute, deactiveAccount);
+userRoute.post("/admin-active-account", isSuperAdmin, deactiveAccount);
+userRoute.post("/admin-deactive-account", isSuperAdmin, activeAccount);
 userRoute.post("/send-activetion-email", sendActivationMail);
 userRoute.get("/reactivate-account/:token", accountActivetion);
+userRoute.delete("/delete-my-account/:userId", protectRoute, deleteMyAccount);
+
 
 export default userRoute;

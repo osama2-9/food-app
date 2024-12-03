@@ -286,10 +286,10 @@ export const updateMeal = async (req, res) => {
     meal.sizes = sizes || meal.sizes;
     meal.mealType = mealType || meal.mealType;
     meal.mealImg = mealImg || meal.mealImg;
-    meal.isOffer = isOffer !== undefined ? isOffer : meal.isOffer; // Update the offer flag
-    meal.offerValidity = offerValidity || meal.offerValidity; // Update the offer validity date
-    meal.isActive = isActive !== undefined ? isActive : meal.isActive; // Update the active status
-    meal.offerPrice = offerPrice !== undefined ? offerPrice : meal.offerPrice; // Update the offer price
+    meal.isOffer = isOffer !== undefined ? isOffer : meal.isOffer;
+    meal.offerValidity = offerValidity || meal.offerValidity;
+    meal.isActive = isActive !== undefined ? isActive : meal.isActive;
+    meal.offerPrice = offerPrice !== undefined ? offerPrice : meal.offerPrice;
 
     const updatedMeal = await meal.save();
     if (!updatedMeal) {
@@ -324,6 +324,7 @@ export const getOffers = async (req, res) => {
     const updatedOffers = offers.map((offer) => {
       if (new Date(offer.offerValidity) < currentDate) {
         offer.isActive = false;
+        offer.isOffer = false;
         offer.save();
       }
       return offer;
@@ -443,18 +444,59 @@ export const getTopRatedOffers = async (req, res) => {
 
       return {
         offerId: offer._id,
-        offerImg:offer.mealImg,
+        offerImg: offer.mealImg,
         restaurantName: restaurantName,
         offerName: offer.name,
         offerPrice: offer.offerPrice,
         offerValidity: offer.offerValidity,
         offerStatus: offer.isActive,
         offerDescription: offer.description,
-        isActive:offer.isActive
+        isActive: offer.isActive,
       };
     });
 
     return res.status(200).json({ topRatedOffers: offersDetails });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+
+export const updateOffer = async (req, res) => {
+  try {
+    const { offerId, offerName, offerPrice, offerValidity } = req.body;
+    if (!offerId) {
+      return res.status(400).json({
+        error: "Please select an offer to update",
+      });
+    }
+    if (!offerName || !offerPrice || !offerValidity) {
+      return res.status(400).json({
+        error: "Please fill all feilds",
+      });
+    }
+    const offer = await MenuItem.findById(offerId);
+    if (!offer.isOffer) {
+      return res.status(400).json({
+        error: "the select meal is not an offer",
+      });
+    }
+
+    offer.name = offerName || offer.name;
+    offer.offerPrice = offerPrice || offer.offerPrice;
+    offer.offerValidity = offerValidity || offer.offerValidity;
+
+    const isUpdated = await offer.save();
+    if (!isUpdated) {
+      return res.status(400).json({
+        error: "Error while try to update offer",
+      });
+    }
+    return res.status(200).json({
+      message: "Offer updated ",
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({

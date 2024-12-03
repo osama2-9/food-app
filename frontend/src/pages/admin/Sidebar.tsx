@@ -10,6 +10,7 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { RiCoupon3Fill } from "react-icons/ri";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -19,9 +20,12 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
   const [isRestaurantCollapsed, setIsRestaurantCollapsed] = useState(true);
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(true);
   const [isOffersCollapsed, setIsOffersCollapsed] = useState(true);
+  const [isCouponCollapsed, setIsCouponCollapsed] = useState(true);
 
   const toggleRestaurant = () =>
     setIsRestaurantCollapsed(!isRestaurantCollapsed);
+
+  const toggleCoupons = () => setIsCouponCollapsed(!isCouponCollapsed);
 
   const toggleMenu = () => setIsMenuCollapsed(!isMenuCollapsed);
 
@@ -33,7 +37,6 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
         isOpen ? "block" : "hidden"
       } md:block`}
     >
-     
       <nav className="flex-1 p-4 space-y-2">
         <Link
           to={`/dashboard`}
@@ -63,7 +66,7 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
                 className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
               >
                 <FaUtensils className="text-xl" />
-                <span>Add New Restaurant</span>
+                <span>Add Restaurant</span>
               </Link>
               <Link
                 to={`/show-restaurants`}
@@ -82,7 +85,7 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
             className="flex items-center space-x-3 p-3 w-full rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400"
           >
             <FaUtensils className="text-xl" />
-            <span>Menu Items</span>
+            <span>Menu </span>
             {isMenuCollapsed ? (
               <FaChevronDown className="ml-auto" />
             ) : (
@@ -104,6 +107,38 @@ export const Sidebar = ({ isOpen }: SidebarProps) => {
               >
                 <FaUtensils className="text-xl" />
                 <span>Show Menu Items</span>
+              </Link>
+            </div>
+          )}
+        </div>
+        <div>
+          <button
+            onClick={toggleCoupons}
+            className="flex items-center space-x-3 p-3 w-full rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400"
+          >
+            <FaUtensils className="text-xl" />
+            <span>Coupon</span>
+            {isCouponCollapsed ? (
+              <FaChevronDown className="ml-auto" />
+            ) : (
+              <FaChevronUp className="ml-auto" />
+            )}
+          </button>
+          {!isCouponCollapsed && (
+            <div className="space-y-2 pl-8">
+              <Link
+                to={`/add-new-coupon`}
+                className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
+              >
+                <RiCoupon3Fill className="text-xl" />
+                <span>Add Coupon</span>
+              </Link>
+              <Link
+                to={`/show-coupons`}
+                className="flex items-center space-x-3 p-3 rounded-md text-blue-500 hover:text-white transition-colors duration-200 hover:bg-blue-400 hover:shadow-md"
+              >
+                <RiCoupon3Fill className="text-xl" />
+                <span>View Coupons</span>
               </Link>
             </div>
           )}

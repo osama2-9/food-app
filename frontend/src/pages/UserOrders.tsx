@@ -14,7 +14,7 @@ import { User } from "../types/User";
 import { Order } from "../types/Order";
 import { API } from "../api";
 import { UserLayout } from "../layouts/UserLayout";
-import { ClipLoader } from "react-spinners"; // Importing the ClipLoader spinner
+import { ClipLoader } from "react-spinners";
 
 export const UserOrders = () => {
   const userProfile = useRecoilValue<User | null>(userAtom);
@@ -93,6 +93,12 @@ export const UserOrders = () => {
               <div className="text-center py-4">
                 <ClipLoader size={50} color={"#4e19a8"} loading={loading} />
                 <p className="mt-4 text-gray-600">Loading your orders...</p>
+              </div>
+            ) : orders?.length === 0 ? (
+              <div className="text-center">
+                <p className="text-xl text-gray-500 font-semibold">
+                  You have not made any orders yet.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -190,7 +196,7 @@ export const UserOrders = () => {
                   {format(new Date(selectedOrder.orderdAt), "MMMM dd, yyyy")}
                 </p>
                 <p className="text-lg font-semibold">
-                  <strong>Total Amount:</strong> $$
+                  <strong>Total Amount:</strong> $
                   {selectedOrder.totalAmount.toFixed(2)}
                 </p>
               </div>
@@ -214,7 +220,7 @@ export const UserOrders = () => {
                           {item.restaurant}
                         </p>
                         <p className="text-sm">
-                          <strong>Size:</strong> {item.size?.name} - $$
+                          <strong>Size:</strong> {item.size?.name} - $
                           {item.size?.price}
                         </p>
 

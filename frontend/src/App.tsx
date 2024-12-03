@@ -34,6 +34,8 @@ import UserProfile from "./pages/UserProfile";
 import { AccountSetting } from "./pages/AccountSetting";
 import { ReactiveAccount } from "./pages/ReactiveAccount";
 import { ActiveAccount } from "./pages/ActiveAccount";
+import { AddCoupon } from "./pages/admin/AddCoupon";
+import { ShowCoupons } from "./pages/admin/ShowCoupons";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -73,6 +75,18 @@ function App() {
           element={isAdmin ? <ShowMenu /> : <Navigate to={"/not-authorized"} />}
         />
 
+        <Route
+          path="/add-new-coupon"
+          element={
+            isAdmin ? <AddCoupon /> : <Navigate to={"/not-authorized"} />
+          }
+        />
+        <Route
+          path="/show-coupons"
+          element={
+            isAdmin ? <ShowCoupons /> : <Navigate to={"/not-authorized"} />
+          }
+        />
         <Route path="/restaurant/meal/:mealId" element={<MealPage />} />
         <Route
           path="/show-restaurants"

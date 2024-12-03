@@ -160,7 +160,7 @@ export const Orders = () => {
                         ?.map((item) => item.restaurantName)
                         .filter(
                           (value, index, self) => self.indexOf(value) === index
-                        ) // Ensures restaurant name is only shown once
+                        )
                         .join(", ")}
                     </td>
                     <td className="py-2 px-4 border">
@@ -246,7 +246,7 @@ const Modal = ({ order, onClose }: ModalProps) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-xl max-w-3xl w-full lg:w-2/3 transform transition-all overflow-y-auto max-h-[90vh] relative border-2 border-gray-300">
-        {/* Close Icon */}
+    
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focus:outline-none"

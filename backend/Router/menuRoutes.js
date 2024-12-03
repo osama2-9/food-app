@@ -8,6 +8,7 @@ import {
   mealDetailes,
   offerActivationStatus,
   updateMeal,
+  updateOffer,
 } from "../Controllers/menuController.js";
 import { isAdmin } from "../utils/isAdmin.js";
 import { Router } from "express";
@@ -22,4 +23,5 @@ menuRoute.post("/update-meal", isAdmin, updateMeal);
 menuRoute.get('/get-offers' ,isAdmin,getOffers)
 menuRoute.put("/update-status",isAdmin,offerActivationStatus);
 menuRoute.get('/top-offers' , getTopRatedOffers)
+menuRoute.put('/update-offer' ,isAdmin ,updateOffer)
 export default menuRoute;

@@ -34,8 +34,31 @@ export const Login: React.FC = () => {
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
-        toast.error(error.response.data.error);
-        console.error("Error message:", error.response.data.error);
+        const errorMessage = error.response.data.error;
+
+        if (errorMessage && errorMessage.includes("deactived")) {
+          const toastId = toast.error(
+            <div className="flex justify-between items-center">
+              <span>
+                Your account has been deactivated.{" "}
+                <Link className="text-green-600 font-semibold" to={"/reactive-request"}>Reactive Now</Link>.
+              </span>
+              <button
+                onClick={() => toast.dismiss(toastId)}
+                className="ml-4 text-black font-bold"
+              >
+                X
+              </button>
+            </div>,
+            {
+              duration: Infinity,
+            }
+          );
+        } else {
+          toast.error(errorMessage); 
+        }
+
+        console.error("Error message:", errorMessage);
       } else {
         console.error(
           "Error during login:",
@@ -43,13 +66,13 @@ export const Login: React.FC = () => {
         );
       }
     } finally {
-      setIsLoading(false); 
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row md:bg-gray-50">
-      <div className="w-full lg:w-1/2  p-8 flex items-center justify-center bg-white shadow- lg:rounded-l-lg">
+      <div className="w-full lg:w-1/2 p-8 flex items-center justify-center bg-white shadow- lg:rounded-l-lg">
         <div className="w-full mt-52 md:mt-0 max-w-sm">
           <h2 className="text-3xl font-semibold text-center text-purple-600 mb-8">
             Login
@@ -105,8 +128,11 @@ export const Login: React.FC = () => {
             </Link>
           </p>
           <p className="text-center text-gray-500 mt-4">
-            <Link to={"/forget-password"} className="text-purple-600 hover:underline">
-              forget password ?
+            <Link
+              to={"/forget-password"}
+              className="text-purple-600 hover:underline"
+            >
+              Forget password ?
             </Link>
           </p>
         </div>

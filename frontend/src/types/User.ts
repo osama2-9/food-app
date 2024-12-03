@@ -6,6 +6,7 @@ interface User {
     phone: string;
     isVerified: boolean;
     isAdmin: boolean
+    isAccountActive:boolean
     address: {
         coordinates: {
             lng: number,

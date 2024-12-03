@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { User } from "../types/User";
 import { API } from "../api";
 import { Footer } from "../components/Footer";
-import { ClipLoader } from "react-spinners"; // Spinner import
+import { ClipLoader } from "react-spinners";
 
 interface Addition {
   _id: string;
@@ -36,10 +36,15 @@ export const Cart: React.FC = () => {
   const user = useRecoilValue<User | null>(userAtom);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false); 
+  const [loading, setLoading] = useState<boolean>(false);
+  const [coupon, setCoupon] = useState<string>("");
+  const [discount, setDiscount] = useState<number>(0);
+  const [couponLoading, setCouponLoading] = useState<boolean>(false);
+  const [couponId, setCouponId] = useState<string>("");
+  const [loadingOrder, setLoadingOrder] = useState<boolean>(false);
 
   const fetchCartItems = async () => {
-    setLoading(true); 
+    setLoading(true);
     try {
       const response = await axios.get(`${API}/cart/getItems/${user?.uid}`, {
         headers: {
@@ -51,10 +56,10 @@ export const Cart: React.FC = () => {
         (cart: { items: CartItem[] }) => cart.items
       );
       setCartItems(items);
-    } catch (error:any) {
+    } catch (error: any) {
       console.error("Error fetching cart items:", error);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -104,11 +109,14 @@ export const Cart: React.FC = () => {
   };
 
   const handleConfirmOrder = async () => {
+    setLoadingOrder(true);
     try {
       const res = await axios.post(
         `${API}/order/create-new-order`,
         {
           userId: user?.uid,
+          couponDiscount: discount > 0 ? discount : 0,
+          coupon: discount > 0 ? couponId : null,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -125,8 +133,40 @@ export const Cart: React.FC = () => {
         toast.error(error.response.data.error);
       }
       console.error("Error confirming order:", error);
+    } finally {
+      setLoadingOrder(false);
     }
   };
+
+  const handleApplyCoupon = async () => {
+    setCouponLoading(true);
+    try {
+      const response = await axios.post(
+        `${API}/coupon/apply`,
+        { couponCode: coupon, userId: user?.uid },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+
+      const { discountPercentage, message, couponId } = response.data;
+
+      if (discountPercentage && message) {
+        setDiscount(discountPercentage);
+        setCouponId(couponId);
+        toast.success(message);
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Error applying coupon");
+      setDiscount(0);
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const discountAmount = totalPrice * (discount / 100);
+  const totalAfterDiscount = totalPrice - discountAmount;
 
   return (
     <>
@@ -218,15 +258,47 @@ export const Cart: React.FC = () => {
           )}
 
           {cartItems.length > 0 && (
-            <div className="flex justify-between items-center mt-6">
-              <h2 className="text-2xl font-bold text-gray-800">
-                Total: ${totalPrice.toFixed(2)}
-              </h2>
+            <div className="mt-6">
+              <div className="flex items-center justify-between mb-4">
+                <input
+                  type="text"
+                  value={coupon}
+                  onChange={(e) => setCoupon(e.target.value)}
+                  placeholder="Enter Coupon Code"
+                  className="px-4 py-2 border border-gray-300 rounded-lg"
+                />
+                <button
+                  onClick={handleApplyCoupon}
+                  className="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition duration-300"
+                  disabled={couponLoading}
+                >
+                  {couponLoading ? (
+                    <ClipLoader
+                      color="#fff"
+                      loading={couponLoading}
+                      size={20}
+                    />
+                  ) : (
+                    "Apply Coupon"
+                  )}
+                </button>
+              </div>
+              <div className="flex justify-between items-center mt-4">
+                <h2 className="text-2xl font-bold text-gray-800">Total: </h2>
+                <p className="font-semibold text-lg text-purple-500">
+                  ${totalAfterDiscount.toFixed(2)}
+                </p>
+              </div>
               <button
                 onClick={handleConfirmOrder}
-                className="bg-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition duration-300"
+                className="bg-purple-500 text-white py-2 px-6 rounded-lg shadow-lg hover:bg-purple-600 transition duration-300 mt-4"
+                disabled={loadingOrder}
               >
-                Confirm Order
+                {loadingOrder ? (
+                  <ClipLoader color="#fff" loading={loadingOrder} size={20} />
+                ) : (
+                  "Confirm Order"
+                )}
               </button>
             </div>
           )}

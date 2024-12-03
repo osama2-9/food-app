@@ -4,7 +4,7 @@ interface DeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  name: string;
+  name: string | undefined;
 }
 
 export const DeleteModal: React.FC<DeleteModalProps> = ({

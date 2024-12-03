@@ -7,9 +7,10 @@ import mongoose from "mongoose";
 import { createNotification } from "./notificationController.js";
 import { actions, messageTypes } from "../Model/Notification.js";
 import { io } from "../index.js";
+
 export const createNewOrder = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId, couponDiscount, coupon } = req.body;
 
     if (!userId) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -19,6 +20,8 @@ export const createNewOrder = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: "No user found" });
     }
+
+    
 
     const address = user.address;
     if (
@@ -84,6 +87,12 @@ export const createNewOrder = async (req, res) => {
       );
     }, 0);
 
+    let finalAmount = totalAmount;
+    if (couponDiscount > 0) {
+      const discountAmount = totalAmount * (couponDiscount / 100);
+      finalAmount = totalAmount - discountAmount;
+    }
+
     const newOrder = new Order({
       user: {
         userId: user?._id,
@@ -93,18 +102,20 @@ export const createNewOrder = async (req, res) => {
         address: user.address,
       },
       items: orderItems,
-      totalAmount,
+      totalAmount: finalAmount,
+      coupon: coupon,
       orderDate: new Date(Date.now()),
     });
+
     const orderConfirmation = await createNotification({
-      message: "new order created",
+      message: "New order created",
       messageType: messageTypes.NEW_ORDER,
       action: actions.CREATE,
       expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
       createdAt: Date.now(),
     });
 
-    io.emit('newOrder' ,orderConfirmation)
+    io.emit("newOrder", orderConfirmation);
 
     await newOrder.save();
 
@@ -118,6 +129,7 @@ export const createNewOrder = async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
 export const getOrders = async (req, res) => {
   try {
     const orders = await Order.find();
@@ -246,7 +258,7 @@ export const getUserOrder = async (req, res) => {
               restaurant: restaurantData
                 ? restaurantData.name
                 : "Unknown Restaurant",
-                restaurantImg:restaurantData ? restaurantData.brandImg : "",
+              restaurantImg: restaurantData ? restaurantData.brandImg : "",
               meal: mealData ? mealData.name : "Unknown Meal",
               mealId: mealData?._id,
               mealImg: mealData ? mealData.mealImg : "",

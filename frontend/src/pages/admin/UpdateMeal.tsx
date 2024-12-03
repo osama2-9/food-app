@@ -39,7 +39,7 @@ export const UpdateMeal = () => {
   ) => {
     const updatedSizes = [...(updatedMeal?.sizes || [])];
 
-    // Ensure the price is a float if it's the price field
+   
     if (field === "price") {
       updatedSizes[index][field] = parseFloat(value);
     } else {
@@ -56,7 +56,7 @@ export const UpdateMeal = () => {
   ) => {
     const updatedAdditions = [...(updatedMeal?.additions || [])];
 
-    // Ensure the price is a float if it's the price field
+   
     if (field === "price") {
       updatedAdditions[index][field] = parseFloat(value);
     } else {

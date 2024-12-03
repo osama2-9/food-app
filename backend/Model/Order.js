@@ -82,7 +82,13 @@ const orderSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    coupon: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Coupon",
+      required: false,
+    },
   },
+
   { timestamps: true }
 );
 

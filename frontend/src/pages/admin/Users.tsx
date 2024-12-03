@@ -40,11 +40,6 @@ export const Users: React.FC = () => {
     }
   };
 
-  const onClickDelete = (user: User) => {
-    setOpenDeleteModal(true);
-    setSelectedUser(user);
-  };
-
   const handleDeleteUser = async (userId: string) => {
     try {
       const res = await fetch(`${API}/user/delete-user`, {
@@ -61,7 +56,10 @@ export const Users: React.FC = () => {
         toast.error(data.error);
       } else {
         toast.success("User deleted successfully.");
-        setUsers(users.filter((user) => user.uid !== userId));
+        // Update the users list by filtering out the deleted user
+        setUsers((prevUsers) =>
+          prevUsers.filter((user) => user.uid !== userId)
+        );
       }
     } catch (error: any) {
       console.error(error);
@@ -69,6 +67,75 @@ export const Users: React.FC = () => {
       setOpenDeleteModal(false);
       setSelectedUser(null);
     }
+  };
+
+  const handleDeactiveAccount = async () => {
+    try {
+      const res = await axios.post(
+        `${API}/user/admin-deactive-account`,
+        {
+          userId: selectedUser?.uid,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      const data = await res.data;
+      if (data) {
+        toast.success(data.message);
+        // Update the selected user's active status to false
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.uid === selectedUser?.uid
+              ? { ...user, isAccountActive: false }
+              : user
+          )
+        );
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error?.response?.data?.error);
+    }
+  };
+
+  const handleAactiveAccount = async () => {
+    try {
+      const res = await axios.post(
+        `${API}/user/admin-active-account`,
+        {
+          userId: selectedUser?.uid,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      const data = await res.data;
+      if (data) {
+        toast.success(data.message);
+        // Update the selected user's active status to true
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.uid === selectedUser?.uid
+              ? { ...user, isAccountActive: true }
+              : user
+          )
+        );
+      }
+    } catch (error: any) {
+      console.log(error);
+      toast.error(error?.response?.data?.error);
+    }
+  };
+
+  const onClickDelete = (user: User) => {
+    setOpenDeleteModal(true);
+    setSelectedUser(user);
   };
 
   const onClickUpdate = (user: User) => {
@@ -162,6 +229,21 @@ export const Users: React.FC = () => {
                 </p>
               </div>
 
+              <div>
+                <p className="text-lg text-gray-700">
+                  <strong className="font-medium">Account Status:</strong>{" "}
+                  {selectedUser.isAccountActive ? (
+                    <span className="bg-green-50 p-2 rounded-md text-green-600">
+                      Active
+                    </span>
+                  ) : (
+                    <span className="bg-red-50 p-2 rounded-md text-red-600">
+                      Inactive
+                    </span>
+                  )}
+                </p>
+              </div>
+
               <div className="col-span-2">
                 <p className="text-lg text-gray-700">
                   <strong className="font-medium">Location:</strong>{" "}
@@ -176,7 +258,6 @@ export const Users: React.FC = () => {
                 </p>
               </div>
 
-              {/* Last Login */}
               <div>
                 <p className="text-lg text-gray-700">
                   <strong className="font-medium">Last Login:</strong>{" "}
@@ -195,10 +276,21 @@ export const Users: React.FC = () => {
                 Close
               </button>
               <button
-                onClick={() => alert("Add any additional action here")}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                onClick={
+                  selectedUser.isAccountActive
+                    ? handleDeactiveAccount
+                    : handleAactiveAccount
+                }
+                className={`w-full py-3 px-4 rounded-lg font-bold transition-colors duration-300 ease-in-out focus:outline-none
+    ${
+      selectedUser.isAccountActive
+        ? "bg-red-600 text-white hover:bg-red-700"
+        : "bg-green-600 text-white hover:bg-green-700"
+    }`}
               >
-                Take Action
+                {selectedUser.isAccountActive
+                  ? "Deactivate Account"
+                  : "Activate Account"}
               </button>
             </div>
           </div>

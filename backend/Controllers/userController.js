@@ -282,6 +282,7 @@ export const getAllUsers = async (req, res) => {
       isAdmin: user.isAdmin,
       address: user.address,
       lastLogin: user.lastLogin,
+      isAccountActive: user.isAccountActive,
     }));
 
     return res.status(200).json(usersData);
@@ -713,7 +714,41 @@ export const deactiveAccount = async (req, res) => {
   await user.save();
   return res.status(200).json({
     success: true,
+    message: "Account Deactivetd",
   });
+};
+
+export const activeAccount = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    if (!userId) {
+      return res.status(400).json({
+        error: "Missing required parametrs",
+      });
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({
+        error: "No user found",
+      });
+    }
+    user.isAccountActive = true;
+    const isActivated = await user.save();
+    if (!isActivated) {
+      return res.status(400).json({
+        error: "Error while try to updated account status",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Account activetied successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      error: "Internal server error",
+    });
+  }
 };
 
 export const sendActivationMail = async (req, res) => {
@@ -745,7 +780,7 @@ export const sendActivationMail = async (req, res) => {
     });
 
     user.activeitionToken = token;
-    user.activeitionTokenExpiresAt = Date.now() + 30 * 60 * 1000;
+    user.activeitionTokenExpiresAt = Date.now() + 30 * 60 * 1000; // 30 min
 
     await user.save();
 
@@ -758,6 +793,7 @@ export const sendActivationMail = async (req, res) => {
     });
   }
 };
+
 export const accountActivetion = async (req, res) => {
   try {
     const { token } = req.params;
@@ -793,6 +829,37 @@ export const accountActivetion = async (req, res) => {
     console.log(error);
     return res.status(500).json({
       error: "Internal server error. Please try again later.",
+    });
+  }
+};
+
+export const deleteMyAccount = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({
+        error: "No user found",
+      });
+    }
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({
+        error: "No user found",
+      });
+    }
+    const isDeleted = await user.deleteOne();
+    if (!isDeleted) {
+      return res.status(400).json({
+        error: "Error while delete the account",
+      });
+    }
+    return res.status(200).json({
+      message: "Account deleted ",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
     });
   }
 };

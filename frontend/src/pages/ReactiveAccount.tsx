@@ -24,7 +24,7 @@ export const ReactiveAccount: React.FC = () => {
       );
 
       const data = res.data;
-      if (data.success) {
+      if (data) {
         toast.success("Reactivation request sent! Please check your email.");
         navigate("/login");
       }
