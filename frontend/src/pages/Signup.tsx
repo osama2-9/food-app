@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { API } from "../api";
+import { ClipLoader } from "react-spinners";
 
 export const Signup = () => {
   const setUser = useSetRecoilState(userAtom);
@@ -175,20 +176,13 @@ export const Signup = () => {
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-colors relative"
                 disabled={isLoading}
               >
-                {isLoading ? (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-6 h-6 border-4 border-t-4 border-white border-solid rounded-full animate-spin"></div>
-                  </div>
-                ) : (
-                  "Signup"
-                )}
+                {isLoading ? <ClipLoader size={24} color="white" /> : "Signup"}
               </button>
             </div>
           </form>
         </div>
       </div>
 
-      {/* Right Side - Logo and Welcome Message */}
       <div className="hidden lg:flex w-1/2 bg-purple-600 text-white items-center justify-center lg:rounded-r-lg">
         <div className="text-center">
           <img src="/logo.png" alt="Logo" className="mb-6 w-24 mx-auto" />

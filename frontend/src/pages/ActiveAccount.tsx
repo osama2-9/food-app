@@ -50,26 +50,45 @@ export const ActiveAccount = () => {
   }, [token, navigate]);
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-gray-50">
+    <div className="min-h-screen flex justify-center items-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
         {isLoading ? (
-          <div className="flex justify-center items-center">
-            <ClipLoader size={50} color="#6B3F94" loading={isLoading} />
-            <p className="mt-4 text-purple-600">Activating your account...</p>
+          <div className="flex flex-col justify-center items-center">
+            <ClipLoader size={50} color="#000" loading={isLoading} />
+            <p className="mt-4 text-lg font-semibold text-gray-700">
+              Please wait, activating your account...
+            </p>
           </div>
         ) : isSuccess ? (
           <div>
             <h2 className="text-2xl font-semibold text-green-600">
               Account Reactivated Successfully!
             </h2>
-            <p className="mt-4 text-green-500">Redirecting to login...</p>
+            <p className="mt-4 text-lg text-gray-600">
+              You will be redirected to the login page shortly.
+            </p>
+            <p className="mt-4 text-sm text-gray-500">
+              If you are not redirected,{" "}
+              <button
+                className="text-blue-600 hover:underline"
+                onClick={() => navigate("/login")}
+              >
+                click here
+              </button>
+              .
+            </p>
           </div>
         ) : isFailed ? (
           <div>
             <h2 className="text-2xl font-semibold text-red-600">
               Account Reactivation Failed
             </h2>
-            <p className="mt-4 text-red-500">Please try again later.</p>
+            <p className="mt-4 text-lg text-gray-600">
+              Something went wrong, please try again later.
+            </p>
+            <p className="mt-4 text-sm text-gray-500">
+              If the issue persists, please contact support.
+            </p>
           </div>
         ) : null}
       </div>

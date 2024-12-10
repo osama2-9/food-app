@@ -104,7 +104,6 @@ export const getMenuItems = async (req, res) => {
     });
   }
 };
-
 export const deleteItem = async (req, res) => {
   try {
     const { _id } = req.params;
@@ -120,7 +119,9 @@ export const deleteItem = async (req, res) => {
         error: "Item not found",
       });
     }
-    if (mealImg) {
+
+    
+    if (item.mealImg) {
       const imgId = item.mealImg.split("/").pop().split(".")[0];
       await cloudinary.uploader.destroy(imgId);
     }
@@ -142,6 +143,7 @@ export const deleteItem = async (req, res) => {
     });
   }
 };
+
 
 export const mealDetailes = async (req, res) => {
   try {

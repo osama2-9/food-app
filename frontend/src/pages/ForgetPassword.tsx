@@ -3,6 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { API } from "../api";
+import { ClipLoader } from "react-spinners";
 
 export const ForgetPassword: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -70,10 +71,11 @@ export const ForgetPassword: React.FC = () => {
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center relative"
               disabled={isLoading}
             >
-              {isLoading && (
-                <div className="w-5 h-5 mr-3 border-4 border-t-4 border-white border-solid rounded-full animate-spin"></div>
+              {isLoading ? (
+                <ClipLoader size={24} color="white" />
+              ) : (
+                "Reset password"
               )}
-              Reset Password
             </button>
           </form>
           <p className="text-center text-gray-500 mt-4">
