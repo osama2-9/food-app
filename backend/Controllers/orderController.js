@@ -343,47 +343,45 @@ export const orderRating = async (req, res) => {
   }
 };
 
+export const onlinePaymentTEST = async (req, res) => {
+  try {
+    const { id } = req.body;
 
+    const meal = await MenuItem.findById(id);
+    if (!meal) {
+      return res.status(400).json({
+        error: "Meal not found",
+      });
+    }
 
-// export const onlinePaymentTEST = async (req, res) => {
-//   try {
-//     const { id } = req.body;
+    const { name, mealImg, price } = meal;
 
-//     const meal = await MenuItem.findById(id);
-//     if (!meal) {
-//       return res.status(400).json({
-//         error: "Meal not found",
-//       });
-//     }
+    const session = await stripePayment.checkout.sessions.create({
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: name,
+              images: [mealImg],
+            },
+            unit_amount: price * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: "https://food-app-main.vercel.app/payment-success",
+      cancel_url: "http://localhost:3000/payment-cancel",
+    });
 
-//     const { name, mealImg, price } = meal;
+    console.log(session);
 
-//     const session = await stripePayment.checkout.sessions.create({
-//       line_items: [
-//         {
-//           price_data: {
-//             currency: "usd",
-//             product_data: {
-//               name: name,
-//               images: [mealImg],
-//             },
-//             unit_amount: price * 100,
-//           },
-//           quantity: 1,
-//         },
-//       ],
-//       mode: "payment",
-//       success_url: "http://localhost:3000/payment-success",
-//       cancel_url: "http://localhost:3000/payment-cancel",
-//     });
-
-//     console.log(session);
-
-//     return res.json({ sessionUrl: session.url });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({
-//       error: "Internal server error",
-//     });
-//   }
-// };
+    return res.json({ sessionUrl: session.url });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};

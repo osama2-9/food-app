@@ -14,10 +14,10 @@ import { v2 as cloudinary } from "cloudinary";
 import path from "path";
 import { Server } from "socket.io";
 import http from "http";
-// import Stripe from "stripe";
+import Stripe from "stripe";
 dotenv.config();
 
-// export const stripePayment = new Stripe(process.env.PRIVATE_STRIPE);
+export const stripePayment = new Stripe(process.env.PRIVATE_STRIPE);
 
 DBconnect();
 
