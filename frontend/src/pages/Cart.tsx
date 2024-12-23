@@ -8,6 +8,10 @@ import { API } from "../api";
 import { Footer } from "../components/Footer";
 import { ClipLoader } from "react-spinners";
 
+// Import icons from react-icons
+import { FaCcVisa } from "react-icons/fa";
+import { BsCashCoin } from "react-icons/bs";
+
 interface Addition {
   _id: string;
   name: string;
@@ -42,6 +46,9 @@ export const Cart: React.FC = () => {
   const [couponLoading, setCouponLoading] = useState<boolean>(false);
   const [couponId, setCouponId] = useState<string>("");
   const [loadingOrder, setLoadingOrder] = useState<boolean>(false);
+
+  // New state to store selected payment method
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
 
   const fetchCartItems = async () => {
     setLoading(true);
@@ -109,6 +116,11 @@ export const Cart: React.FC = () => {
   };
 
   const handleConfirmOrder = async () => {
+    if (!paymentMethod) {
+      toast.error("Please select a payment method.");
+      return;
+    }
+
     setLoadingOrder(true);
     try {
       const res = await axios.post(
@@ -283,6 +295,38 @@ export const Cart: React.FC = () => {
                   )}
                 </button>
               </div>
+
+              {/* Payment method selector */}
+              <div className="mb-6">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Payment Method
+                </h2>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => setPaymentMethod("Visa")}
+                    className={`py-2 px-4 border rounded-lg flex items-center space-x-2 transition duration-300 ${
+                      paymentMethod === "Visa"
+                        ? "bg-purple-500 text-white transform scale-105"
+                        : "bg-white text-purple-500"
+                    }`}
+                  >
+                    <FaCcVisa size={20} />
+                    <span>Visa</span>
+                  </button>
+                  <button
+                    onClick={() => setPaymentMethod("Cash")}
+                    className={`py-2 px-4 border rounded-lg flex items-center space-x-2 transition duration-300 ${
+                      paymentMethod === "Cash"
+                        ? "bg-purple-500 text-white transform scale-105"
+                        : "bg-white text-purple-500"
+                    }`}
+                  >
+                    <BsCashCoin size={20} />
+                    <span>Cash</span>
+                  </button>
+                </div>
+              </div>
+
               <div className="flex justify-between items-center mt-4">
                 <h2 className="text-2xl font-bold text-gray-800">Total: </h2>
                 <p className="font-semibold text-lg text-purple-500">
@@ -308,3 +352,5 @@ export const Cart: React.FC = () => {
     </>
   );
 };
+
+export default Cart;

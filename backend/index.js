@@ -14,8 +14,10 @@ import { v2 as cloudinary } from "cloudinary";
 import path from "path";
 import { Server } from "socket.io";
 import http from "http";
-
+import Stripe from "stripe";
 dotenv.config();
+
+export const stripePayment = new Stripe(process.env.PRIVATE_STRIPE);
 
 DBconnect();
 
@@ -102,6 +104,10 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
   });
 }
+
+server.listen(PORT, () => {
+  console.log("server work");
+});
 
 export default server;
 export { io };

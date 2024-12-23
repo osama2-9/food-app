@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
+import { FaUserCircle, FaBars, FaTimes, FaShoppingCart } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
@@ -12,11 +12,11 @@ import { API } from "../api";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); 
-  const [searchResults, setSearchResults] = useState<any>(null); 
-  const [loading, setLoading] = useState(false); 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   const user = useRecoilValue(userAtom);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const { handleLogout } = UseLogout();
 
   const toggleMenu = () => {
@@ -26,7 +26,7 @@ export const Navbar = () => {
   const debouncedSearch = useCallback(
     debounce(async (query: string) => {
       if (!query) {
-        setSearchResults(null); 
+        setSearchResults(null);
         return;
       }
 
@@ -35,7 +35,7 @@ export const Navbar = () => {
         const response = await axios.get(`${API}/user/search`, {
           params: { query },
         });
-        setSearchResults(response.data); 
+        setSearchResults(response.data);
       } catch (error) {
         console.error("Error during search:", error);
         setSearchResults(null);
@@ -44,12 +44,12 @@ export const Navbar = () => {
       }
     }, 500),
     []
-  ); 
+  );
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value;
     setSearchTerm(query);
-    debouncedSearch(query); 
+    debouncedSearch(query);
   };
 
   const handleSearchSubmit = () => {
@@ -157,6 +157,9 @@ export const Navbar = () => {
               <Link to="/my-orders" className="text-purple-500 hover:underline">
                 <FaUserCircle className="text-purple-500 text-2xl" />
               </Link>
+              <Link to="/cart" className="text-purple-500 hover:underline">
+                <FaShoppingCart className="text-purple-500 text-2xl" />
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-purple-500 hover:underline"
@@ -188,6 +191,13 @@ export const Navbar = () => {
                 >
                   <FaUserCircle className="text-purple-500 text-lg mr-1" />
                   Account
+                </Link>
+                <Link
+                  to="/cart"
+                  className="flex items-center text-purple-500 hover:underline"
+                >
+                  <FaShoppingCart className="text-purple-500 text-lg mr-1" />
+                  Cart
                 </Link>
                 <button
                   onClick={handleLogout}

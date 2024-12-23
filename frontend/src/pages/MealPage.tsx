@@ -6,6 +6,7 @@ import { useRecoilValue } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { API } from "../api";
 import { Footer } from "../components/Footer";
+import { ClipLoader } from "react-spinners";
 
 interface Size {
   _id: string;
@@ -68,6 +69,7 @@ export const MealPage: React.FC = () => {
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [quantity, setQuantity] = useState<number>(1);
+  const [isButtonLoading, setIsButtonLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const getMealData = async () => {
@@ -96,60 +98,66 @@ export const MealPage: React.FC = () => {
     }
   }, [meal, selectedSize, selectedAdditions]);
 
- const calculateTotalPrice = () => {
-   let price = meal?.isOffer ? meal.offerPrice : meal?.price || 0; 
-   if (selectedSize) {
-     price += selectedSize.price;
-   }
-   price += selectedAdditions.reduce(
-     (sum, addition) => sum + addition.price,
-     0
-   );
-   setTotalPrice(price);
- };
-
-const handleAddToCart = async () => {
-  if (!meal || !user) return;
-
-  let price = meal.isOffer ? meal.offerPrice : meal.price; 
-  if (selectedSize) {
-    price += selectedSize.price;
-  }
-  price += selectedAdditions.reduce((sum, addition) => sum + addition.price, 0);
-
-  try {
-    const res = await axios.post(
-      `${API}/cart/add-new-item`,
-      {
-        userId: user.uid,
-        items: [
-          {
-            mealId: meal._id,
-            quantity,
-            size: selectedSize
-              ? { name: selectedSize.name, price: selectedSize.price }
-              : undefined,
-            additions: selectedAdditions.map((addition) => ({
-              name: addition.name,
-              price: addition.price,
-            })),
-            price: meal.isOffer ? meal.offerPrice : price,
-          },
-        ],
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
+  const calculateTotalPrice = () => {
+    let price = meal?.isOffer ? meal.offerPrice : meal?.price || 0;
+    if (selectedSize) {
+      price += selectedSize.price;
+    }
+    price += selectedAdditions.reduce(
+      (sum, addition) => sum + addition.price,
+      0
     );
-    toast.success(res.data.message);
-  } catch (error: any) {
-    toast.error(error.response?.data?.error || "Error adding item to cart.");
-    console.error(error);
-  }
-};
+    setTotalPrice(price);
+  };
+
+  const handleAddToCart = async () => {
+    if (!meal || !user) return;
+
+    let price = meal.isOffer ? meal.offerPrice : meal.price;
+    if (selectedSize) {
+      price += selectedSize.price;
+    }
+    price += selectedAdditions.reduce(
+      (sum, addition) => sum + addition.price,
+      0
+    );
+
+    try {
+      setIsButtonLoading(true);
+      const res = await axios.post(
+        `${API}/cart/add-new-item`,
+        {
+          userId: user.uid,
+          items: [
+            {
+              mealId: meal._id,
+              quantity,
+              size: selectedSize
+                ? { name: selectedSize.name, price: selectedSize.price }
+                : undefined,
+              additions: selectedAdditions.map((addition) => ({
+                name: addition.name,
+                price: addition.price,
+              })),
+              price: meal.isOffer ? meal.offerPrice : price,
+            },
+          ],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      toast.success(res.data.message);
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Error adding item to cart.");
+      console.error(error);
+    } finally {
+      setIsButtonLoading(false);
+    }
+  };
 
   const handleAdditionChange = (addition: Addition) => {
     setSelectedAdditions((prev) =>
@@ -181,7 +189,7 @@ const handleAddToCart = async () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        Loading...
+        <ClipLoader size={30} />
       </div>
     );
   }
@@ -217,12 +225,6 @@ const handleAddToCart = async () => {
                   </div>
                 )}
 
-                <div className="text-lg text-yellow-500 flex items-center space-x-2 mb-4">
-                  <span>
-                    ★ {meal.rating > 0 ? meal.rating.toFixed(1) : "No rating"} /
-                    5
-                  </span>
-                </div>
                 <h2 className="text-3xl font-semibold text-gray-800">
                   Total Price:{" "}
                   <span className="text-purple-600">
@@ -292,7 +294,11 @@ const handleAddToCart = async () => {
                   onClick={handleAddToCart}
                   className="w-full bg-purple-500 text-white py-3 rounded-lg mt-6 font-semibold hover:bg-purple-600 transition"
                 >
-                  Add to Cart
+                  {isButtonLoading ? (
+                    <ClipLoader size={22} color="#FFF" />
+                  ) : (
+                    "Add to Cart"
+                  )}
                 </button>
               </div>
             </>

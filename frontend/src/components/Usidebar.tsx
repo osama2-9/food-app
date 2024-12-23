@@ -8,6 +8,7 @@ import {
   FaTachometerAlt,
   FaCog,
   FaSignOutAlt,
+  FaStar,
 } from "react-icons/fa";
 import { useState } from "react";
 import { useRecoilValue } from "recoil";
@@ -68,6 +69,14 @@ export const Usidebar = () => {
             className="flex items-center text-purple-600 hover:text-purple-900"
           >
             <FaShoppingCart className="mr-2" /> Cart
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/rating"
+            className="flex items-center text-purple-600 hover:text-purple-900"
+          >
+            <FaStar className="mr-2" /> Rating
           </Link>
         </li>
 

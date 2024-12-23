@@ -140,9 +140,7 @@ export const ShowMenu = () => {
                   <th className="px-4 py-2 text-left text-sm font-semibold">
                     Price
                   </th>
-                  <th className="px-4 py-2 text-left text-sm font-semibold">
-                    Rating
-                  </th>
+                  
                   <th className="px-4 py-2 text-left text-sm font-semibold">
                     Actions
                   </th>
@@ -165,10 +163,7 @@ export const ShowMenu = () => {
                         </td>
                         <td className="px-4 py-2">{meal.name}</td>
                         <td className="px-4 py-2">${meal.price.toFixed(2)}</td>
-                        <td className="px-4 py-2">
-                          {meal.rating.toFixed(1)} ({meal.numberOfRatings}{" "}
-                          reviews)
-                        </td>
+                       
                         <td className="px-4 py-2">
                           <button
                             className="btn btn-warning bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"

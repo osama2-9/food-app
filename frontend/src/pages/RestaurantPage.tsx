@@ -24,6 +24,7 @@ interface Restaurant {
   name: string;
   img: string;
   type: string;
+  rating: number;
 }
 
 const mealTypes = [
@@ -150,6 +151,18 @@ export const RestaurantPage = () => {
                   <h2 className="text-3xl font-bold text-gray-800">
                     {restaurantDetails.name}
                   </h2>
+                  {restaurantDetails.rating !== undefined && (
+                    <div className="flex items-center space-x-2 text-yellow-500">
+                      {Array.from({ length: 5 }, (_, index) => (
+                        <span key={index}>
+                          {index < (restaurantDetails.rating ?? 0) ? "★" : "☆"}
+                        </span>
+                      ))}
+                      <span className="text-gray-700 text-sm">
+                        {restaurantDetails.rating.toFixed(1)}/5
+                      </span>
+                    </div>
+                  )}
                   <p className="text-lg text-gray-500">
                     {restaurantDetails.type}
                   </p>

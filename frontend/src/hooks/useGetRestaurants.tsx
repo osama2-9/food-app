@@ -7,6 +7,7 @@ interface Restaurant {
   cuisineType?: string;
   brandImg: string;
   rid: string;
+  rating: number;
 }
 
 export const useGetRestaurants = () => {

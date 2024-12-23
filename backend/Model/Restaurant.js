@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const restaurantSchema = new mongoose.Schema(
   {
     name: {
@@ -22,6 +23,11 @@ const restaurantSchema = new mongoose.Schema(
         },
       },
     },
+
+    password: {
+      type: String,
+      required: true,
+    },
     cuisineType: {
       type: String,
       required: true,
@@ -36,6 +42,14 @@ const restaurantSchema = new mongoose.Schema(
     brandImg: {
       type: String,
     },
+    rating: {
+      type: Number,
+      default: 0,
+    },
+    numberOfRatings: {
+      type: Number,
+      default: 0,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -48,4 +62,4 @@ restaurantSchema.index({ name: "text" });
 
 const Restaurant = mongoose.model("Restaurant", restaurantSchema);
 
-export default Restaurant
+export default Restaurant;

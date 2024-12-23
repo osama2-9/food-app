@@ -37,10 +37,6 @@ const menuItemSchema = new mongoose.Schema({
     ref: "Restaurant",
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
   sizes: {
     type: [
       {
@@ -49,7 +45,6 @@ const menuItemSchema = new mongoose.Schema({
       },
     ],
     default: undefined,
-    required: false,
   },
   additions: {
     type: [
@@ -59,16 +54,16 @@ const menuItemSchema = new mongoose.Schema({
       },
     ],
     default: undefined,
-    required: false,
   },
-  rating: {
-    type: Number,
-    default: 0,
-  },
-  numberOfRatings: {
-    type: Number,
-    default: 0,
-  },
+
+  comments: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      comment: { type: String, required: true },
+      rating: { type: Number, required: true },
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
   isOffer: {
     type: Boolean,
     default: false,
@@ -89,6 +84,10 @@ const menuItemSchema = new mongoose.Schema({
     required: function () {
       return this.isOffer;
     },
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

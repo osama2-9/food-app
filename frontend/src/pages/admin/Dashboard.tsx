@@ -149,11 +149,15 @@ export const Dashboard = () => {
               </div>
               <div className="p-6 bg-white text-blue-500 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
                 <h3 className="text-lg font-semibold">Orders Today</h3>
-                <p className="text-3xl text-gray-600 font-bold">{overview?.ordersToday}</p>
+                <p className="text-3xl text-gray-600 font-bold">
+                  {overview?.ordersToday}
+                </p>
               </div>
               <div className="p-6 bg-white text-blue-500 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
                 <h3 className="text-lg font-semibold">Total Sales</h3>
-                <p className="text-3xl text-gray-600 font-bold">${overview?.totalSales}</p>
+                <p className="text-3xl text-gray-600 font-bold">
+                  ${overview?.totalSales}
+                </p>
               </div>
               <div className="p-6 bg-white text-blue-500 rounded-lg shadow hover:shadow-lg transition-shadow duration-200">
                 <h3 className="text-lg font-semibold">Available Offers</h3>

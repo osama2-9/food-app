@@ -36,6 +36,9 @@ import { ReactiveAccount } from "./pages/ReactiveAccount";
 import { ActiveAccount } from "./pages/ActiveAccount";
 import { AddCoupon } from "./pages/admin/AddCoupon";
 import { ShowCoupons } from "./pages/admin/ShowCoupons";
+import { RestaurantDashboard } from "./pages/RestaurantAdmin/RestaurantDashboard";
+import { RestaurantLogin } from "./pages/RestaurantAdmin/RestaurantLogin";
+import { PaymentSuccess } from "./pages/PaymentSuccess";
 
 function App() {
   const user = useRecoilValue(userAtom);
@@ -46,6 +49,7 @@ function App() {
       <CheckAuth />
       <Routes>
         <Route path="/*" element={<PageNotFound />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/users" element={isAdmin ? <Users /> : <PageNotFound />} />
         <Route path="/email-verify/:token" element={<VerifyEmail />} />
         <Route path="/forget-password" element={<ForgetPassword />} />
@@ -120,6 +124,8 @@ function App() {
           path="/update-meal"
           element={isAdmin ? <UpdateMeal /> : <Navigate to="/not-authorized" />}
         />
+        <Route path="/myDashboard" element={<RestaurantDashboard />} />
+        <Route path="/restaurant-login" element={<RestaurantLogin />} />
         <Route path="/restaurants" element={<AllRestaurants />} />
         <Route path="/settings/profile" element={<ProfileSetting />} />
         <Route path="/settings/account" element={<AccountSetting />} />

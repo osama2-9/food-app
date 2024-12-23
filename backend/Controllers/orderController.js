@@ -6,7 +6,7 @@ import MenuItem from "../Model/Menu.js";
 import mongoose from "mongoose";
 import { createNotification } from "./notificationController.js";
 import { actions, messageTypes } from "../Model/Notification.js";
-import { io } from "../index.js";
+import { io, stripePayment } from "../index.js";
 
 export const createNewOrder = async (req, res) => {
   try {
@@ -20,8 +20,6 @@ export const createNewOrder = async (req, res) => {
     if (!user) {
       return res.status(400).json({ error: "No user found" });
     }
-
-    
 
     const address = user.address;
     if (
@@ -238,6 +236,9 @@ export const getUserOrder = async (req, res) => {
 
     const ordersDetails = await Promise.all(
       userOrders.map(async (order) => {
+        if (order.rating > 0) {
+          return null;
+        }
         const orderItems = await Promise.all(
           order.items.map(async (item) => {
             const mealData = await MenuItem.findById(item.menuItem);
@@ -259,6 +260,7 @@ export const getUserOrder = async (req, res) => {
                 ? restaurantData.name
                 : "Unknown Restaurant",
               restaurantImg: restaurantData ? restaurantData.brandImg : "",
+              restaurntId: restaurantData._id,
               meal: mealData ? mealData.name : "Unknown Meal",
               mealId: mealData?._id,
               mealImg: mealData ? mealData.mealImg : "",
@@ -299,48 +301,89 @@ export const getUserOrder = async (req, res) => {
 };
 export const orderRating = async (req, res) => {
   const { orderId } = req.params;
-  const { menuItemId, rating, comment } = req.body;
+  const { rating, restaurantId } = req.body;
 
   try {
-    if (!menuItemId || rating < 1 || rating > 5) {
+    // Validate input
+    if (!restaurantId || rating < 1 || rating > 5) {
       return res.status(400).json({ message: "Invalid input" });
     }
 
+    // Find the order
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    const orderItem = order.items.find(
-      (item) => item.menuItem.toString() === menuItemId
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+
+    const totalRestaurantRatings =
+      restaurant.rating * (restaurant.numberOfRatings || 0) + rating;
+    const newRestaurantNumberOfRatings = (restaurant.numberOfRatings || 0) + 1;
+    const newRestaurantAverageRating =
+      totalRestaurantRatings / newRestaurantNumberOfRatings;
+
+    await Restaurant.updateOne(
+      { _id: restaurantId },
+      {
+        $set: {
+          rating: newRestaurantAverageRating,
+          numberOfRatings: newRestaurantNumberOfRatings,
+        },
+      }
     );
-    if (!orderItem) {
-      return res.status(404).json({ message: "Menu item not found in order" });
-    }
-
-    orderItem.rating = rating;
-    orderItem.comment = comment;
-
-    await order.save();
-
-    const menuItem = await MenuItem.findById(menuItemId);
-    if (!menuItem) {
-      return res.status(404).json({ message: "Menu item not found" });
-    }
-
-    const totalRatings =
-      menuItem.rating * (menuItem.numberOfRatings || 0) + rating;
-    const newNumberOfRatings = (menuItem.numberOfRatings || 0) + 1;
-    const newAverageRating = totalRatings / newNumberOfRatings;
-
-    menuItem.rating = newAverageRating;
-    menuItem.numberOfRatings = newNumberOfRatings;
-
-    await menuItem.save();
 
     res.status(200).json({ message: "Rating submitted successfully" });
   } catch (error) {
     console.error("Error submitting rating:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+export const onlinePaymentTEST = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    const meal = await MenuItem.findById(id);
+    if (!meal) {
+      return res.status(400).json({
+        error: "Meal not found",
+      });
+    }
+
+    const { name, mealImg, price } = meal;
+
+    const session = await stripePayment.checkout.sessions.create({
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: name,
+              images: [mealImg],
+            },
+            unit_amount: price * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      success_url: "http://localhost:3000/payment-success",
+      cancel_url: "http://localhost:3000/payment-cancel",
+    });
+
+    console.log(session);
+
+    return res.json({ sessionUrl: session.url });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: "Internal server error",
+    });
   }
 };

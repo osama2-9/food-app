@@ -1,11 +1,38 @@
 import { Link } from "react-router-dom";
 import { useGetRestaurants } from "../hooks/useGetRestaurants";
-import { ClipLoader } from "react-spinners"; 
+import { ClipLoader } from "react-spinners";
+import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 
 export const Restaurants = () => {
   const { restaurant, loading } = useGetRestaurants();
 
   const displayedRestaurants = restaurant?.slice(0, 6);
+
+  const renderStars = (rating:number) => {
+    if (!rating || rating <= 0) {
+      return <span className="text-gray-500">No Rating</span>;
+    }
+
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+    return (
+      <div className="flex justify-center items-center gap-1 text-yellow-500 mt-2">
+        {Array(fullStars)
+          .fill(0)
+          .map((_, i) => (
+            <FaStar key={`full-${i}`} />
+          ))}
+        {hasHalfStar && <FaStarHalfAlt />}
+        {Array(emptyStars)
+          .fill(0)
+          .map((_, i) => (
+            <FaRegStar key={`empty-${i}`} />
+          ))}
+      </div>
+    );
+  };
 
   return (
     <div className="m-5 mb-20 relative">
@@ -40,6 +67,7 @@ export const Restaurants = () => {
                 <p className="text-lg font-semibold text-gray-800 group-hover:text-purple-600 transition-colors">
                   {restaurant.name}
                 </p>
+                {renderStars(restaurant.rating)}
               </div>
             </Link>
           ))}
