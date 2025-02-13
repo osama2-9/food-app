@@ -20,7 +20,6 @@ export const generateToken = (uid, res) => {
       secure: true,
       sameSite: "None",
     });
-    req.userId = uid;
 
     return token;
   } catch (error) {

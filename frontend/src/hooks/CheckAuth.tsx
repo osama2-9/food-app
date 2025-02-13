@@ -22,10 +22,10 @@ export const CheckAuth = () => {
     } catch (error: any) {
       console.log("Error:", error);
       if (error.response) {
-        console.log("Error Status:", error.response.status);
-        console.log("Error Data:", error.response.data);
+        console.log("Error Status:", error?.response?.status);
+        console.log("Error Data:", error?.response?.data);
 
-        if (error.response.status === 401) {
+        if (error?.response?.status === 401) {
           localStorage.removeItem("user");
           setUser(null);
           handleLogout();

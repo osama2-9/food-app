@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 import { createNotification } from "./notificationController.js";
 import { actions, messageTypes } from "../Model/Notification.js";
 import { io, stripePayment } from "../index.js";
-
+import { notifyRestaurant } from "../config/socketManager.js";
 export const createNewOrder = async (req, res) => {
   try {
     const { userId, couponDiscount, coupon } = req.body;
@@ -105,18 +105,18 @@ export const createNewOrder = async (req, res) => {
       orderDate: new Date(Date.now()),
     });
 
-    const orderConfirmation = await createNotification({
-      message: "New order created",
-      messageType: messageTypes.NEW_ORDER,
-      action: actions.CREATE,
-      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
-      createdAt: Date.now(),
-    });
+    const restaurantId = orderItems[0].restaurantId;
 
-    io.emit("newOrder", orderConfirmation);
+    const notificationData = {
+      messageType: "NEW_ORDER",
+      items: orderItems,
+      restaurantId: restaurantId,
+      orderId: newOrder._id,
+    };
+
+    notifyRestaurant("newOrder", notificationData);
 
     await newOrder.save();
-
     await Cart.deleteMany({ userId: user._id });
 
     return res

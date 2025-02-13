@@ -393,7 +393,7 @@ export const getRestaurantOrders = async (req, res) => {
     const last30Days = [...Array(7)].map((_, i) => {
       const day = new Date(currentDate);
       day.setDate(currentDate.getDate() - i);
-      return day.toISOString().split("T")[0]; 
+      return day.toISOString().split("T")[0];
     });
 
     const orderVolume = ordersDetails
@@ -408,7 +408,7 @@ export const getRestaurantOrders = async (req, res) => {
         let dataFormat = date.toISOString().split("T")[0];
         return dataFormat;
       })
-      .filter(Boolean); 
+      .filter(Boolean);
 
     const orderCountByDate = last30Days.map((date) => {
       const count = orderVolume.filter(
@@ -417,15 +417,43 @@ export const getRestaurantOrders = async (req, res) => {
       return { date, count };
     });
 
-
     return res.status(200).json({
-      orderCountByDate, 
-      ordersDetails
+      orderCountByDate,
+      ordersDetails,
     });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
       error: "An error occurred while processing the orders",
+    });
+  }
+};
+
+export const acceptOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    if (!orderId) {
+      return res.status(400).json({
+        error: "No order found to accept",
+      });
+    }
+    const order = await Order.findById(orderId).select("status");
+    if (!order) {
+      return res.status(400).json({
+        error: "No order found",
+      });
+    }
+
+    order.status = "In Progress";
+
+    await order.save();
+    return res.status(200).json({
+      message: "Order Accepted",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal server error",
     });
   }
 };

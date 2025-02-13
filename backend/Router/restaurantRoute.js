@@ -1,4 +1,5 @@
 import {
+  acceptOrder,
   checkRestaurantAuthuntication,
   create,
   deleteRestaurant,
@@ -24,6 +25,7 @@ restaurantRoute.get("/get", getAllRestaurant);
 restaurantRoute.get("/details/:name", getRestaurantDetails);
 restaurantRoute.get("/analystic/:rid", getRestaurantAnalystic);
 restaurantRoute.get("/orders-details/:rid", getRestaurantOrders);
+restaurantRoute.put("/accept-order", acceptOrder);
 restaurantRoute.post("/login", login);
 restaurantRoute.post("/logout", logout);
 export default restaurantRoute;

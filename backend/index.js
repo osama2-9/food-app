@@ -15,6 +15,7 @@ import path from "path";
 import { Server } from "socket.io";
 import http from "http";
 import Stripe from "stripe";
+import { handleRestaurantConnection } from "./config/socketManager.js";
 dotenv.config();
 
 export const stripePayment = new Stripe(process.env.PRIVATE_STRIPE);
@@ -69,11 +70,19 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
+  handleRestaurantConnection(socket);
+
+  socket.on("restaurantConnected", (restaurantId) => {
+    console.log(
+      `Restaurant ${restaurantId} connected with socket ID ${socket.id}`
+    );
+  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
 });
+
 
 cloudinary.config({
   cloud_name: process.env.CLOUDE_NAME,
@@ -105,6 +114,9 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
+server.listen(PORT, () => {
+  console.log("server work");
+});
 
 export default server;
 export { io };
